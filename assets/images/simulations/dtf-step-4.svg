@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" width="100%" height="100%">
+  <rect width="760" height="400" fill="#161718" rx="12" />
+  <rect x="50" y="80" width="660" height="240" rx="8" fill="#222325" stroke="#b29460" stroke-width="1.5" />
+  <!-- Powder Shaker Hopper -->
+  <polygon points="260,100 360,100 330,150 290,150" fill="#383a3e" stroke="#b29460" stroke-width="1.5" />
+  <!-- Falling Adhesive Powder -->
+  <circle cx="305" cy="165" r="1.5" fill="#f3efe7" />
+  <circle cx="315" cy="170" r="1.5" fill="#f3efe7" />
+  <circle cx="295" cy="175" r="1.5" fill="#f3efe7" />
+  <circle cx="310" cy="180" r="1.5" fill="#f3efe7" />
+  <circle cx="320" cy="185" r="1.5" fill="#f3efe7" />
+  <!-- Infrared Curing Tunnel -->
+  <rect x="420" y="110" width="220" height="110" rx="4" fill="#2c1a16" stroke="#ff4757" stroke-width="2" />
+  <text x="530" y="165" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="700" fill="#ff4757" text-anchor="middle">IR TÜNEL 130°C</text>
+  <text x="380" y="325" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#ff8e3c" text-anchor="middle">ADIM 4: TERMAL TOZLAMA & FIRIN KÜRLENMESİ</text>
+</svg>

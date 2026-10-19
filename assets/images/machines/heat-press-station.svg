@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="100%" height="100%">
+  
+  <defs>
+    <!-- Fabric Weave Filter -->
+    <filter id="fabricTexture" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+      <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 0.12 0" in="noise" result="coloredNoise" />
+      <feComposite operator="in" in2="SourceGraphic" result="textured" />
+      <feBlend mode="multiply" in="textured" in2="SourceGraphic" />
+    </filter>
+    
+    <!-- Heavy Fleece Texture -->
+    <filter id="fleeceTexture" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="fleeceNoise" />
+      <feColorMatrix type="matrix" values="0.2 0.2 0.2 0 0  0.2 0.2 0.2 0 0  0.2 0.2 0.2 0 0  0 0 0 0.18 0" in="fleeceNoise" result="fleeceOverlay" />
+      <feComposite operator="in" in2="SourceGraphic" />
+      <feBlend mode="overlay" in2="SourceGraphic" />
+    </filter>
+
+    <!-- Ink Relief Drop Shadow for Screenprint / Puff -->
+    <filter id="inkRelief" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+
+    <filter id="goldShine" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <!-- Linear Gradients for Garments -->
+    <linearGradient id="anthraciteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a2c2f" />
+      <stop offset="40%" stop-color="#222325" />
+      <stop offset="100%" stop-color="#18191a" />
+    </linearGradient>
+
+    <linearGradient id="creamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#faf8f2" />
+      <stop offset="50%" stop-color="#f3efe7" />
+      <stop offset="100%" stop-color="#e7e0d2" />
+    </linearGradient>
+
+    <linearGradient id="brownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#554035" />
+      <stop offset="50%" stop-color="#49372e" />
+      <stop offset="100%" stop-color="#382921" />
+    </linearGradient>
+
+    <linearGradient id="goldInkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d4ba88" />
+      <stop offset="45%" stop-color="#b29460" />
+      <stop offset="100%" stop-color="#8a6f3e" />
+    </linearGradient>
+
+    <linearGradient id="vibrantDtfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff3b69" />
+      <stop offset="35%" stop-color="#ff8e3c" />
+      <stop offset="70%" stop-color="#ffdc3c" />
+      <stop offset="100%" stop-color="#00d2ff" />
+    </linearGradient>
+  </defs>
+
+  
+  <rect width="800" height="520" fill="#18191a" rx="16" />
+  <rect x="2" y="2" width="796" height="516" fill="none" stroke="rgba(178,148,96,0.25)" stroke-width="1.5" rx="15" />
+
+  <radialGradient id="pressGlow" cx="50%" cy="40%" r="55%">
+    <stop offset="0%" stop-color="#2f3137" stop-opacity="0.8" />
+    <stop offset="100%" stop-color="#141516" stop-opacity="0.95" />
+  </radialGradient>
+  <rect width="800" height="520" fill="url(#pressGlow)" rx="16" />
+
+  <!-- Heavy Workbench Stand -->
+  <rect x="120" y="380" width="560" height="25" fill="#25262a" stroke="#444" stroke-width="2" rx="3" />
+  <rect x="160" y="405" width="40" height="75" fill="#1a1b1d" />
+  <rect x="600" y="405" width="40" height="75" fill="#1a1b1d" />
+
+  <!-- Lower Platen Base (Garment Table with Silicone Mat) -->
+  <rect x="220" y="330" width="360" height="40" rx="4" fill="#222325" stroke="#b29460" stroke-width="2" />
+  <!-- Blue Silicone Heat Sponge -->
+  <rect x="235" y="322" width="330" height="12" rx="2" fill="#2e86de" stroke="#54a0ff" stroke-width="1" />
+  
+  <!-- T-Shirt on Bottom Platen -->
+  <path d="M 270 322 L 530 322 L 515 365 L 285 365 Z" fill="#161718" stroke="rgba(255,255,255,0.15)" stroke-width="1" />
+  <!-- Transfer Film on Chest -->
+  <rect x="360" y="318" width="80" height="4" fill="#fff" opacity="0.8" />
+
+  <!-- Upper Heated Platen (Teflon Coated 160°C Heat Surface) -->
+  <g transform="translate(0, -30)">
+    <rect x="230" y="220" width="340" height="35" rx="4" fill="#b29460" stroke="#f3efe7" stroke-width="2" />
+    <rect x="240" y="250" width="320" height="8" fill="#e84118" filter="blur(1px)" />
+    <!-- Heat Thermal Radiance Wave -->
+    <path d="M 260 265 Q 280 275 300 265 Q 320 255 340 265 Q 360 275 380 265 Q 400 255 420 265 Q 440 275 460 265 Q 480 255 500 265 Q 520 275 540 265" 
+          fill="none" stroke="rgba(232,65,24,0.6)" stroke-width="2" />
+  </g>
+
+  <!-- Heavy Pneumatic Twin Cylinders -->
+  <rect x="375" y="110" width="50" height="90" fill="#222325" stroke="#71757d" stroke-width="2" rx="4" />
+  <!-- Chrome Piston Shaft -->
+  <rect x="390" y="195" width="20" height="40" fill="#ced6e0" stroke="#999" />
+  
+  <!-- Air Pressure Gauge -->
+  <circle cx="400" cy="85" r="24" fill="#161718" stroke="#b29460" stroke-width="2" />
+  <circle cx="400" cy="85" r="20" fill="#f3efe7" />
+  <line x1="400" y1="85" x2="412" y2="76" stroke="#e84118" stroke-width="2.5" />
+  <text x="400" y="100" font-family="'JetBrains Mono', monospace" font-size="6" fill="#161718" text-anchor="middle">5.5 BAR</text>
+
+  <!-- Digital PID Controller & Auto-Timer Screen -->
+  <g transform="translate(600, 150)">
+    <rect x="0" y="0" width="140" height="90" rx="6" fill="#161718" stroke="#b29460" stroke-width="2" />
+    <rect x="10" y="10" width="120" height="70" fill="#1b1c20" rx="4" />
+    <text x="18" y="28" font-family="'JetBrains Mono', monospace" font-size="8" fill="#e84118" font-weight="700">TEMP: 160°C</text>
+    <text x="18" y="45" font-family="'JetBrains Mono', monospace" font-size="8" fill="#2ed573" font-weight="700">TIMER: 15 SEC</text>
+    <text x="18" y="62" font-family="'JetBrains Mono', monospace" font-size="8" fill="#00d2ff">PRES: PNÖMATİK</text>
+    <circle cx="118" cy="25" r="4" fill="#2ed573" />
+  </g>
+
+  <g transform="translate(40, 40)">
+    <rect width="210" height="26" rx="4" fill="rgba(22,23,24,0.9)" stroke="rgba(178,148,96,0.3)" stroke-width="1" />
+    <circle cx="14" cy="13" r="3.5" fill="#b29460" />
+    <text x="26" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#f3efe7" font-weight="600" letter-spacing="0.5">PNÖMATİK ISI TRANSFER PRESİ</text>
+  </g>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" width="100%" height="100%">
+  <rect width="760" height="400" fill="#161718" rx="12" />
+  <rect x="50" y="80" width="660" height="240" rx="8" fill="#222325" stroke="#b29460" stroke-width="1.5" />
+  <!-- Emerging Film with Vivid Artwork -->
+  <g transform="translate(180, 110)">
+    <rect width="400" height="180" fill="#1b1c1e" rx="4" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" />
+    <!-- Gradient Circle -->
+    <circle cx="200" cy="80" r="50" fill="url(#vibrantDtfGrad)" />
+    <!-- White Underbase Layer visual representation -->
+    <path d="M 120 70 L 280 70 L 250 120 L 150 120 Z" fill="#ffffff" opacity="0.9" />
+    <text x="200" y="100" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" font-weight="900" fill="#161718" text-anchor="middle">CMYK + WHITE</text>
+  </g>
+  <text x="380" y="325" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#00d2ff" text-anchor="middle">ADIM 3: RENKLİ DESEN VE OPAL BEYAZ ASTAR SENKRONU</text>
+</svg>

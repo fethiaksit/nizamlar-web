@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 400" width="100%" height="100%">
+  <rect width="760" height="400" fill="#161718" rx="12" />
+  <rect x="50" y="80" width="660" height="240" rx="8" fill="#222325" stroke="#b29460" stroke-width="1.5" />
+  <!-- Finished Garment with Cold Peel -->
+  <g transform="translate(260, 95)">
+    <!-- T-Shirt Silhouette -->
+    <path d="M 50 15 L 10 50 L 30 90 L 50 80 L 50 180 L 190 180 L 190 80 L 210 90 L 230 50 L 190 15 Z" fill="#222325" stroke="#b29460" stroke-width="1.5" />
+    <!-- Vibrant Print on Chest -->
+    <circle cx="120" cy="95" r="32" fill="#00d2ff" />
+    <polygon points="120,70 145,110 95,110" fill="#ff4757" />
+    <circle cx="120" cy="95" r="10" fill="#f3efe7" />
+    <!-- Peeling Carrier Film -->
+    <path d="M 160 60 L 220 20 L 210 50 Z" fill="rgba(255,255,255,0.7)" stroke="#fff" stroke-width="1" />
+  </g>
+  <text x="380" y="325" font-family="'JetBrains Mono', monospace" font-size="12" font-weight="700" fill="#2ed573" text-anchor="middle">ADIM 6: SOĞUK SOYUM VE KUSURSUZ BİTMİŞ ÜRÜN</text>
+</svg>

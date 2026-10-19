@@ -1125,3 +1125,85 @@
     grid-column: span 1;
   }
 }
+
+/* --------------------------------------------------------------------------
+   14. CANLI ÜRETİM VİTRİNİ & GELİŞMİŞ ÜRÜN GRIDLERİ
+   -------------------------------------------------------------------------- */
+.production-ticker-bar {
+  background-color: var(--c-anthracite-deep);
+  border-top: 1px solid rgba(178, 148, 96, 0.2);
+  border-bottom: 1px solid rgba(178, 148, 96, 0.2);
+  padding: 0.85rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.production-ticker-track {
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;
+  white-space: nowrap;
+  animation: tickerSlide 35s linear infinite;
+  width: max-content;
+}
+
+@keyframes tickerSlide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--c-stone-light);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.ticker-item strong {
+  color: var(--c-gold);
+}
+
+.product-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.75rem;
+}
+
+.product-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 1080px) {
+  .product-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .product-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .product-grid-4, .product-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.machine-showcase-split {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+@media (max-width: 960px) {
+  .machine-showcase-split {
+    grid-template-columns: 1fr;
+  }
+}
+

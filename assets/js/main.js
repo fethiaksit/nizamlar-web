@@ -1,9 +1,33 @@
 /**
  * NİZAMLAR BASKI — CORE JAVASCRIPT
- * Header scroll, mobil menü, scroll animasyonları, filtreleme ve modal sistemleri
+ * Header scroll, mobil menü, scroll animasyonları, Before/After Slider,
+ * Canlı Baskı Reveal ve İnteraktif Makine Simülasyon Sistemleri
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 0. Lenis Smooth Scroll (Dış Kaynak Profesyonel Animasyon Desteği)
+  if (typeof window.Lenis !== 'undefined') {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReducedMotion) {
+      try {
+        const lenis = new window.Lenis({
+          duration: 1.15,
+          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+          smoothTouch: false
+        });
+
+        function raf(time) {
+          lenis.raf(time);
+          requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+      } catch (err) {
+        console.warn('Lenis scroll başlatılamadı, doğal kaydırma devrede.', err);
+      }
+    }
+  }
+
   // 1. Header Scroll Efekti
   const siteHeader = document.querySelector('.site-header');
   if (siteHeader) {
@@ -56,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const href = link.getAttribute('href');
     if (!href) return;
     const cleanHref = href.replace(/\/index\.html$/, '/');
-    if (currentPath === cleanHref || (cleanHref !== '/' && currentPath.startsWith(cleanHref))) {
+    if (currentPath === cleanHref || (cleanHref !== '/' && cleanHref !== './' && currentPath.startsWith(cleanHref))) {
       link.classList.add('active');
       const parentDropdown = link.closest('.nav-item');
       if (parentDropdown) {
@@ -134,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const parent = header.closest('.accordion-item');
       const isAlreadyActive = parent.classList.contains('active');
 
-      // İsteğe bağlı: Aynı gruptaki diğerlerini kapat
       const container = parent.closest('.faq-accordion');
       if (container) {
         container.querySelectorAll('.accordion-item').forEach(item => item.classList.remove('active'));
@@ -146,7 +169,203 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 7. Üretim Galerisi Filtreleme & Lightbox
+  // 7. BEFORE / AFTER ETKİLEŞİMLİ KARŞILAŞTIRMA SLIDER'I
+  const initBeforeAfterSliders = () => {
+    const sliders = document.querySelectorAll('.before-after-wrapper');
+    sliders.forEach(slider => {
+      const overlayWrap = slider.querySelector('.before-after-overlay-wrap');
+      const handle = slider.querySelector('.before-after-handle');
+      if (!overlayWrap || !handle) return;
+
+      let isDragging = false;
+
+      const setPosition = (clientX) => {
+        const rect = slider.getBoundingClientRect();
+        let posX = clientX - rect.left;
+        if (posX < 0) posX = 0;
+        if (posX > rect.width) posX = rect.width;
+        const percentage = (posX / rect.width) * 100;
+
+        overlayWrap.style.width = `${percentage}%`;
+        handle.style.left = `${percentage}%`;
+      };
+
+      // Mouse Olayları
+      slider.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        setPosition(e.clientX);
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        setPosition(e.clientX);
+      });
+
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      // Dokunmatik (Mobil / Tablet) Olayları
+      slider.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        if (e.touches && e.touches[0]) {
+          setPosition(e.touches[0].clientX);
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        if (e.touches && e.touches[0]) {
+          setPosition(e.touches[0].clientX);
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+    });
+  };
+  initBeforeAfterSliders();
+
+  // 8. BASKI REVEAL ANİMASYON TETİKLEYİCİSİ (Laser / Squeegee Wipe)
+  const initPrintRevealCards = () => {
+    const revealCards = document.querySelectorAll('.print-reveal-container');
+    revealCards.forEach(card => {
+      const triggerAnim = () => {
+        if (card.classList.contains('animating')) return;
+        card.classList.add('animating');
+        setTimeout(() => {
+          card.classList.remove('animating');
+        }, 3200);
+      };
+
+      card.addEventListener('mouseenter', triggerAnim);
+      card.addEventListener('click', triggerAnim);
+    });
+  };
+  initPrintRevealCards();
+
+  // 9. ETKİLEŞİMLİ MAKİNE ÜRETİM SİMÜLASYONU
+  const initMachineSimulators = () => {
+    const simBoxes = document.querySelectorAll('.machine-simulation-box');
+    simBoxes.forEach(sim => {
+      const stepBtns = sim.querySelectorAll('.sim-step-btn');
+      const stages = sim.querySelectorAll('.sim-stage-content');
+      const descElement = sim.querySelector('.sim-step-desc');
+      const playBtn = sim.querySelector('.btn-sim-play');
+
+      let currentStep = 0;
+      let autoplayInterval = null;
+      let isPlaying = true;
+
+      const descriptions = [
+        "1. Baskı filmi makineye besleniyor, taşıyıcı PET film vakumlu tablaya kilitleniyor.",
+        "2. Çift endüstriyel piezo baskı kafası 1440 DPI hassasiyetle mikro püskürtme yapıyor.",
+        "3. CMYK renkli desen ve opak beyaz alt astar katmanı milimetrik senkronla oluşuyor.",
+        "4. Yaş boya üzerine otomatik çalkalama ile sıcak transfer tutkal tozu serpiliyor ve fırınlanıyor.",
+        "5. Hazırlanan transfer filmi 160°C pnömatik pres altında kumaş liflerine aktarılıyor.",
+        "6. Soğuk soyum işlemiyle taşıyıcı film ayrılıyor ve yüksek yıkama dayanımlı baskılı ürün tamamlanıyor."
+      ];
+
+      const activateStep = (index) => {
+        currentStep = index;
+        stepBtns.forEach((btn, idx) => {
+          btn.classList.toggle('active', idx === index);
+        });
+        stages.forEach((st, idx) => {
+          st.classList.toggle('active', idx === index);
+        });
+        if (descElement && descriptions[index]) {
+          descElement.innerHTML = `<strong>ADIM 0${index + 1}:</strong> ${descriptions[index]}`;
+        }
+      };
+
+      stepBtns.forEach((btn, idx) => {
+        btn.addEventListener('click', () => {
+          activateStep(idx);
+          if (autoplayInterval) clearInterval(autoplayInterval);
+          if (playBtn) playBtn.textContent = 'Oynat ▶';
+          isPlaying = false;
+        });
+      });
+
+      // Otomatik İlerleme
+      const startAutoplay = () => {
+        if (autoplayInterval) clearInterval(autoplayInterval);
+        autoplayInterval = setInterval(() => {
+          let next = (currentStep + 1) % stepBtns.length;
+          activateStep(next);
+        }, 3500);
+      };
+
+      if (playBtn) {
+        playBtn.addEventListener('click', () => {
+          if (isPlaying) {
+            clearInterval(autoplayInterval);
+            playBtn.textContent = 'Oynat ▶';
+            isPlaying = false;
+          } else {
+            startAutoplay();
+            playBtn.textContent = 'Durdur ⏸';
+            isPlaying = true;
+          }
+        });
+      }
+
+      // Intersection Observer ile görünür olduğunda otomatik başlat, ekran dışındayken durdur (Performans)
+      if ('IntersectionObserver' in window) {
+        const simObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              if (isPlaying && !autoplayInterval) startAutoplay();
+            } else {
+              if (autoplayInterval) {
+                clearInterval(autoplayInterval);
+                autoplayInterval = null;
+              }
+            }
+          });
+        }, { threshold: 0.2 });
+        simObserver.observe(sim);
+      } else {
+        startAutoplay();
+      }
+    });
+  };
+  initMachineSimulators();
+
+  // 10. ÜRÜN ÖN / ARKA GÖRÜNÜM DÖNDÜRME DESTEĞİ
+  const initProductViewFlip = () => {
+    const flipButtons = document.querySelectorAll('.btn-product-flip');
+    flipButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const card = btn.closest('.product-card-enhanced');
+        if (!card) return;
+
+        const img = card.querySelector('.product-card-media img');
+        if (!img) return;
+
+        const frontSrc = img.getAttribute('data-front');
+        const backSrc = img.getAttribute('data-back');
+        if (!frontSrc || !backSrc) return;
+
+        const isCurrentlyBack = img.getAttribute('data-view') === 'back';
+        if (isCurrentlyBack) {
+          img.src = frontSrc;
+          img.setAttribute('data-view', 'front');
+          btn.setAttribute('title', 'Sırt Baskısını Göster');
+        } else {
+          img.src = backSrc;
+          img.setAttribute('data-view', 'back');
+          btn.setAttribute('title', 'Ön Baskıyı Göster');
+        }
+      });
+    });
+  };
+  initProductViewFlip();
+
+  // 11. Üretim Galerisi Filtreleme & Lightbox
   const filterBtns = document.querySelectorAll('.filter-btn');
   const galleryItems = document.querySelectorAll('.gallery-item');
   const lightboxModal = document.querySelector('.lightbox-modal');
@@ -198,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 8. Dosya Yükleme Alanı Önizleme
+  // 12. Dosya Yükleme Alanı Önizleme
   const fileInput = document.querySelector('#design-file-input');
   const fileDropzone = document.querySelector('.file-upload-dropzone');
   const fileStatus = document.querySelector('#file-upload-status');
@@ -215,7 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Drag & Drop
     ['dragenter', 'dragover'].forEach(evtName => {
       fileDropzone.addEventListener(evtName, (e) => {
         e.preventDefault();
@@ -243,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 9. Form Gönderim & Doğrulama (İletişim ve Teklif Al)
+  // 13. Form Gönderim & Doğrulama (İletişim ve Teklif Al)
   const forms = document.querySelectorAll('form[data-form-handler]');
   const feedbackModal = document.querySelector('.modal-feedback');
   const feedbackCloseBtn = document.querySelector('.modal-feedback-close');
@@ -252,7 +470,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      // Form alanlarını doğrula
       const requiredInputs = form.querySelectorAll('[required]');
       let isValid = true;
 
@@ -270,7 +487,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Başarılı Modal Aç
       if (feedbackModal) {
         feedbackModal.classList.add('active');
         form.reset();

@@ -160,6 +160,14 @@
     <!-- MAKİNE KARTLARI -->
     <section class="section bg-cream">
       <div class="container">
+        <!-- Bilgilendirme Notu -->
+        <div style="background-color: rgba(178, 148, 96, 0.08); border: 1px solid var(--c-gold-border); padding: 1rem 1.5rem; border-radius: var(--radius-sm); margin-bottom: 2.5rem; display: flex; align-items: center; gap: 0.75rem;" data-reveal="fade-up">
+          <span style="color: var(--c-gold); font-size: 1.2rem;">ℹ️</span>
+          <p style="margin: 0; font-size: 0.85rem; color: #555860;">
+            <strong>Temsili Donanım & Teknoloji Vitrini:</strong> Bu sayfada yer alan animasyonlu şemalar ve teknik veriler, Nizamlar Baskı üretim hatlarının endüstriyel standartlarını ve çalışma prensiplerini temsil etmektedir.
+          </p>
+        </div>
+
         <div class="section-header text-center" data-reveal="fade-up">
           <div class="section-tag">Donanım Altyapısı</div>
           <h2 class="section-title">Yüksek Hassasiyetli Üretim Hatları</h2>
@@ -168,12 +176,60 @@
           </p>
         </div>
 
+        <!-- 1. BÜYÜK CANLI MAKİNE SİMÜLATÖRÜ -->
+        <div class="machine-simulation-box" style="margin-bottom: 3.5rem;" data-reveal="fade-in">
+          <div class="sim-header-bar">
+            <div class="sim-status-indicator">
+              <span class="live-pulse-dot"></span>
+              <span>PARKUR SİMÜLATÖRÜ: ÇİFT KAFA DTF & TERMAL FİKSAJ</span>
+            </div>
+            <div class="sim-steps-nav">
+              <button class="sim-step-btn active" data-step="0">1. Film Girişi</button>
+              <button class="sim-step-btn" data-step="1">2. Kafa Hareketi</button>
+              <button class="sim-step-btn" data-step="2">3. Renk Deseni</button>
+              <button class="sim-step-btn" data-step="3">4. Tozlama & Kürleme</button>
+              <button class="sim-step-btn" data-step="4">5. Tişörte Pres</button>
+              <button class="sim-step-btn" data-step="5">6. Bitmiş Ürün</button>
+            </div>
+          </div>
+
+          <div class="sim-viewport">
+            <div class="sim-stage-content active" data-stage="0">
+              <img src="../assets/images/simulations/dtf-step-1.svg" alt="Adım 1: Film Girişi" style="width: 100%; border-radius: 8px;">
+            </div>
+            <div class="sim-stage-content" data-stage="1">
+              <img src="../assets/images/simulations/dtf-step-2.svg" alt="Adım 2: Kafa Hareketi" style="width: 100%; border-radius: 8px;">
+            </div>
+            <div class="sim-stage-content" data-stage="2">
+              <img src="../assets/images/simulations/dtf-step-3.svg" alt="Adım 3: Renk Deseni" style="width: 100%; border-radius: 8px;">
+            </div>
+            <div class="sim-stage-content" data-stage="3">
+              <img src="../assets/images/simulations/dtf-step-4.svg" alt="Adım 4: Tozlama" style="width: 100%; border-radius: 8px;">
+            </div>
+            <div class="sim-stage-content" data-stage="4">
+              <img src="../assets/images/simulations/dtf-step-5.svg" alt="Adım 5: Pres" style="width: 100%; border-radius: 8px;">
+            </div>
+            <div class="sim-stage-content" data-stage="5">
+              <img src="../assets/images/simulations/dtf-step-6.svg" alt="Adım 6: Bitmiş Ürün" style="width: 100%; border-radius: 8px;">
+            </div>
+          </div>
+
+          <div class="sim-controls-footer">
+            <div class="sim-step-desc">
+              <strong>ADIM 01:</strong> 1. Baskı filmi makineye besleniyor, taşıyıcı PET film vakumlu tablaya kilitleniyor.
+            </div>
+            <div>
+              <button class="btn btn-outline-light btn-sim-play" style="font-size: 0.8rem; padding: 0.4rem 1rem;">Durdur ⏸</button>
+            </div>
+          </div>
+        </div>
+
         <div class="machine-grid">
           <!-- Makine 1: Otomatik Serigrafi Ahtapot -->
           <div class="machine-card" data-reveal="fade-up" data-delay="100">
             <div class="machine-media">
               <span class="machine-badge">SERİGRAFİ HATTI</span>
-              <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=1000&q=80" alt="Otomatik Döner Serigrafi Ahtapotu">
+              <img src="../assets/images/machines/screen-print-carousel.svg" alt="Otomatik Döner Serigrafi Ahtapotu">
             </div>
             <div class="machine-info">
               <h3 class="machine-title">Otomatik Döner Serigrafi Ahtapotu</h3>
@@ -205,7 +261,7 @@
           <div class="machine-card" data-reveal="fade-up" data-delay="200">
             <div class="machine-media">
               <span class="machine-badge">DİJİTAL TRANSFER</span>
-              <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1000&q=80" alt="Endüstriyel DTF Baskı Hattı">
+              <img src="../assets/images/machines/dtf-printer-station.svg" alt="Endüstriyel DTF Baskı Hattı">
             </div>
             <div class="machine-info">
               <h3 class="machine-title">Endüstriyel DTF Film & Tozlama Hattı</h3>
@@ -233,8 +289,40 @@
             </div>
           </div>
 
-          <!-- Makine 3: Tünel Fiksaj Kurutucu -->
+          <!-- Makine 3: Pnömatik Isı Transfer Presi -->
           <div class="machine-card" data-reveal="fade-up" data-delay="300">
+            <div class="machine-media">
+              <span class="machine-badge">ISI TRANSFER PRESİ</span>
+              <img src="../assets/images/machines/heat-press-station.svg" alt="Pnömatik Isı Transfer Presi">
+            </div>
+            <div class="machine-info">
+              <h3 class="machine-title">Pnömatik Yüksek Basınçlı Transfer Presi</h3>
+              <p style="font-size: 0.92rem; color: #555860; line-height: 1.6;">
+                DTF ve transfer baskıların kumaşa homojen ısı ve eşit basınçla sabitlenmesini sağlayan dijital zaman ayarlı çift tabla pres ünitesi.
+              </p>
+              <table class="machine-specs-table">
+                <tr>
+                  <td>Pres Basıncı:</td>
+                  <td>5 - 8 Bar Pnömatik Otomatik Baskı</td>
+                </tr>
+                <tr>
+                  <td>Isı Kapasitesi:</td>
+                  <td>160°C - 200°C Hassas PID Termostat</td>
+                </tr>
+                <tr>
+                  <td>Tabla Tipi:</td>
+                  <td>Çift İstasyonlu Hızlı Değişim Tablası</td>
+                </tr>
+                <tr>
+                  <td>Zamanlama:</td>
+                  <td>Otomatik Dijital Geri Sayım & Piston Açılışı</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Makine 4: Tünel Fiksaj Kurutucu -->
+          <div class="machine-card" data-reveal="fade-up" data-delay="400">
             <div class="machine-media">
               <span class="machine-badge">KÜRLENME & FİKSAJ</span>
               <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1000&q=80" alt="Tünel Fiksaj Kurutma Fırını">
@@ -265,8 +353,8 @@
             </div>
           </div>
 
-          <!-- Makine 4: Kalıphane UV Pozlama & Yıkama -->
-          <div class="machine-card" data-reveal="fade-up" data-delay="400">
+          <!-- Makine 5: Kalıphane UV Pozlama & Yıkama -->
+          <div class="machine-card" data-reveal="fade-up" data-delay="500">
             <div class="machine-media">
               <span class="machine-badge">KALIPHANE</span>
               <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1000&q=80" alt="UV LED Pozlama Ünitesi">
@@ -292,6 +380,38 @@
                 <tr>
                   <td>Hassasiyet:</td>
                   <td>0.1 mm Çizgi Netliği</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Makine 6: Kalite Kontrol & Renk Ölçüm Kabini -->
+          <div class="machine-card" data-reveal="fade-up" data-delay="600">
+            <div class="machine-media">
+              <span class="machine-badge">KALİTE KONTROL</span>
+              <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1000&q=80" alt="Kalite Kontrol ve Renk Kabini">
+            </div>
+            <div class="machine-info">
+              <h3 class="machine-title">D65 Işık Kabini & Spektrofotometre</h3>
+              <p style="font-size: 0.92rem; color: #555860; line-height: 1.6;">
+                Her partide basılan ürünlerin uluslararası Pantone standartlarına ve şahit numuneye birebir uyumunu denetleyen optik laboratuvar ünitesi.
+              </p>
+              <table class="machine-specs-table">
+                <tr>
+                  <td>Işık Kaynakları:</td>
+                  <td>D65 (Gün Işığı), TL84, UV, Incandescent</td>
+                </tr>
+                <tr>
+                  <td>Renk Ölçümü:</td>
+                  <td>Delta-E &lt; 0.5 Spektrofotometrik Tolerans</td>
+                </tr>
+                <tr>
+                  <td>Kontrol Masası:</td>
+                  <td>Işıklı Eğimli Parça Muayene Tablası</td>
+                </tr>
+                <tr>
+                  <td>Raporlama:</td>
+                  <td>Parti Bazlı Dijital Onay Arşivi</td>
                 </tr>
               </table>
             </div>
@@ -382,6 +502,7 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script src="../assets/js/main.js"></script>
 </body>
 </html>

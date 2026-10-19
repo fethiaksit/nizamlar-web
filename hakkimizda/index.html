@@ -158,6 +158,19 @@
       </div>
     </section>
 
+    <!-- CANLI ATÖLYE ATMOSFER BARI -->
+    <div class="production-ticker-bar" aria-label="Atölye Canlı Durum">
+      <div class="ticker-content">
+        <span class="ticker-item"><span class="ticker-dot"></span> ATÖLYE DURUMU: AKTİF ÜRETİM VARDIYASI</span>
+        <span class="ticker-item">● KUMAŞ KALİBRASYONU: %100 PAMUK SÜPREM & 3 İPLİK ŞARDONLU</span>
+        <span class="ticker-item">● GÜNLÜK KAPASİTE: 18.000+ PARÇA BASKI</span>
+        <span class="ticker-item">● PİGMENT STANDARDI: OEKO-TEX® ECO PASSPORT</span>
+        <span class="ticker-item">● SERİGRAFİ HATTI: 10 RENK OTOMATİK DÖNER AHTAPOT ÇALIŞIYOR</span>
+        <span class="ticker-item">● DTF HATTI: 4 KAFA ULTRA HD PİGMENT AKTİF</span>
+        <span class="ticker-item"><span class="ticker-dot"></span> ATÖLYE DURUMU: AKTİF ÜRETİM VARDIYASI</span>
+      </div>
+    </div>
+
     <!-- BÖLÜM 1: BEYDUR KURUMSAL ANLATIM MİMARİSİ -->
     <section class="section bg-cream">
       <div class="container">
@@ -178,8 +191,26 @@
           </div>
 
           <div data-reveal="fade-in" data-delay="200">
-            <div class="img-zoom-wrapper" style="box-shadow: var(--shadow-card); border-radius: var(--radius-md); height: 500px;">
-              <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80" alt="Nizamlar Baskı Tesis İçi Üretim">
+            <div style="position: relative; box-shadow: var(--shadow-card); border-radius: var(--radius-md); overflow: hidden; background: var(--c-anthracite); border: 1px solid var(--c-gold-border);">
+              <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                <span class="live-dot" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--c-gold); text-transform: uppercase;">Atölye ve İmalat Parkuru</span>
+                <span class="badge badge-gold" style="font-size: 0.7rem;">İstanbul Üretim Merkezi</span>
+              </div>
+              <div class="product-card-enhanced" style="background: transparent; border: none; padding: 0;">
+                <div class="product-visual-box" style="height: 380px; background: radial-gradient(circle at center, #2e2825 0%, #1a1a1c 100%);">
+                  <div class="print-reveal-container" style="width: 100%; height: 100%;">
+                    <img src="../assets/images/products/tee-multicolor-artistic.svg" alt="Nizamlar Baskı Canlı Üretim Numunesi" style="width: 100%; height: 100%; object-fit: contain; padding: 1.5rem;">
+                    <div class="print-laser-line"></div>
+                  </div>
+                  <div class="product-badge-overlay">
+                    <span class="badge badge-anthracite" style="font-size: 0.72rem;">Sıfır Hata Kalite Kontrol</span>
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 0.85rem 1.5rem; background: rgba(0,0,0,0.3); font-size: 0.85rem; color: var(--c-stone-light); display: flex; justify-content: space-between;">
+                <span>Sanatsal Çok Renkli Parça Baskı Numunesi</span>
+                <span style="color: var(--c-gold);">OEKO-TEX® Standart</span>
+              </div>
             </div>
           </div>
         </div>
@@ -363,6 +394,7 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
   <script src="../assets/js/main.js"></script>
 </body>
 </html>
