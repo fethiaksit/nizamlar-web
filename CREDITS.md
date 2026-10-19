@@ -39,4 +39,3 @@ Loaded from images.unsplash.com. Free to use under the [Unsplash License](https:
 ## Libraries
 
 - GSAP 3.13.0, GreenSock — standard "no charge" license: https://gsap.com/standard-license
-- Lenis 1.3.27, darkroom.engineering — MIT: https://github.com/darkroomengineering/lenis

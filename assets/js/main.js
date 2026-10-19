@@ -1,34 +1,12 @@
 /**
  * NİZAMLAR BASKI — CORE JAVASCRIPT
- * Header scroll, mobil menü, scroll animasyonları, Before/After Slider,
+ * Header scroll, mobil menü, Before/After Slider,
  * Canlı Baskı Reveal ve İnteraktif Makine Simülasyon Sistemleri
+ * (Tarayıcı doğal kaydırma davranışı tam korunmuştur)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 0. Lenis Smooth Scroll (Dış Kaynak Profesyonel Animasyon Desteği)
-  if (typeof window.Lenis !== 'undefined') {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!prefersReducedMotion) {
-      try {
-        const lenis = new window.Lenis({
-          duration: 1.15,
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          smoothWheel: true,
-          smoothTouch: false
-        });
-
-        function raf(time) {
-          lenis.raf(time);
-          requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-      } catch (err) {
-        console.warn('Lenis scroll başlatılamadı, doğal kaydırma devrede.', err);
-      }
-    }
-  }
-
-  // 1. Header Scroll Efekti
+  // 1. Header Scroll Efekti (Pasif listener - kaydırma akışını etkilemez)
   const siteHeader = document.querySelector('.site-header');
   if (siteHeader) {
     const handleScroll = () => {
@@ -89,26 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 4. Scroll Reveal (IntersectionObserver)
-  const revealElements = document.querySelectorAll('[data-reveal]');
-  if (revealElements.length > 0 && 'IntersectionObserver' in window) {
-    const revealObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-revealed');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      root: null,
-      threshold: 0.12,
-      rootMargin: '0px 0px -40px 0px'
-    });
-
-    revealElements.forEach(el => revealObserver.observe(el));
-  } else {
-    revealElements.forEach(el => el.classList.add('is-revealed'));
-  }
+  // 4. Doğal ve Anında İçerik Görünümü (Gecikmeli Scroll Reveal Kaldırıldı)
+  document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('is-revealed'));
 
   // 5. Video Showcase Kontrolleri (Play/Pause & Sound)
   const videoElements = document.querySelectorAll('.video-showcase-element');

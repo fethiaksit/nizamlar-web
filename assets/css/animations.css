@@ -4,53 +4,25 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. SCROLL REVEAL (IntersectionObserver Desteği)
+   1. DOĞAL İÇERİK GÖRÜNÜMÜ (Scroll Reveal & Geciktirmeler Kaldırıldı)
+   İçerikler gecikmesiz, anında ve doğal olarak görünür; kaydırmada takılma yapmaz.
    -------------------------------------------------------------------------- */
-[data-reveal] {
-  opacity: 0;
-  transition-property: opacity, transform, clip-path;
-  transition-duration: 0.9s;
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
-}
-
-[data-reveal="fade-up"] {
-  transform: translateY(36px);
-}
-
-[data-reveal="fade-in"] {
-  transform: scale(0.97);
-}
-
-[data-reveal="clip-left"] {
-  clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
-  transform: translateY(12px);
-}
-
-[data-reveal="slide-right"] {
-  transform: translateX(-40px);
-}
-
-[data-reveal="slide-left"] {
-  transform: translateX(40px);
-}
-
-/* Tetiklendiğinde (JavaScript IntersectionObserver Ekler) */
+[data-reveal],
+[data-reveal="fade-up"],
+[data-reveal="fade-in"],
+[data-reveal="clip-left"],
+[data-reveal="slide-right"],
+[data-reveal="slide-left"],
 [data-reveal].is-revealed {
-  opacity: 1;
-  transform: translate(0) scale(1);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  transition: none !important;
 }
 
-/* Kademeli Gecikmeler (Stagger) */
-[data-delay="50"]  { transition-delay: 0.05s; }
-[data-delay="100"] { transition-delay: 0.1s; }
-[data-delay="150"] { transition-delay: 0.15s; }
-[data-delay="200"] { transition-delay: 0.2s; }
-[data-delay="250"] { transition-delay: 0.25s; }
-[data-delay="300"] { transition-delay: 0.3s; }
-[data-delay="400"] { transition-delay: 0.4s; }
-[data-delay="500"] { transition-delay: 0.5s; }
+[data-delay] {
+  transition-delay: 0s !important;
+}
 
 /* --------------------------------------------------------------------------
    2. BASKI REVEAL ANİMASYONU (Blank Garment -> Squeegee / Laser -> Finished Print)
