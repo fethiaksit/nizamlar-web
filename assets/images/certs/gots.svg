@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="none">
+  <rect width="200" height="80" rx="6" fill="#F3EFE7" stroke="#C9C1B5" stroke-width="1"/>
+  <circle cx="40" cy="40" r="22" stroke="#49372E" stroke-width="2" fill="#FFFFFF"/>
+  <path d="M33 46C33 38 40 33 47 33C47 40 42 47 33 46Z" fill="#B29460"/>
+  <text x="74" y="34" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="800" fill="#222325" letter-spacing="0.05em">GOTS</text>
+  <text x="74" y="48" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="600" fill="#49372E">ORGANIC TEXTILE</text>
+  <text x="74" y="60" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" fill="#49372E">Ekolojik Üretim Standardı</text>
+</svg>

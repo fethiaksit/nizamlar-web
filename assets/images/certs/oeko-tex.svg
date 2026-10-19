@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="none">
+  <rect width="200" height="80" rx="6" fill="#F3EFE7" stroke="#C9C1B5" stroke-width="1"/>
+  <circle cx="40" cy="40" r="22" stroke="#B29460" stroke-width="2" fill="#FFFFFF"/>
+  <path d="M32 40L38 46L48 34" stroke="#49372E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="74" y="34" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="800" fill="#222325" letter-spacing="0.05em">OEKO-TEX®</text>
+  <text x="74" y="48" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="600" fill="#B29460">STANDARD 100</text>
+  <text x="74" y="60" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" fill="#49372E">Zararlı Madde İçermez</text>
+</svg>

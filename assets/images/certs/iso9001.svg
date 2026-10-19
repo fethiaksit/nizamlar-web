@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" fill="none">
+  <rect width="200" height="80" rx="6" fill="#F3EFE7" stroke="#C9C1B5" stroke-width="1"/>
+  <circle cx="40" cy="40" r="22" stroke="#B29460" stroke-width="2" fill="#FFFFFF"/>
+  <text x="27" y="44" font-family="'Plus Jakarta Sans', sans-serif" font-size="11" font-weight="800" fill="#222325">ISO</text>
+  <text x="74" y="34" font-family="'Plus Jakarta Sans', sans-serif" font-size="12" font-weight="800" fill="#222325">ISO 9001:2015</text>
+  <text x="74" y="48" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="600" fill="#B29460">KALİTE YÖNETİMİ</text>
+  <text x="74" y="60" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" fill="#49372E">Uluslararası Kalite Güvencesi</text>
+</svg>

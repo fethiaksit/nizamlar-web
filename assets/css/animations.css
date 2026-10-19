@@ -1,0 +1,203 @@
+/* ==========================================================================
+   NİZAMLAR BASKI — ANIMATIONS & MICRO-INTERACTIONS
+   Gelişmiş CSS3 & GPU-Accelerated Performans Odaklı Efektler
+   ========================================================================== */
+
+/* 1. Reveal Animasyonları (Scroll ile Tetiklenen Sınıflar) */
+[data-reveal] {
+  opacity: 0;
+  transition-property: opacity, transform, clip-path;
+  transition-duration: 0.85s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal="fade-up"] {
+  transform: translateY(32px);
+}
+
+[data-reveal="fade-in"] {
+  transform: scale(0.98);
+}
+
+[data-reveal="clip-left"] {
+  clip-path: polygon(0 0, 0 0, 0 100%, 0% 100%);
+  transform: translateY(10px);
+}
+
+[data-reveal="slide-right"] {
+  transform: translateX(-35px);
+}
+
+/* Tetiklendiğinde (JavaScript IntersectionObserver Ekler) */
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: translate(0) scale(1);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Kademeli Gecikmeler (Stagger) */
+[data-delay="100"] { transition-delay: 0.1s; }
+[data-delay="200"] { transition-delay: 0.2s; }
+[data-delay="300"] { transition-delay: 0.3s; }
+[data-delay="400"] { transition-delay: 0.4s; }
+[data-delay="500"] { transition-delay: 0.5s; }
+
+/* 2. Tekstil & Serigrafi Rakle Çizgisi Animasyonu */
+.squeegee-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.squeegee-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(178, 148, 96, 0.6), transparent);
+  animation: squeegeeSweep 6s infinite ease-in-out;
+}
+
+@keyframes squeegeeSweep {
+  0% { left: -100%; }
+  35% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* 3. Görsel Hover Zoom & Parallax Efekti */
+.img-zoom-wrapper {
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+.img-zoom-wrapper img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.img-zoom-wrapper:hover img {
+  transform: scale(1.05);
+}
+
+/* 4. Altın Kenar & Çerçeve Parıltısı */
+.gold-border-glow {
+  position: relative;
+  border: 1px solid var(--c-gold-border);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.gold-border-glow:hover {
+  border-color: var(--c-gold);
+  box-shadow: 0 8px 30px rgba(178, 148, 96, 0.14);
+}
+
+/* 5. Nabız Gibi Vurgu (Canlı İmalat Göstergesi) */
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--c-gold);
+  border-radius: 50%;
+  position: relative;
+  display: inline-block;
+}
+
+.live-pulse-dot::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-gold);
+  animation: pulseRing 2s infinite ease-out;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* 6. Dikey Scroll İndikatörü */
+.scroll-indicator-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--c-stone);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.scroll-track {
+  width: 1px;
+  height: 48px;
+  background-color: rgba(201, 193, 181, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 18px;
+  background-color: var(--c-gold);
+  animation: scrollDown 2.2s infinite cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@keyframes scrollDown {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+}
+
+/* 7. Akordeon Genişleme Animasyonu */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease-smooth), opacity 0.3s ease;
+  opacity: 0;
+}
+
+.accordion-item.active .accordion-content {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* 8. prefers-reduced-motion Erişilebilirlik Desteği */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
