@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nizamlar-cms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: directus
+      POSTGRES_PASSWORD: nizamlar_cms_secret_2026
+      POSTGRES_DB: nizamlar_cms_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - nizamlar_cms_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U directus -d nizamlar_cms_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  directus:
+    image: directus/directus:latest
+    container_name: nizamlar-cms-directus
+    restart: unless-stopped
+    ports:
+      - "8055:8055"
+    environment:
+      KEY: "nizamlar_cms_key_3847291"
+      SECRET: "nizamlar_cms_secret_91827364"
+      ADMIN_EMAIL: "admin@nizamlarbaski.com"
+      ADMIN_PASSWORD: "NizamlarAdmin2026!"
+      DB_CLIENT: "pg"
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_DATABASE: "nizamlar_cms_db"
+      DB_USER: "directus"
+      DB_PASSWORD: "nizamlar_cms_secret_2026"
+      PUBLIC_URL: "http://localhost:8055"
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "true"
+      CORS_METHODS: "GET,POST,PATCH,PUT,DELETE,OPTIONS"
+      CORS_ALLOWED_HEADERS: "Content-Type,Authorization"
+      STORAGE_LOCATIONS: "local"
+      STORAGE_LOCAL_ROOT: "/directus/uploads"
+      STORAGE_LOCAL_DRIVER: "local"
+      MAX_PAYLOAD_SIZE: "100mb"
+      RATE_LIMITER_ENABLED: "true"
+      RATE_LIMITER_POINTS: "300"
+      RATE_LIMITER_DURATION: "60"
+      DEFAULT_LANGUAGE: "tr-TR"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+
+volumes:
+  nizamlar_cms_pgdata:
+    name: nizamlar_cms_pgdata
