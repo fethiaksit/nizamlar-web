@@ -1,0 +1,294 @@
+/**
+ * NİZAMLAR BASKI — CENTRALIZED NAVBAR & HEADER SYSTEM
+ * Tüm sayfalarda (%100 tutarlı) Header, Navigasyon, Dropdownlar,
+ * Mobil Çekmece ve Canlı Önizleme bağlantısını dinamik ve kusursuz yönetir.
+ */
+
+(function () {
+  'use strict';
+
+  // Sayfa dizin derinliğini tespit et (Örn: '/' -> 0, '/galeri/' -> 1, '/hizmetlerimiz/dtf-baski/' -> 2)
+  function getDepthPrefix() {
+    const p = window.location.pathname.replace(/^\/|\/$/g, '');
+    if (!p || p === 'index.html') return '';
+    const parts = p.split('/').filter(x => x && x !== 'index.html');
+    return '../'.repeat(parts.length);
+  }
+
+  const prefix = getDepthPrefix();
+  const currentPath = window.location.pathname.replace(/\/index\.html$/, '/');
+
+  // Menü Veri Modeli (Tek Merkezden Yönetim)
+  const NAV_CONFIG = [
+    { label: 'Ana Sayfa', href: prefix ? prefix : './', id: 'home' },
+    {
+      label: 'Kurumsal',
+      href: `${prefix}hakkimizda/`,
+      id: 'kurumsal',
+      dropdown: [
+        { label: 'Hakkımızda', href: `${prefix}hakkimizda/` },
+        { label: 'Sürdürülebilirlik', href: `${prefix}surdurulebilirlik/` },
+        { label: 'Sertifikalarımız', href: `${prefix}sertifikalarimiz/` }
+      ]
+    },
+    {
+      label: 'Hizmetlerimiz',
+      href: `${prefix}hizmetlerimiz/`,
+      id: 'hizmetler',
+      dropdown: [
+        { label: 'Tüm Hizmetler', href: `${prefix}hizmetlerimiz/` },
+        { label: 'DTF Baskı', href: `${prefix}hizmetlerimiz/dtf-baski/`, tag: 'Popüler' },
+        { label: 'Serigrafi Baskı', href: `${prefix}hizmetlerimiz/serigrafi-baski/` },
+        { label: 'Tişört Baskı', href: `${prefix}hizmetlerimiz/tisort-baski/` }
+      ]
+    },
+    {
+      label: 'Üretim',
+      href: `${prefix}uretim-surecleri/`,
+      id: 'uretim',
+      dropdown: [
+        { label: 'Üretim Süreçleri', href: `${prefix}uretim-surecleri/` },
+        { label: 'Makine Parkurumuz', href: `${prefix}makine-parkurumuz/` }
+      ]
+    },
+    {
+      label: 'Canlı Stüdyo',
+      href: `${prefix ? prefix : './'}#canli-onizleme`,
+      id: 'studio',
+      badgeDot: true,
+      highlight: true
+    },
+    { label: 'Galeri', href: `${prefix}galeri/`, id: 'galeri' },
+    { label: 'Referanslar', href: `${prefix}referanslarimiz/`, id: 'referanslar' },
+    { label: 'Blog', href: `${prefix}blog/`, id: 'blog' },
+    { label: 'İletişim', href: `${prefix}iletisim/`, id: 'iletisim' }
+  ];
+
+  function renderNavbar() {
+    const siteHeader = document.querySelector('.site-header');
+    if (!siteHeader) return;
+
+    // Header HTML Şablonunu İnşa Et
+    const headerContainer = siteHeader.querySelector('.header-container');
+    if (!headerContainer) return;
+
+    let navMenuHtml = '';
+    NAV_CONFIG.forEach(item => {
+      const isDropdown = item.dropdown && item.dropdown.length > 0;
+      const isStudio = item.id === 'studio';
+
+      // Aktiflik Tespiti
+      let isActive = false;
+      if (item.id === 'home') {
+        isActive = (currentPath === '/' || currentPath.endsWith('/index.html') || currentPath === '');
+      } else if (!isStudio) {
+        const itemClean = item.href.replace(/^\.\.\/|^\.\//, '').replace(/\/$/, '');
+        if (itemClean && currentPath.includes(itemClean)) {
+          isActive = true;
+        }
+      }
+
+      navMenuHtml += `
+        <div class="nav-item ${isActive ? 'active' : ''} ${isStudio ? 'nav-item-studio' : ''}">
+          <a href="${item.href}" class="nav-link ${isActive ? 'active' : ''} ${isStudio ? 'nav-link-studio' : ''}">
+            ${item.badgeDot ? '<span class="nav-studio-pulse"></span>' : ''}
+            <span>${item.label}</span>
+            ${isDropdown ? '<svg class="nav-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>' : ''}
+          </a>
+          ${isDropdown ? `
+            <ul class="dropdown-menu">
+              ${item.dropdown.map(sub => {
+                const isSubActive = currentPath.includes(sub.href.replace(/^\.\.\/|^\.\//, '').replace(/\/$/, ''));
+                return `
+                  <li class="dropdown-item">
+                    <a href="${sub.href}" class="dropdown-link ${isSubActive ? 'active' : ''}">
+                      <span>${sub.label}</span>
+                      ${sub.tag ? `<span class="dropdown-tag">${sub.tag}</span>` : ''}
+                    </a>
+                  </li>
+                `;
+              }).join('')}
+            </ul>
+          ` : ''}
+        </div>
+      `;
+    });
+
+    headerContainer.innerHTML = `
+      <a href="${prefix ? prefix : './'}" class="header-logo" aria-label="Nizamlar Baskı Anasayfa">
+        <img src="${prefix}assets/images/logo-light.svg" alt="Nizamlar Baskı Logo" width="210" height="40">
+      </a>
+
+      <nav class="nav-menu" aria-label="Ana Menü">
+        ${navMenuHtml}
+      </nav>
+
+      <div class="header-actions">
+        <a href="${prefix}teklif-al/" class="btn btn-gold btn-header-quote">Teklif Al</a>
+        <button class="mobile-toggle" aria-label="Menüyü Aç/Kapat">
+          <span class="hamburger-box">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </span>
+        </button>
+      </div>
+    `;
+
+    // Mobil Menü Çekmecesini Senkronize Et
+    renderMobileDrawer();
+    initNavEvents();
+  }
+
+  function renderMobileDrawer() {
+    let mobileDrawer = document.querySelector('.mobile-drawer');
+    let mobileBackdrop = document.querySelector('.mobile-backdrop');
+
+    if (!mobileDrawer) {
+      mobileDrawer = document.createElement('aside');
+      mobileDrawer.className = 'mobile-drawer';
+      mobileDrawer.setAttribute('aria-label', 'Mobil Menü');
+      document.body.appendChild(mobileDrawer);
+    }
+
+    if (!mobileBackdrop) {
+      mobileBackdrop = document.createElement('div');
+      mobileBackdrop.className = 'mobile-backdrop';
+      document.body.appendChild(mobileBackdrop);
+    }
+
+    let mobileNavHtml = '';
+    NAV_CONFIG.forEach(item => {
+      const isDropdown = item.dropdown && item.dropdown.length > 0;
+      const isStudio = item.id === 'studio';
+
+      let isActive = false;
+      if (item.id === 'home') {
+        isActive = (currentPath === '/' || currentPath.endsWith('/index.html') || currentPath === '');
+      } else if (!isStudio) {
+        const itemClean = item.href.replace(/^\.\.\/|^\.\//, '').replace(/\/$/, '');
+        if (itemClean && currentPath.includes(itemClean)) {
+          isActive = true;
+        }
+      }
+
+      if (isDropdown) {
+        mobileNavHtml += `
+          <li class="mobile-nav-item-has-submenu">
+            <span class="mobile-nav-link mobile-nav-accordion-header">
+              <span>${item.label}</span>
+              <svg class="nav-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+            </span>
+            <ul class="mobile-submenu">
+              ${item.dropdown.map(sub => {
+                const isSubActive = currentPath.includes(sub.href.replace(/^\.\.\/|^\.\//, '').replace(/\/$/, ''));
+                return `
+                  <li>
+                    <a href="${sub.href}" class="mobile-submenu-link ${isSubActive ? 'active' : ''}">${sub.label}</a>
+                  </li>
+                `;
+              }).join('')}
+            </ul>
+          </li>
+        `;
+      } else {
+        mobileNavHtml += `
+          <li>
+            <a href="${item.href}" class="mobile-nav-link ${isActive ? 'active' : ''} ${isStudio ? 'mobile-studio-link' : ''}">
+              ${isStudio ? '★ ' : ''}${item.label}
+            </a>
+          </li>
+        `;
+      }
+    });
+
+    mobileDrawer.innerHTML = `
+      <div>
+        <div style="margin-bottom: 2rem;">
+          <a href="${prefix ? prefix : './'}">
+            <img src="${prefix}assets/images/logo-light.svg" alt="Nizamlar Baskı" width="180">
+          </a>
+        </div>
+        <ul class="mobile-nav-list">
+          ${mobileNavHtml}
+        </ul>
+      </div>
+      <div class="mobile-drawer-footer">
+        <a href="${prefix}teklif-al/" class="btn btn-gold" style="width: 100%;">Fiyat Teklifi Al</a>
+        <div class="mobile-contact-line"><span>📍 İstanbul / Türkiye</span></div>
+        <div class="mobile-contact-line"><span>✉️ info@nizamlarbaski.com</span></div>
+      </div>
+    `;
+  }
+
+  function initNavEvents() {
+    const siteHeader = document.querySelector('.site-header');
+    if (siteHeader) {
+      const handleScroll = () => {
+        if (window.scrollY > 30) {
+          siteHeader.classList.add('header-scrolled');
+        } else {
+          siteHeader.classList.remove('header-scrolled');
+        }
+      };
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      handleScroll();
+    }
+
+    const mobileToggle = document.querySelector('.mobile-toggle');
+    const mobileDrawer = document.querySelector('.mobile-drawer');
+    const mobileBackdrop = document.querySelector('.mobile-backdrop');
+
+    if (mobileToggle && mobileDrawer && mobileBackdrop) {
+      const openMenu = () => {
+        mobileToggle.classList.add('active');
+        mobileDrawer.classList.add('active');
+        mobileBackdrop.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
+
+      const closeMenu = () => {
+        mobileToggle.classList.remove('active');
+        mobileDrawer.classList.remove('active');
+        mobileBackdrop.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+
+      mobileToggle.onclick = () => {
+        if (mobileDrawer.classList.contains('active')) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      };
+
+      mobileBackdrop.onclick = closeMenu;
+
+      // Mobil menüdeki linke tıklandığında menüyü kapat
+      mobileDrawer.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', closeMenu);
+      });
+
+      // Mobil akordeon aç/kapa
+      mobileDrawer.querySelectorAll('.mobile-nav-accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+          const parent = header.closest('.mobile-nav-item-has-submenu');
+          if (parent) {
+            parent.classList.toggle('expanded');
+          }
+        });
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderNavbar);
+  } else {
+    renderNavbar();
+  }
+
+  window.NizamlarNavbar = {
+    refresh: renderNavbar,
+    version: '2.1.0'
+  };
+})();

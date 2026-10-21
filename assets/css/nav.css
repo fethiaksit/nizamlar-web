@@ -380,3 +380,126 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   NİZAMLAR BASKI — MERKEZİ VE HASSAS HİZALANMIŞ NAVBAR STİLLERİ
+   ========================================================================== */
+
+/* Canlı Stüdyo Bağlantısı Özel Vurgusu */
+.nav-item-studio .nav-link-studio {
+  color: var(--c-gold) !important;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.nav-studio-pulse {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: var(--c-gold);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--c-gold);
+  animation: pulseGold 2s infinite ease-in-out;
+}
+
+@keyframes pulseGold {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+    box-shadow: 0 0 12px var(--c-gold);
+  }
+}
+
+.mobile-studio-link {
+  color: var(--c-gold) !important;
+  font-weight: 700 !important;
+}
+
+/* Mobil Alt Menü Akordeon */
+.mobile-nav-accordion-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-nav-item-has-submenu .mobile-submenu {
+  display: none;
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+  border-left: 2px solid var(--c-gold-muted);
+}
+
+.mobile-nav-item-has-submenu.expanded .mobile-submenu {
+  display: flex;
+}
+
+.mobile-nav-item-has-submenu.expanded .nav-chevron {
+  transform: rotate(180deg);
+}
+
+/* Responsive Menü Aralık ve Boyut Kalibrasyonu */
+@media (min-width: 1280px) {
+  .nav-menu {
+    gap: 1.5rem;
+  }
+  .nav-link {
+    font-size: 0.86rem;
+    padding: 0.65rem 0.2rem;
+  }
+}
+
+@media (max-width: 1279px) and (min-width: 1040px) {
+  .nav-menu {
+    gap: 0.85rem;
+  }
+  .nav-link {
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    padding: 0.5rem 0.15rem;
+  }
+  .header-logo img {
+    height: 34px;
+  }
+  .btn-header-quote {
+    padding: 0.5rem 1rem;
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 1039px) and (min-width: 992px) {
+  .nav-menu {
+    gap: 0.55rem;
+  }
+  .nav-link {
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+    padding: 0.45rem 0.1rem;
+  }
+  .header-logo img {
+    height: 32px;
+  }
+  .btn-header-quote {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .nav-menu {
+    display: none !important;
+  }
+  .mobile-toggle {
+    display: block !important;
+  }
+  .header-actions .btn-header-quote {
+    display: none !important;
+  }
+}
