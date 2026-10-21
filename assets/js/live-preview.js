@@ -783,8 +783,10 @@
         btn.type = 'button';
         btn.className = `btn-sample-pick ${sample.id === state.activeSampleId ? 'active' : ''}`;
         btn.innerHTML = `
-          <img src="${sample.src}" alt="${sample.name}">
-          <span>${sample.name}</span>
+          <div class="sample-card-preview">
+            <img src="${sample.src}" alt="${sample.name}">
+          </div>
+          <span class="sample-card-title">${sample.name}</span>
         `;
 
         btn.addEventListener('click', () => {
