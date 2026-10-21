@@ -169,6 +169,21 @@
           </div>
 
           <form data-form-handler>
+            <!-- CANLI ÖNİZLEMEDEN GELEN TASARIM BİLGİ KARTI -->
+            <div id="custom-preview-quote-banner" style="display: none; background: rgba(178, 148, 96, 0.08); border: 1.5px solid var(--c-gold); border-radius: var(--radius-sm); padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <img id="quote-preview-thumb" src="" alt="Önizleme" style="width: 58px; height: 58px; border-radius: 6px; object-fit: contain; background: #1a1b1d; border: 1px solid var(--c-gold-border);">
+                  <div>
+                    <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--c-gold); font-weight: 700; text-transform: uppercase;">✨ Canlı Önizleme Tasarımınız Formunuza Eklendi</span>
+                    <div id="quote-preview-title" style="font-size: 1.05rem; font-weight: 700; color: var(--c-anthracite); margin-top: 2px;">Tişört Ön Görünüm</div>
+                    <div id="quote-preview-details" style="font-size: 0.82rem; color: #666; margin-top: 2px;">Sol Göğüs (Cep) | Ebat: %95</div>
+                  </div>
+                </div>
+                <button type="button" id="btn-clear-preview-quote" style="background: transparent; border: 1px solid rgba(0,0,0,0.15); color: #888; border-radius: 4px; padding: 0.35rem 0.75rem; font-size: 0.78rem; cursor: pointer;">Önizlemeyi Kaldır ✕</button>
+              </div>
+            </div>
+
             <!-- Bölüm 1: İletişim Bilgileri -->
             <div style="margin-bottom: 2.5rem;">
               <h3 style="font-size: 1.25rem; margin-bottom: 1.25rem; color: var(--c-brown); display: flex; align-items: center; gap: 0.5rem;">

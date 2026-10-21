@@ -468,4 +468,74 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // 14. Canlı Önizleme -> Teklif Formu Otomatik Entegrasyonu
+  try {
+    const previewRaw = sessionStorage.getItem('nizamlar_custom_preview');
+    if (previewRaw) {
+      const pData = JSON.parse(previewRaw);
+      const banner = document.querySelector('#custom-preview-quote-banner');
+      const thumb = document.querySelector('#quote-preview-thumb');
+      const title = document.querySelector('#quote-preview-title');
+      const details = document.querySelector('#quote-preview-details');
+      const btnClear = document.querySelector('#btn-clear-preview-quote');
+
+      if (banner && thumb && title && details) {
+        banner.style.display = 'block';
+        if (pData.imageDataUrl) {
+          thumb.src = pData.imageDataUrl;
+        } else {
+          thumb.style.display = 'none';
+        }
+
+        title.textContent = `${pData.productName || 'Tekstil Ürünü'} (${pData.view || 'Ön'} Görünüm) — ${pData.colorName || ''}`;
+        details.textContent = `Baskı Alanı: ${pData.positionName || 'Standart'} | Ebat: %${pData.scalePercent || 100} | Açı: ${pData.rotationDeg || 0}° | Dosya: ${pData.fileName || 'Özel'}`;
+
+        // Form alanlarını otomatik doldur
+        const selectProduct = document.querySelector('#quote-product-type');
+        if (selectProduct) {
+          if (pData.productId === 'tisort') selectProduct.value = 'tisort';
+          else if (pData.productId === 'sweatshirt' || pData.productId === 'hoodie') selectProduct.value = 'hoodie';
+          else if (pData.productId === 'canta') selectProduct.value = 'bez-canta';
+          else if (pData.productId === 'pantolon') selectProduct.value = 'parca';
+        }
+
+        const selectSize = document.querySelector('#quote-print-size');
+        if (selectSize) {
+          if (pData.positionName && pData.positionName.includes('Göğüs')) selectSize.value = 'gogus-cep';
+          else if (pData.scalePercent && pData.scalePercent > 100) selectSize.value = 'a3';
+          else selectSize.value = 'a4';
+        }
+
+        const inputColor = document.querySelector('#quote-fabric-color');
+        if (inputColor && pData.colorName) {
+          inputColor.value = `${pData.colorName}`;
+        }
+
+        const notesArea = document.querySelector('#quote-notes');
+        if (notesArea) {
+          const previewNote = `[CANLI BASKI ÖNİZLEME TALEBİ]\nÜrün: ${pData.productName} (${pData.view})\nKumaş Rengi: ${pData.colorName}\nBaskı Konumu: ${pData.positionName}\nÖlçek: %${pData.scalePercent}\nAçı: ${pData.rotationDeg}°\nTasarım: ${pData.fileName}\n`;
+          if (!notesArea.value.includes('[CANLI BASKI ÖNİZLEME TALEBİ]')) {
+            notesArea.value = previewNote + (notesArea.value ? '\n' + notesArea.value : '');
+          }
+        }
+
+        const fileStatus = document.querySelector('#file-upload-status');
+        if (fileStatus && pData.fileName) {
+          fileStatus.innerHTML = `<strong>Canlı Önizlemeden Aktarılan Dosya:</strong> ${pData.fileName} <span style="color:var(--c-gold);">✓ (Önizleme Aktif)</span>`;
+        }
+
+        if (btnClear) {
+          btnClear.addEventListener('click', () => {
+            sessionStorage.removeItem('nizamlar_custom_preview');
+            banner.style.display = 'none';
+            if (notesArea) notesArea.value = '';
+            if (fileStatus) fileStatus.innerHTML = '';
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Teklif formu önizleme entegrasyon hatası:', err);
+  }
 });

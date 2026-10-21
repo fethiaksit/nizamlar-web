@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sampleGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e2cca1" />
+      <stop offset="50%" stop-color="#b29460" />
+      <stop offset="100%" stop-color="#846a3b" />
+    </linearGradient>
+  </defs>
+  <!-- Outer Ring -->
+  <circle cx="200" cy="200" r="185" fill="none" stroke="url(#sampleGold)" stroke-width="4" />
+  <circle cx="200" cy="200" r="172" fill="none" stroke="#f3efe7" stroke-width="1.5" stroke-dasharray="6,4" />
+  <circle cx="200" cy="200" r="125" fill="#1b1c1e" stroke="url(#sampleGold)" stroke-width="2.5" />
+  
+  <!-- Monogram NB -->
+  <text x="200" y="195" font-family="'Plus Jakarta Sans', sans-serif" font-size="64" font-weight="900" fill="#f3efe7" text-anchor="middle" letter-spacing="4">NB</text>
+  <text x="200" y="228" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" fill="url(#sampleGold)" text-anchor="middle" letter-spacing="5">EST. 1994</text>
+  
+  <!-- Curved text paths or circular text -->
+  <path id="curveTop" d="M 50,200 A 150,150 0 0,1 350,200" fill="none" />
+  <text font-family="'Plus Jakarta Sans', sans-serif" font-size="14" font-weight="700" fill="#f3efe7" letter-spacing="6">
+    <textPath href="#curveTop" startOffset="50%" text-anchor="middle">NİZAMLAR BASKI ATELIER</textPath>
+  </text>
+  
+  <path id="curveBottom" d="M 350,200 A 150,150 0 0,1 50,200" fill="none" />
+  <text font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" fill="url(#sampleGold)" letter-spacing="4">
+    <textPath href="#curveBottom" startOffset="50%" text-anchor="middle">★ PREMIUM TEXTILE PRINT ★</textPath>
+  </text>
+</svg>

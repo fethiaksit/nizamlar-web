@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="assets/css/footer.css">
   <link rel="stylesheet" href="assets/css/animations.css">
   <link rel="stylesheet" href="assets/css/pages.css">
+  <link rel="stylesheet" href="assets/css/live-preview.css">
 </head>
 <body>
 
@@ -74,6 +75,13 @@
             <li class="dropdown-item"><a href="uretim-surecleri/" class="dropdown-link">Üretim Süreçleri</a></li>
             <li class="dropdown-item"><a href="makine-parkurumuz/" class="dropdown-link">Makine Parkurumuz</a></li>
           </ul>
+        </div>
+
+        <div class="nav-item">
+          <a href="#canli-onizleme" class="nav-link" style="color: var(--c-gold); font-weight: 600;">
+            <span style="display:inline-block; width:6px; height:6px; background-color:var(--c-gold); border-radius:50%; margin-right:5px; box-shadow:0 0 6px var(--c-gold);"></span>
+            Canlı Önizleme
+          </a>
         </div>
 
         <div class="nav-item">
@@ -140,6 +148,7 @@
             <li><a href="makine-parkurumuz/" class="mobile-submenu-link">Makine Parkurumuz</a></li>
           </ul>
         </li>
+        <li><a href="#canli-onizleme" class="mobile-nav-link" style="color: var(--c-gold); font-weight: 700;">★ Canlı Baskı Önizle</a></li>
         <li><a href="galeri/" class="mobile-nav-link">Üretim Galerisi</a></li>
         <li><a href="referanslarimiz/" class="mobile-nav-link">Referanslarımız</a></li>
         <li><a href="blog/" class="mobile-nav-link">Blog & Rehberler</a></li>
@@ -183,12 +192,16 @@
         </p>
 
         <div class="hero-actions" data-reveal="fade-up" data-delay="300">
-          <a href="teklif-al/" class="btn btn-gold">
+          <a href="#canli-onizleme" class="btn btn-gold">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span>Kendi Baskını Canlı Gör</span>
+          </a>
+          <a href="teklif-al/" class="btn btn-outline-light">
             <span>Teklif Al</span>
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
           <a href="makine-parkurumuz/" class="btn btn-outline-light">
-            <span>Makine Parkurumuzu Gör</span>
+            <span>Makine Parkurumuz</span>
           </a>
         </div>
 
@@ -288,7 +301,293 @@
       </div>
     </section>
 
-    <!-- 3. İNTERAKTİF BASKI MAKİNESİ SİMÜLASYONU -->
+    <!-- 3. CANLI BASKI ÖNİZLEME ALANI (İNTERAKTİF MOCKUP STÜDYOSU) -->
+    <section id="canli-onizleme" class="preview-studio-section">
+      <div class="preview-studio-container">
+        
+        <!-- Bölüm Başlığı -->
+        <div class="studio-header" data-reveal="fade-up">
+          <div id="studio-section-tag" class="studio-tag">
+            <span class="live-dot"></span>
+            İnteraktif Baskı Stüdyosu
+          </div>
+          <h2 id="studio-section-title" class="studio-title">
+            Tasarımını Yükle, Baskını <span class="editorial-italic">Canlı Önizle</span>
+          </h2>
+          <p id="studio-section-desc" class="studio-desc">
+            Kendi tasarım dosyanızı yükleyin; tişört, sweatshirt, hoodie, pantolon veya bez çanta üzerinde baskınızın nasıl görüneceğini anında inceleyin.
+          </p>
+        </div>
+
+        <div class="studio-grid">
+          <!-- SOL SÜTUN: KONTROL PANELİ -->
+          <div class="studio-controls-panel" data-reveal="fade-up" data-delay="100">
+            
+            <!-- 1. Adım: Tasarım Dosyası -->
+            <div class="control-card">
+              <div class="control-card-header">
+                <div class="control-card-title">
+                  <span class="step-num">1</span>
+                  <span>Tasarım Dosyanızı Yükleyin</span>
+                </div>
+                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--c-gold); font-weight: 600;">PNG / JPG / WEBP</span>
+              </div>
+
+              <!-- Drag & Drop Alanı -->
+              <div id="studio-dropzone" class="studio-dropzone">
+                <input type="file" id="studio-file-input" style="display: none;" accept=".png,.jpg,.jpeg,.webp,.svg">
+                <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <div class="dropzone-main-text">Tasarımınızı buraya sürükleyin veya dosya seçin</div>
+                <div class="dropzone-sub-text">PNG, JPG, JPEG, WEBP veya SVG (Maks. 25 MB)</div>
+                <div class="dropzone-tip">💡 En iyi sonuç için şeffaf arka planlı PNG dosyası yükleyin.</div>
+              </div>
+
+              <!-- Aktif Yüklenen Dosya Bilgisi -->
+              <div id="active-file-bar" class="active-file-bar">
+                <div class="active-file-info">
+                  <img id="active-file-thumb" class="active-file-thumb" src="" alt="Yüklenen Tasarım">
+                  <div>
+                    <div id="active-file-name" class="active-file-name">dosya.png</div>
+                    <div id="active-file-size" class="active-file-size">1.2 MB</div>
+                  </div>
+                </div>
+                <button type="button" id="btn-remove-file" class="btn-remove-file" title="Tasarımı Kaldır">Kaldır ✕</button>
+              </div>
+
+              <!-- Hızlı Örnek Tasarımlar -->
+              <div class="sample-designs-wrap">
+                <div class="sample-designs-label">Dosyanız yok mu? Örnek tasarımlarla hemen deneyin:</div>
+                <div id="sample-buttons-row" class="sample-buttons-row">
+                  <!-- JS dinamik dolduracak -->
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Adım: Ürün ve Model Seçimi -->
+            <div class="control-card">
+              <div class="control-card-header">
+                <div class="control-card-title">
+                  <span class="step-num">2</span>
+                  <span>Ürün Türünü ve Rengini Seçin</span>
+                </div>
+              </div>
+
+              <!-- Ürün Seçici Kartlar -->
+              <div class="product-selector-grid">
+                <div class="product-pick-card active" data-product="tisort">
+                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 001.24.8l1.9-.49v10.53a2 2 0 002 2h8a2 2 0 002-2V9.47l1.9.49a1 1 0 001.24-.8l.58-3.47a2 2 0 00-1.34-2.23z"/></svg>
+                  <div class="product-pick-name">Tişört</div>
+                  <div class="product-pick-spec">240 GSM</div>
+                </div>
+
+                <div class="product-pick-card" data-product="sweatshirt">
+                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l4-2h8l4 2 2 8-4 1v9H6v-9L2 12l2-8z"/><path d="M9 2a3 3 0 006 0"/></svg>
+                  <div class="product-pick-name">Sweatshirt</div>
+                  <div class="product-pick-spec">380 GSM</div>
+                </div>
+
+                <div class="product-pick-card" data-product="hoodie">
+                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7l4-4h8l4 4 2 6-4 1v8H6v-8L2 13l2-6z"/><path d="M8 3c0 4 8 4 8 0"/><path d="M9 16h6v4H9z"/></svg>
+                  <div class="product-pick-name">Hoodie</div>
+                  <div class="product-pick-spec">Kapüşonlu</div>
+                </div>
+
+                <div class="product-pick-card" data-product="pantolon">
+                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v3l-2 15h-3l-1-10-1 10H8L6 6V3z"/></svg>
+                  <div class="product-pick-name">Pantolon</div>
+                  <div class="product-pick-spec">Jogger</div>
+                </div>
+
+                <div class="product-pick-card" data-product="canta">
+                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+                  <div class="product-pick-name">Bez Çanta</div>
+                  <div class="product-pick-spec">320 GSM</div>
+                </div>
+              </div>
+
+              <!-- Görünüm (Ön / Sırt) ve Kumaş Rengi -->
+              <div class="options-row-flex">
+                <div id="view-toggle-wrap">
+                  <div class="option-group-title">Görünüm Açısı</div>
+                  <div class="view-toggle-wrap">
+                    <button type="button" class="btn-view-toggle active" data-view="front">Ön Görünüm</button>
+                    <button type="button" class="btn-view-toggle" data-view="back">Sırt Görünümü</button>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="option-group-title">Kumaş Rengi</div>
+                  <div id="color-swatches-wrap" class="color-swatches-wrap">
+                    <!-- JS ile renk daireleri üretilir -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Adım: Baskı Konumu ve Boyut / Döndürme İnce Ayarları -->
+            <div class="control-card">
+              <div class="control-card-header">
+                <div class="control-card-title">
+                  <span class="step-num">3</span>
+                  <span>Baskı Konumu ve Boyut Ayarı</span>
+                </div>
+              </div>
+
+              <!-- Hızlı Konum Seçici Haplar -->
+              <div class="option-group-title">Önceden Tanımlı Baskı Alanı:</div>
+              <div id="placement-pills-row" class="placement-pills-row">
+                <!-- JS ile aktif ürüne göre konum butonları üretilir -->
+              </div>
+
+              <!-- İnce Ayar Kaydırıcıları -->
+              <div class="adjustments-grid">
+                <div class="slider-group">
+                  <div class="slider-label-flex">
+                    <span>Boyut (Ölçek)</span>
+                    <span id="val-scale" class="slider-val-tag">%95</span>
+                  </div>
+                  <input type="range" id="slider-scale" class="custom-range-slider" min="20" max="180" value="95">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-label-flex">
+                    <span>Döndürme Açısı</span>
+                    <span id="val-rotate" class="slider-val-tag">0°</span>
+                  </div>
+                  <input type="range" id="slider-rotate" class="custom-range-slider" min="-180" max="180" value="0">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-label-flex">
+                    <span>Yatay Konum (X)</span>
+                    <span id="val-x" class="slider-val-tag">0px</span>
+                  </div>
+                  <input type="range" id="slider-x" class="custom-range-slider" min="-150" max="150" value="0">
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-label-flex">
+                    <span>Dikey Konum (Y)</span>
+                    <span id="val-y" class="slider-val-tag">0px</span>
+                  </div>
+                  <input type="range" id="slider-y" class="custom-range-slider" min="-180" max="180" value="0">
+                </div>
+              </div>
+
+              <!-- Baskı Dokusu & Sıfırla -->
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 1.25rem;">
+                <div>
+                  <span class="option-group-title" style="margin-right: 0.5rem;">Baskı Dokusu:</span>
+                  <div class="blend-mode-row" style="display: inline-flex; margin-top: 0;">
+                    <button type="button" id="btn-blend-normal" class="btn-blend-mode active">DTF Canlı</button>
+                    <button type="button" id="btn-blend-multiply" class="btn-blend-mode">Su Bazlı Tuşe</button>
+                  </div>
+                </div>
+
+                <button type="button" id="btn-reset-adjustments" class="btn-reset-adjustments">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  <span>Konumu Sıfırla</span>
+                </button>
+              </div>
+
+              <div style="font-size: 0.72rem; color: var(--c-stone-dark); margin-top: 0.85rem; font-family: var(--font-mono);">
+                ✨ İpucu: Tasarımı doğrudan sağdaki ürün üzerinde fare veya parmağınızla tutarak serbestçe taşıyabilirsiniz.
+              </div>
+            </div>
+
+          </div>
+
+          <!-- SAĞ SÜTUN: CANLI MOCKUP SAHNESİ -->
+          <div class="studio-viewport-panel" data-reveal="fade-up" data-delay="200">
+            
+            <div id="mockup-stage-frame" class="mockup-stage-frame">
+              
+              <!-- Üst Bilgi Rozetleri -->
+              <div class="stage-badges-top">
+                <div class="stage-badge-item">
+                  <strong id="stage-badge-product">Tişört</strong>
+                  <span style="opacity: 0.4;">|</span>
+                  <span id="stage-badge-view">Ön Görünüm</span>
+                </div>
+                <div class="stage-badge-item" id="stage-badge-spec">
+                  240 GSM Penye Pamuk
+                </div>
+              </div>
+
+              <!-- Sağ Alt Yüzen Araçlar -->
+              <div class="stage-toolbar-floating">
+                <button type="button" id="btn-toggle-guide" class="btn-stage-tool active" title="Baskı Kılavuzunu Göster/Gizle">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="3,3"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                </button>
+                <button type="button" id="btn-stage-reset" class="btn-stage-tool" title="Ortala ve Sıfırla">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+              </div>
+
+              <!-- Canlı Mockup Sahne Katmanları -->
+              <div class="mockup-canvas-area">
+                <!-- Katman 1: Ürün Taban SVG'si -->
+                <img id="mockup-base-img" class="mockup-base-image" src="assets/images/products/tee-blank-cotton.svg" alt="Ürün Mockup">
+
+                <!-- Katman 2: Güvenli Baskı Kılavuzu -->
+                <div id="printable-guide-box" class="printable-guide-box">
+                  <span id="printable-guide-tag" class="printable-guide-tag">BASKI ALANI</span>
+                </div>
+
+                <!-- Katman 3: Kullanıcının Yüklediği Tasarım Katmanı -->
+                <div id="user-artwork-layer" class="user-artwork-layer blend-normal" style="display: none;">
+                  <img id="user-artwork-img" src="" alt="Baskı Tasarımı">
+                  <div class="artwork-bounding-box">
+                    <span class="artwork-handle-drag">↔ Sürükle</span>
+                  </div>
+                </div>
+
+                <!-- Katman 4: Boş Durum Bilgisi (Görsel yokken) -->
+                <div id="stage-empty-prompt" class="stage-empty-prompt" style="display: none;">
+                  <svg class="empty-prompt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <div class="empty-prompt-text">Tasarımınızı Ekleyin</div>
+                  <div class="empty-prompt-sub">Soldaki alandan dosya yükleyin veya örnek bir tasarım seçin.</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Sahne Altı Eylem Butonları -->
+            <div class="stage-actions-bar">
+              <button type="button" id="btn-studio-quote" class="btn btn-gold btn-studio-quote">
+                <span>Bu Tasarımla Teklif İste</span>
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+
+              <div class="stage-secondary-actions">
+                <button type="button" id="btn-studio-download" class="btn-stage-secondary">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <span>Önizlemeyi İndir (PNG)</span>
+                </button>
+                <button type="button" id="btn-studio-share" class="btn-stage-secondary">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  <span>Paylaş</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Toast Bildirimi -->
+      <div id="studio-toast" class="studio-toast">
+        <svg class="studio-toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="studio-toast-msg">İşlem tamamlandı.</span>
+      </div>
+    </section>
+
+    <!-- 4. İNTERAKTİF BASKI MAKİNESİ SİMÜLASYONU -->
     <section class="section bg-anthracite" style="position: relative; overflow: hidden;">
       <div class="container" style="position: relative; z-index: 2;">
         <div class="section-header text-center" data-reveal="fade-up">
@@ -919,5 +1218,7 @@
   <!-- Core Scripts -->
   <script src="assets/js/main.js"></script>
   <script src="assets/js/cms-client.js"></script>
+  <script src="assets/js/mockup-config.js"></script>
+  <script src="assets/js/live-preview.js"></script>
 </body>
 </html>
