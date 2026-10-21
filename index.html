@@ -278,11 +278,11 @@
               <div class="before-after-media">
                 <!-- Arka Katman: Baskılı Ürün (Sağda görünür) -->
                 <div class="before-after-img-wrap">
-                  <img src="assets/images/products/tee-back-streetwear.svg" alt="Nizamlar Baskılı Tişört">
+                  <img src="assets/images/products/tee-back-streetwear.svg" alt="Nizamlar Baskılı Tişört" draggable="false">
                 </div>
                 <!-- Ön Katman (Clip ile kısıtlanan): Boş Kumaş (Solda görünür) -->
                 <div class="before-after-overlay-wrap" style="width: 50%;">
-                  <img src="assets/images/products/tee-blank-cotton.svg" alt="Baskısız Boş Tişört">
+                  <img src="assets/images/products/tee-blank-cotton.svg" alt="Baskısız Boş Tişört" draggable="false">
                 </div>
                 <!-- Sürükleme Tutamacı -->
                 <div class="before-after-handle" style="left: 50%;">
@@ -428,57 +428,92 @@
               </div>
             </div>
 
-            <!-- 3. Adım: Baskı Konumu ve Boyut / Döndürme İnce Ayarları -->
+            <!-- 3. Adım: Sade ve Hızlı Baskı Konumlandırma -->
             <div class="control-card">
               <div class="control-card-header">
                 <div class="control-card-title">
                   <span class="step-num">3</span>
-                  <span>Baskı Konumu ve Boyut Ayarı</span>
+                  <span>Baskı Konumu ve Boyutlandırma</span>
                 </div>
               </div>
 
-              <!-- Hızlı Konum Seçici Haplar -->
-              <div class="option-group-title">Önceden Tanımlı Baskı Alanı:</div>
+              <!-- Hızlı Hazır Konumlar -->
+              <div class="option-group-title">Hazır Baskı Bölgesi:</div>
               <div id="placement-pills-row" class="placement-pills-row">
                 <!-- JS ile aktif ürüne göre konum butonları üretilir -->
               </div>
 
-              <!-- İnce Ayar Kaydırıcıları -->
-              <div class="adjustments-grid">
-                <div class="slider-group">
+              <!-- Temel Kolay Kontroller -->
+              <div class="basic-controls-bar">
+                <div class="quick-scale-box">
                   <div class="slider-label-flex">
-                    <span>Boyut (Ölçek)</span>
+                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--c-cream-pure);">Baskı Boyutu</span>
                     <span id="val-scale" class="slider-val-tag">%95</span>
                   </div>
-                  <input type="range" id="slider-scale" class="custom-range-slider" min="20" max="180" value="95">
+                  <input type="range" id="studio-quick-scale" class="custom-range-slider" min="20" max="180" value="95">
                 </div>
 
-                <div class="slider-group">
-                  <div class="slider-label-flex">
-                    <span>Döndürme Açısı</span>
-                    <span id="val-rotate" class="slider-val-tag">0°</span>
-                  </div>
-                  <input type="range" id="slider-rotate" class="custom-range-slider" min="-180" max="180" value="0">
-                </div>
-
-                <div class="slider-group">
-                  <div class="slider-label-flex">
-                    <span>Yatay Konum (X)</span>
-                    <span id="val-x" class="slider-val-tag">0px</span>
-                  </div>
-                  <input type="range" id="slider-x" class="custom-range-slider" min="-150" max="150" value="0">
-                </div>
-
-                <div class="slider-group">
-                  <div class="slider-label-flex">
-                    <span>Dikey Konum (Y)</span>
-                    <span id="val-y" class="slider-val-tag">0px</span>
-                  </div>
-                  <input type="range" id="slider-y" class="custom-range-slider" min="-180" max="180" value="0">
+                <div class="quick-action-buttons-row">
+                  <button type="button" id="btn-center-artwork" class="btn-quick-action" title="Tasarımı Tam Ortala">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                    <span>Ortala</span>
+                  </button>
+                  <button type="button" id="btn-undo-transform" class="btn-quick-action" title="Son Hareketi Geri Al">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                    <span>Geri Al</span>
+                  </button>
+                  <button type="button" id="btn-redo-transform" class="btn-quick-action" title="İşlemi Yinele">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+                    <span>Yinele</span>
+                  </button>
+                  <button type="button" id="btn-reset-adjustments" class="btn-quick-action" title="Konumu Varsayılana Sıfırla">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    <span>Sıfırla</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Baskı Dokusu & Sıfırla -->
+              <!-- Gelişmiş Ayarlar Akordeonu (Varsayılan Kapalı) -->
+              <div class="advanced-settings-accordion">
+                <button type="button" id="toggle-advanced-adjustments" class="btn-advanced-toggle">
+                  <span>Gelişmiş Hassas Ayarlar (X, Y, Açı)</span>
+                  <span class="accordion-arrow">▼</span>
+                </button>
+                <div id="advanced-adjustments-panel" class="adjustments-grid" style="display: none;" hidden>
+                  <div class="slider-group">
+                    <div class="slider-label-flex">
+                      <span>Döndürme Açısı</span>
+                      <span id="val-rotate" class="slider-val-tag">0°</span>
+                    </div>
+                    <input type="range" id="slider-rotate" class="custom-range-slider" min="-180" max="180" value="0">
+                  </div>
+
+                  <div class="slider-group">
+                    <div class="slider-label-flex">
+                      <span>Hassas Boyut</span>
+                      <input type="range" id="slider-scale" class="custom-range-slider" min="20" max="180" value="95">
+                    </div>
+                  </div>
+
+                  <div class="slider-group">
+                    <div class="slider-label-flex">
+                      <span>Yatay Konum (X)</span>
+                      <span id="val-x" class="slider-val-tag">0px</span>
+                    </div>
+                    <input type="range" id="slider-x" class="custom-range-slider" min="-150" max="150" value="0">
+                  </div>
+
+                  <div class="slider-group">
+                    <div class="slider-label-flex">
+                      <span>Dikey Konum (Y)</span>
+                      <span id="val-y" class="slider-val-tag">0px</span>
+                    </div>
+                    <input type="range" id="slider-y" class="custom-range-slider" min="-180" max="180" value="0">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Baskı Dokusu & Simülasyon Bilgisi -->
               <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 1.25rem;">
                 <div>
                   <span class="option-group-title" style="margin-right: 0.5rem;">Baskı Dokusu:</span>
@@ -487,15 +522,11 @@
                     <button type="button" id="btn-blend-multiply" class="btn-blend-mode">Su Bazlı Tuşe</button>
                   </div>
                 </div>
-
-                <button type="button" id="btn-reset-adjustments" class="btn-reset-adjustments">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                  <span>Konumu Sıfırla</span>
-                </button>
               </div>
 
-              <div style="font-size: 0.72rem; color: var(--c-stone-dark); margin-top: 0.85rem; font-family: var(--font-mono);">
-                ✨ İpucu: Tasarımı doğrudan sağdaki ürün üzerinde fare veya parmağınızla tutarak serbestçe taşıyabilirsiniz.
+              <div style="font-size: 0.72rem; color: var(--c-stone-dark); margin-top: 0.85rem; font-family: var(--font-mono); line-height: 1.5;">
+                ✨ <strong>Kolay Kullanım:</strong> Tasarımı doğrudan sağdaki ürün üzerinde fare veya parmağınızla tutarak serbestçe taşıyabilir, 4 köşesindeki noktalardan tutup büyütebilirsiniz.
+                <br><em>* Canlı önizleme ve dokular dijital simülasyondur; kumaş ve üretim yöntemine göre nihai sonuçlar farklılık gösterebilir.</em>
               </div>
             </div>
 
@@ -538,11 +569,19 @@
                   <span id="printable-guide-tag" class="printable-guide-tag">BASKI ALANI</span>
                 </div>
 
-                <!-- Katman 3: Kullanıcının Yüklediği Tasarım Katmanı -->
+                <!-- Manyetik Hizalama Kılavuz Çizgileri -->
+                <div id="snap-guide-x" class="studio-snap-line snap-vertical"></div>
+                <div id="snap-guide-y" class="studio-snap-line snap-horizontal"></div>
+
+                <!-- Katman 3: Kullanıcının Yüklediği Tasarım Katmanı (4 Köşe Tutamaçlı) -->
                 <div id="user-artwork-layer" class="user-artwork-layer blend-normal" style="display: none;">
-                  <img id="user-artwork-img" src="" alt="Baskı Tasarımı">
+                  <img id="user-artwork-img" src="" alt="Baskı Tasarımı" draggable="false">
                   <div class="artwork-bounding-box">
-                    <span class="artwork-handle-drag">↔ Sürükle</span>
+                    <span class="artwork-handle-drag">↔ Taşı</span>
+                    <span class="artwork-corner-handle corner-nw" data-corner="nw" title="Yeniden Boyutlandır"></span>
+                    <span class="artwork-corner-handle corner-ne" data-corner="ne" title="Yeniden Boyutlandır"></span>
+                    <span class="artwork-corner-handle corner-se" data-corner="se" title="Yeniden Boyutlandır"></span>
+                    <span class="artwork-corner-handle corner-sw" data-corner="sw" title="Yeniden Boyutlandır"></span>
                   </div>
                 </div>
 
@@ -671,123 +710,146 @@
           </p>
         </div>
 
-        <div class="product-grid-4">
-          <!-- Ürün 1: Büyük Sırt Baskılı Tişört -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="50">
-            <div class="product-card-media">
-              <span class="product-print-tag">SIRT BASKI // SU BAZLI</span>
-              <img src="assets/images/products/tee-back-streetwear.svg" alt="Büyük Sırt Baskılı Tişört" data-front="assets/images/products/tee-front-vintage.svg" data-back="assets/images/products/tee-back-streetwear.svg" data-view="back">
-              <div class="product-interactive-tools">
-                <button class="btn-product-tool btn-product-flip" title="Ön / Arka Baskı Görünümü Değiştir" aria-label="Görünüm Değiştir">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/></svg>
-                </button>
-              </div>
-              <div class="product-gold-shimmer"></div>
+        <!-- İnteraktif Ürün Vitrini Slider / Karusel Bileşeni -->
+        <div class="product-slider-component" data-reveal="fade-up">
+          <div class="product-slider-header">
+            <div class="product-slider-status">
+              <span class="current-slide-num">01</span> / <span class="total-slides-num">08</span>
+              <span class="slider-drag-hint">↔ Kaydırarak veya oklarla ürünleri inceleyin</span>
             </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">TİŞÖRT // 240 GSM PENYE</span>
-              <h3 class="product-item-title">Streetwear Büyük Sırt Baskılı Tişört</h3>
-              <div class="product-print-technique">Çok Renkli Serigrafi & Tram Detayı</div>
+            <div class="product-slider-arrows">
+              <button type="button" class="btn-slider-arrow btn-slider-prev" aria-label="Önceki Ürün">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <button type="button" class="btn-slider-arrow btn-slider-next" aria-label="Sonraki Ürün">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
             </div>
-          </article>
+          </div>
 
-          <!-- Ürün 2: Ön Göğüs Vintage Baskılı Tişört -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="100">
-            <div class="product-card-media">
-              <span class="product-print-tag">ÖN GÖĞÜS // DEŞARJ</span>
-              <img src="assets/images/products/tee-front-vintage.svg" alt="Ön Göğüs Vintage Baskılı Tişört">
-              <div class="product-gold-shimmer"></div>
-            </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">TİŞÖRT // ORGANİK PAMUK</span>
-              <h3 class="product-item-title">Vintage Heritage Göğüs Baskılı Tişört</h3>
-              <div class="product-print-technique">Yumuşak Tuşeli Ekolojik Boya</div>
-            </div>
-          </article>
+          <div class="product-slider-track-wrap">
+            <div class="product-grid-4 product-slider-track" id="product-gallery-slider">
+              <!-- Ürün 1: Büyük Sırt Baskılı Tişört -->
+              <article class="product-card-enhanced product-slide-item" data-index="0">
+                <div class="product-card-media">
+                  <span class="product-print-tag">SIRT BASKI // SU BAZLI</span>
+                  <img src="assets/images/products/tee-back-streetwear.svg" alt="Büyük Sırt Baskılı Tişört" data-front="assets/images/products/tee-front-vintage.svg" data-back="assets/images/products/tee-back-streetwear.svg" data-view="back" draggable="false">
+                  <div class="product-interactive-tools">
+                    <button class="btn-product-tool btn-product-flip" title="Ön / Arka Baskı Görünümü Değiştir" aria-label="Görünüm Değiştir">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16V4m0 0L3 8m4-4l4 4m6 4v12m0 0l4-4m-4 4l-4-4"/></svg>
+                    </button>
+                  </div>
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">TİŞÖRT // 240 GSM PENYE</span>
+                  <h3 class="product-item-title">Streetwear Büyük Sırt Baskılı Tişört</h3>
+                  <div class="product-print-technique">Çok Renkli Serigrafi & Tram Detayı</div>
+                </div>
+              </article>
 
-          <!-- Ürün 3: Minimal Logolu Lüks Tişört -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="150">
-            <div class="product-card-media">
-              <span class="product-print-tag">MİNİMAL // EMBOSS LOGO</span>
-              <img src="assets/images/products/tee-minimal-logo.svg" alt="Minimal Logolu Tişört">
-              <div class="product-gold-shimmer"></div>
-            </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">TİŞÖRT // KAHVE PREMIUM</span>
-              <h3 class="product-item-title">Minimal Logo Detaylı Pamuklu Tişört</h3>
-              <div class="product-print-technique">Mat Gold İnce Tram Baskı</div>
-            </div>
-          </article>
+              <!-- Ürün 2: Ön Göğüs Vintage Baskılı Tişört -->
+              <article class="product-card-enhanced product-slide-item" data-index="1">
+                <div class="product-card-media">
+                  <span class="product-print-tag">ÖN GÖĞÜS // DEŞARJ</span>
+                  <img src="assets/images/products/tee-front-vintage.svg" alt="Ön Göğüs Vintage Baskılı Tişört" draggable="false">
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">TİŞÖRT // ORGANİK PAMUK</span>
+                  <h3 class="product-item-title">Vintage Heritage Göğüs Baskılı Tişört</h3>
+                  <div class="product-print-technique">Yumuşak Tuşeli Ekolojik Boya</div>
+                </div>
+              </article>
 
-          <!-- Ürün 4: Oversize Grafik Baskılı Tişört -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="200">
-            <div class="product-card-media">
-              <span class="product-print-tag">OVERSIZE // 3D PUFF</span>
-              <img src="assets/images/products/tee-oversize-graphic.svg" alt="Oversize Grafik Baskılı Tişört">
-              <div class="product-gold-shimmer"></div>
-            </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">TİŞÖRT // DROP SHOULDER</span>
-              <h3 class="product-item-title">Oversize 3D Kabartma Grafik Tişört</h3>
-              <div class="product-print-technique">Plastizol Puff & Asit Renkler</div>
-            </div>
-          </article>
+              <!-- Ürün 3: Minimal Logolu Lüks Tişört -->
+              <article class="product-card-enhanced product-slide-item" data-index="2">
+                <div class="product-card-media">
+                  <span class="product-print-tag">MİNİMAL // EMBOSS LOGO</span>
+                  <img src="assets/images/products/tee-minimal-logo.svg" alt="Minimal Logolu Tişört" draggable="false">
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">TİŞÖRT // KAHVE PREMIUM</span>
+                  <h3 class="product-item-title">Minimal Logo Detaylı Pamuklu Tişört</h3>
+                  <div class="product-print-technique">Mat Gold İnce Tram Baskı</div>
+                </div>
+              </article>
 
-          <!-- Ürün 5: Baskılı Oversize Sweatshirt -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="250">
-            <div class="product-card-media">
-              <span class="product-print-tag">SWEATSHIRT // 380 GSM</span>
-              <img src="assets/images/products/sweat-oversize-back.svg" alt="Baskılı Oversize Sweatshirt">
-              <div class="product-gold-shimmer"></div>
-            </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">SWEATSHIRT // 3 İPLİK ŞARDONLU</span>
-              <h3 class="product-item-title">Sırt Desenli Ağır Sweatshirt</h3>
-              <div class="product-print-technique">Yüksek Örtücülük & Barkod Detayı</div>
-            </div>
-          </article>
+              <!-- Ürün 4: Oversize Grafik Baskılı Tişört -->
+              <article class="product-card-enhanced product-slide-item" data-index="3">
+                <div class="product-card-media">
+                  <span class="product-print-tag">OVERSIZE // 3D PUFF</span>
+                  <img src="assets/images/products/tee-oversize-graphic.svg" alt="Oversize Grafik Baskılı Tişört" draggable="false">
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">TİŞÖRT // DROP SHOULDER</span>
+                  <h3 class="product-item-title">Oversize 3D Kabartma Grafik Tişört</h3>
+                  <div class="product-print-technique">Plastizol Puff & Asit Renkler</div>
+                </div>
+              </article>
 
-          <!-- Ürün 6: Lüks Ön Armalı Sweatshirt -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="300">
-            <div class="product-card-media">
-              <span class="product-print-tag">ÖN ARMA // GOLD HYBRID</span>
-              <img src="assets/images/products/sweat-front-artwork.svg" alt="Lüks Ön Armalı Sweatshirt">
-              <div class="product-gold-shimmer"></div>
-            </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">SWEATSHIRT // KREM KUMAŞ</span>
-              <h3 class="product-item-title">Lüks Armalı Ön Baskılı Sweatshirt</h3>
-              <div class="product-print-technique">Gold Yaldız & Mikro Tipografi</div>
-            </div>
-          </article>
+              <!-- Ürün 5: Baskılı Oversize Sweatshirt -->
+              <article class="product-card-enhanced product-slide-item" data-index="4">
+                <div class="product-card-media">
+                  <span class="product-print-tag">SWEATSHIRT // 380 GSM</span>
+                  <img src="assets/images/products/sweat-oversize-back.svg" alt="Baskılı Oversize Sweatshirt" draggable="false">
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">SWEATSHIRT // 3 İPLİK ŞARDONLU</span>
+                  <h3 class="product-item-title">Sırt Desenli Ağır Sweatshirt</h3>
+                  <div class="product-print-technique">Yüksek Örtücülük & Barkod Detayı</div>
+                </div>
+              </article>
 
-          <!-- Ürün 7: Yan Paça Tipografik Eşofman -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="350">
-            <div class="product-card-media">
-              <span class="product-print-tag">PANTOLON // PAÇA BASKI</span>
-              <img src="assets/images/products/jogger-side-leg.svg" alt="Yan Paça Baskılı Eşofman">
-              <div class="product-gold-shimmer"></div>
-            </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">PANTOLON // 340 GSM JOGGER</span>
-              <h3 class="product-item-title">Yan Paça Tipografik Jogger Eşofman</h3>
-              <div class="product-print-technique">Dikey Format DTF Transfer</div>
-            </div>
-          </article>
+              <!-- Ürün 6: Lüks Ön Armalı Sweatshirt -->
+              <article class="product-card-enhanced product-slide-item" data-index="5">
+                <div class="product-card-media">
+                  <span class="product-print-tag">ÖN ARMA // GOLD HYBRID</span>
+                  <img src="assets/images/products/sweat-front-artwork.svg" alt="Lüks Ön Armalı Sweatshirt" draggable="false">
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">SWEATSHIRT // KREM KUMAŞ</span>
+                  <h3 class="product-item-title">Lüks Armalı Ön Baskılı Sweatshirt</h3>
+                  <div class="product-print-technique">Gold Yaldız & Mikro Tipografi</div>
+                </div>
+              </article>
 
-          <!-- Ürün 8: Ağır Kanvas Baskılı Bez Çanta -->
-          <article class="product-card-enhanced" data-reveal="fade-up" data-delay="400">
-            <div class="product-card-media">
-              <span class="product-print-tag">BEZ ÇANTA // 320 GSM RAW</span>
-              <img src="assets/images/products/tote-bag-canvas.svg" alt="Baskılı Bez Çanta">
-              <div class="product-gold-shimmer"></div>
+              <!-- Ürün 7: Yan Paça Tipografik Eşofman -->
+              <article class="product-card-enhanced product-slide-item" data-index="6">
+                <div class="product-card-media">
+                  <span class="product-print-tag">PANTOLON // PAÇA BASKI</span>
+                  <img src="assets/images/products/jogger-side-leg.svg" alt="Yan Paça Baskılı Eşofman" draggable="false">
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">PANTOLON // 340 GSM JOGGER</span>
+                  <h3 class="product-item-title">Yan Paça Tipografik Jogger Eşofman</h3>
+                  <div class="product-print-technique">Dikey Format DTF Transfer</div>
+                </div>
+              </article>
+
+              <!-- Ürün 8: Ağır Kanvas Baskılı Bez Çanta -->
+              <article class="product-card-enhanced product-slide-item" data-index="7">
+                <div class="product-card-media">
+                  <span class="product-print-tag">BEZ ÇANTA // 320 GSM RAW</span>
+                  <img src="assets/images/products/tote-bag-canvas.svg" alt="Baskılı Bez Çanta" draggable="false">
+                  <div class="product-gold-shimmer"></div>
+                </div>
+                <div class="product-card-info">
+                  <span class="product-category-meta">ÇANTA // HAM KANVAS</span>
+                  <h3 class="product-item-title">Baskılı Ağır Kanvas Bez Çanta</h3>
+                  <div class="product-print-technique">Dayanıklı İpek Serigrafi</div>
+                </div>
+              </article>
             </div>
-            <div class="product-card-info">
-              <span class="product-category-meta">ÇANTA // HAM KANVAS</span>
-              <h3 class="product-item-title">Baskılı Ağır Kanvas Bez Çanta</h3>
-              <div class="product-print-technique">Dayanıklı İpek Serigrafi</div>
-            </div>
-          </article>
+          </div>
+
+          <!-- Slider Pagination Dots Indicator -->
+          <div class="product-slider-dots" id="product-slider-dots"></div>
         </div>
 
         <div style="text-align: center; margin-top: 3.5rem;" data-reveal="fade-up">
@@ -918,63 +980,68 @@
       </div>
     </section>
 
-    <!-- 4. BÜYÜK BASKI VİDEO VİTRİNİ -->
-    <section class="section bg-anthracite">
-      <div class="container">
-        <div class="section-header text-center" data-reveal="fade-up">
-          <div class="section-tag" style="color: var(--c-gold);">Canlı Üretim Sahnesi</div>
-          <h2 class="section-title" style="color: var(--c-cream-pure);">İleri Teknoloji Tekstil Baskı Tesisimiz</h2>
-          <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;">
-            Hassas kalıp pozlamadan serigrafi rakle geçişlerine, DTF fırınlamadan kalite kontrol laboratuvarımıza kadar her adımda yüksek standart.
-          </p>
-        </div>
+    <!-- YÖNETİLEBİLİR CANLI ÜRETİM SAHNESİ (VARSAYILAN: KAPALI)
+         Directus CMS: Site Yönetimi -> site_settings.show_production_showcase
+         Veya window.NIZAMLAR_CONFIG.showProductionShowcase ayarıyla yönetilir.
+         Kapalıyken hiçbir video indirilmez, DOM alanı veya JS çalıştırılmaz. -->
+    <div id="dynamic-production-showcase-container"></div>
+    <template id="tmpl-production-showcase">
+      <section class="section bg-anthracite" id="canli-uretim-sahnesi">
+        <div class="container">
+          <div class="section-header text-center" data-reveal="fade-up">
+            <div class="section-tag" style="color: var(--c-gold);">Canlı Üretim Sahnesi</div>
+            <h2 class="section-title" style="color: var(--c-cream-pure);">İleri Teknoloji Tekstil Baskı Tesisimiz</h2>
+            <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;">
+              Hassas kalıp pozlamadan serigrafi rakle geçişlerine, DTF fırınlamadan kalite kontrol laboratuvarımıza kadar her adımda yüksek standart.
+            </p>
+          </div>
 
-        <div class="video-showcase-frame" data-reveal="fade-in">
-          <span class="video-badge-live">
-            <span class="live-pulse-dot"></span>
-            <span>ÜRETİM ATÖLYESİ</span>
-          </span>
+          <div class="video-showcase-frame" data-reveal="fade-in">
+            <span class="video-badge-live">
+              <span class="live-pulse-dot"></span>
+              <span>ÜRETİM ATÖLYESİ</span>
+            </span>
 
-          <!-- Canlı Video veya Optimize Video Vitrini -->
-          <video class="video-showcase-element" autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1600&q=80">
-            <source src="assets/videos/production-loop.mp4" type="video/mp4">
-            Tarayıcınız video etiketini desteklemiyor.
-          </video>
+            <video class="video-showcase-element" autoplay loop muted playsinline poster="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1600&q=80">
+              <source src="assets/videos/production-loop.mp4" type="video/mp4">
+              Tarayıcınız video etiketini desteklemiyor.
+            </video>
 
-          <div class="video-controls-overlay">
-            <button class="video-btn btn-video-play" aria-label="Oynat / Durdur">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-              <span>Durdur</span>
-            </button>
-            <span style="color: rgba(255,255,255,0.3);">|</span>
-            <button class="video-btn btn-video-mute" aria-label="Sesi Aç / Kapat">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
-              <span>Sessiz</span>
-            </button>
+            <div class="video-controls-overlay">
+              <button class="video-btn btn-video-play" aria-label="Oynat / Durdur">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                <span>Durdur</span>
+              </button>
+              <span style="color: rgba(255,255,255,0.3);">|</span>
+              <button class="video-btn btn-video-mute" aria-label="Sesi Aç / Kapat">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                <span>Sessiz</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-3 gap-3" style="margin-top: 3rem;">
+            <div style="background-color: var(--c-anthracite-surface); padding: 1.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);" data-reveal="fade-up" data-delay="100">
+              <span style="color: var(--c-gold); font-family: var(--font-mono); font-size: 0.75rem;">ADIM 01</span>
+              <h4 style="color: var(--c-cream-pure); margin: 0.5rem 0 0.5rem 0; font-size: 1.15rem;">Hassas Renk Ayrımı</h4>
+              <p style="font-size: 0.88rem; color: var(--c-stone-light); margin: 0;">CMYK ve spot Pantone kodlarıyla kumaşın zemin rengine göre özel film ve desen hazırlığı.</p>
+            </div>
+
+            <div style="background-color: var(--c-anthracite-surface); padding: 1.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);" data-reveal="fade-up" data-delay="200">
+              <span style="color: var(--c-gold); font-family: var(--font-mono); font-size: 0.75rem;">ADIM 02</span>
+              <h4 style="color: var(--c-cream-pure); margin: 0.5rem 0 0.5rem 0; font-size: 1.15rem;">Robotik &amp; Yarı Otomatik Baskı</h4>
+              <p style="font-size: 0.88rem; color: var(--c-stone-light); margin: 0;">Eşit baskı basıncı sağlayan pnömatik rakle sistemleri ile her parçada aynı kusursuz sonuç.</p>
+            </div>
+
+            <div style="background-color: var(--c-anthracite-surface); padding: 1.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);" data-reveal="fade-up" data-delay="300">
+              <span style="color: var(--c-gold); font-family: var(--font-mono); font-size: 0.75rem;">ADIM 03</span>
+              <h4 style="color: var(--c-cream-pure); margin: 0.5rem 0 0.5rem 0; font-size: 1.15rem;">Termal Fiksaj &amp; Kürleme</h4>
+              <p style="font-size: 0.88rem; color: var(--c-stone-light); margin: 0;">160°C kontrollü tünel kurutucularda kumaş liflerine nüfuz eden yıkama dayanımlı sabitleme.</p>
+            </div>
           </div>
         </div>
-
-        <div class="grid grid-3 gap-3" style="margin-top: 3rem;">
-          <div style="background-color: var(--c-anthracite-surface); padding: 1.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);" data-reveal="fade-up" data-delay="100">
-            <span style="color: var(--c-gold); font-family: var(--font-mono); font-size: 0.75rem;">ADIM 01</span>
-            <h4 style="color: var(--c-cream-pure); margin: 0.5rem 0 0.5rem 0; font-size: 1.15rem;">Hassas Renk Ayrımı</h4>
-            <p style="font-size: 0.88rem; color: var(--c-stone-light); margin: 0;">CMYK ve spot Pantone kodlarıyla kumaşın zemin rengine göre özel film ve desen hazırlığı.</p>
-          </div>
-
-          <div style="background-color: var(--c-anthracite-surface); padding: 1.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);" data-reveal="fade-up" data-delay="200">
-            <span style="color: var(--c-gold); font-family: var(--font-mono); font-size: 0.75rem;">ADIM 02</span>
-            <h4 style="color: var(--c-cream-pure); margin: 0.5rem 0 0.5rem 0; font-size: 1.15rem;">Robotik & Yarı Otomatik Baskı</h4>
-            <p style="font-size: 0.88rem; color: var(--c-stone-light); margin: 0;">Eşit baskı basıncı sağlayan pnömatik rakle sistemleri ile her parçada aynı kusursuz sonuç.</p>
-          </div>
-
-          <div style="background-color: var(--c-anthracite-surface); padding: 1.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.08);" data-reveal="fade-up" data-delay="300">
-            <span style="color: var(--c-gold); font-family: var(--font-mono); font-size: 0.75rem;">ADIM 03</span>
-            <h4 style="color: var(--c-cream-pure); margin: 0.5rem 0 0.5rem 0; font-size: 1.15rem;">Termal Fiksaj & Kürleme</h4>
-            <p style="font-size: 0.88rem; color: var(--c-stone-light); margin: 0;">160°C kontrollü tünel kurutucularda kumaş liflerine nüfuz eden yıkama dayanımlı sabitleme.</p>
-          </div>
-        </div>
-      </div>
-    </section>
+      </section>
+    </template>
 
     <!-- 5. ÜRETİM SÜREÇLERİ GENEL BAKIŞ -->
     <section class="section bg-cream">

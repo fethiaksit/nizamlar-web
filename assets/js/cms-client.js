@@ -423,7 +423,90 @@
     init();
   }
 
+  
+  // 6. Canlı Üretim Sahnesi Dinamik Görünürlük Yöneticisi (CMS & Merkezi Config Entegrasyonu)
+  async function hydrateProductionShowcase() {
+    const container = document.querySelector("#dynamic-production-showcase-container");
+    const tmpl = document.querySelector("#tmpl-production-showcase");
+    if (!container || !tmpl) return;
+
+    let showSection = false;
+
+    // 1. Doğrudan JS / Window Konfigürasyon Kontrolü
+    if (window.NIZAMLAR_CONFIG && typeof window.NIZAMLAR_CONFIG.showProductionShowcase !== "undefined") {
+      showSection = Boolean(window.NIZAMLAR_CONFIG.showProductionShowcase);
+    }
+
+    // 2. Directus CMS site_settings Kontrolü
+    try {
+      const res = await fetch(`${DIRECTUS_API}/items/site_settings`);
+      if (res.ok) {
+        const { data } = await res.json();
+        if (data && typeof data.show_production_showcase !== "undefined") {
+          showSection = Boolean(data.show_production_showcase);
+        }
+      }
+    } catch (e) {
+      // Offline fallback: kapalı kalır
+    }
+
+    // URL parametresi ile anlık test veya önizleme (?show_production_showcase=true)
+    if (urlParams.get("show_production_showcase") === "true") {
+      showSection = true;
+    }
+
+    if (showSection) {
+      container.innerHTML = "";
+      const clone = tmpl.content.cloneNode(true);
+      container.appendChild(clone);
+
+      // Bölüm render edildiğinde video oynatma ve kontrollerini başlat
+      const video = container.querySelector(".video-showcase-element");
+      const playBtn = container.querySelector(".btn-video-play");
+      const muteBtn = container.querySelector(".btn-video-mute");
+
+      if (video && playBtn) {
+        playBtn.addEventListener("click", () => {
+          if (video.paused) {
+            video.play();
+            playBtn.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <span>Durdur</span>
+            `;
+          } else {
+            video.pause();
+            playBtn.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Oynat</span>
+            `;
+          }
+        });
+      }
+
+      if (video && muteBtn) {
+        muteBtn.addEventListener("click", () => {
+          video.muted = !video.muted;
+          if (video.muted) {
+            muteBtn.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              <span>Sessiz</span>
+            `;
+          } else {
+            muteBtn.innerHTML = `
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+              <span>Ses Açık</span>
+            `;
+          }
+        });
+      }
+    } else {
+      // Bölüm kapalı: Container boş tutulur, video veya DOM oluşturulmaz
+      container.innerHTML = "";
+    }
+  }
+
   function init() {
+    hydrateProductionShowcase();
     setupPreviewBanner();
     hydrateWhatsAppAndContact();
     hydratePageContent();

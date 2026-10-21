@@ -1207,3 +1207,166 @@
   }
 }
 
+
+/* ==========================================================================
+   NİZAMLAR BASKI — İNTERAKTİF ÜRÜN SLIDER / KARUSEL STİLLERİ
+   ========================================================================== */
+
+.product-slider-component {
+  position: relative;
+  width: 100%;
+}
+
+.product-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.product-slider-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--c-anthracite);
+}
+
+.current-slide-num {
+  color: var(--c-gold);
+  font-size: 1.1rem;
+}
+
+.total-slides-num {
+  color: var(--c-stone-dark);
+}
+
+.slider-drag-hint {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--c-stone);
+  margin-left: 0.75rem;
+}
+
+.product-slider-arrows {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-slider-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--c-cream-pure);
+  border: 1px solid var(--c-stone-border);
+  color: var(--c-anthracite);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  touch-action: manipulation;
+}
+
+.btn-slider-arrow:hover:not(:disabled) {
+  background-color: var(--c-gold);
+  border-color: var(--c-gold);
+  color: var(--c-anthracite-deep);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-slider-arrow:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-slider-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.product-slider-track-wrap {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.product-slider-track {
+  display: flex;
+  gap: 1.5rem;
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+  cursor: grab;
+}
+
+.product-slider-track.is-dragging {
+  cursor: grabbing;
+  transition: none !important;
+}
+
+.product-slide-item {
+  flex: 0 0 calc((100% - 4.5rem) / 4);
+  min-width: 260px;
+  max-width: 340px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.product-slide-item img {
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+
+.product-slider-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.product-slider-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--c-stone-border);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.product-slider-dot.active {
+  background-color: var(--c-gold);
+  width: 28px;
+  border-radius: 6px;
+}
+
+@media (max-width: 1024px) {
+  .product-slide-item {
+    flex: 0 0 calc((100% - 1.5rem) / 2);
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 640px) {
+  .product-slide-item {
+    flex: 0 0 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+  .slider-drag-hint {
+    display: none;
+  }
+}

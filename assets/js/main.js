@@ -539,3 +539,190 @@ document.addEventListener('DOMContentLoaded', () => {
     console.warn('Teklif formu önizleme entegrasyon hatası:', err);
   }
 });
+
+// ==========================================================================
+// 14. İNTERAKTİF ÜRÜN VİTRİNİ SLIDER MOTORU (SWIPE & DRAG DESTEKLİ)
+// ==========================================================================
+(function initProductSlider() {
+  const sliderComponent = document.querySelector('.product-slider-component');
+  if (!sliderComponent) return;
+
+  const track = sliderComponent.querySelector('.product-slider-track');
+  const slides = sliderComponent.querySelectorAll('.product-slide-item');
+  const prevBtn = sliderComponent.querySelector('.btn-slider-prev');
+  const nextBtn = sliderComponent.querySelector('.btn-slider-next');
+  const dotsContainer = sliderComponent.querySelector('#product-slider-dots');
+  const currentNumEl = sliderComponent.querySelector('.current-slide-num');
+  const totalNumEl = sliderComponent.querySelector('.total-slides-num');
+
+  if (!track || slides.length === 0) return;
+
+  let currentIndex = 0;
+  let isDragging = false;
+  let startX = 0;
+  let currentTranslate = 0;
+  let prevTranslate = 0;
+  let animationID = 0;
+
+  // Görsel ve metin sürükleme engelleme
+  slides.forEach(slide => {
+    slide.querySelectorAll('img').forEach(img => {
+      img.setAttribute('draggable', 'false');
+      img.addEventListener('dragstart', (e) => e.preventDefault());
+    });
+  });
+
+  const getVisibleCount = () => {
+    const width = window.innerWidth;
+    if (width <= 640) return 1;
+    if (width <= 1024) return 2;
+    return 4;
+  };
+
+  const getMaxIndex = () => {
+    return Math.max(0, slides.length - getVisibleCount());
+  };
+
+  // Pagination Dot Göstergelerini Oluştur
+  const buildDots = () => {
+    if (!dotsContainer) return;
+    dotsContainer.innerHTML = '';
+    const maxIdx = getMaxIndex();
+    for (let i = 0; i <= maxIdx; i++) {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `product-slider-dot ${i === currentIndex ? 'active' : ''}`;
+      dot.setAttribute('aria-label', `Slayt ${i + 1}`);
+      dot.addEventListener('click', () => {
+        goToSlide(i);
+      });
+      dotsContainer.appendChild(dot);
+    }
+  };
+
+  const updateUI = () => {
+    const maxIdx = getMaxIndex();
+    if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+    if (nextBtn) nextBtn.disabled = currentIndex >= maxIdx;
+
+    if (currentNumEl) {
+      const displayNum = currentIndex + 1;
+      currentNumEl.textContent = displayNum < 10 ? `0${displayNum}` : displayNum;
+    }
+    if (totalNumEl) {
+      totalNumEl.textContent = slides.length < 10 ? `0${slides.length}` : slides.length;
+    }
+
+    if (dotsContainer) {
+      const dots = dotsContainer.querySelectorAll('.product-slider-dot');
+      dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentIndex);
+      });
+    }
+  };
+
+  const getSlideOffset = (index) => {
+    if (index === 0 || !slides[index]) return 0;
+    const firstRect = slides[0].getBoundingClientRect();
+    const targetRect = slides[index].getBoundingClientRect();
+    const trackRect = track.getBoundingClientRect();
+    const currentTransform = prevTranslate;
+    return (targetRect.left - trackRect.left) - currentTransform;
+  };
+
+  const setSliderPosition = () => {
+    track.style.transform = `translateX(${currentTranslate}px)`;
+  };
+
+  const animation = () => {
+    setSliderPosition();
+    if (isDragging) requestAnimationFrame(animation);
+  };
+
+  const goToSlide = (index) => {
+    const maxIdx = getMaxIndex();
+    currentIndex = Math.max(0, Math.min(maxIdx, index));
+
+    const slideWidth = slides[0].offsetWidth;
+    const gap = 24; // 1.5rem
+    currentTranslate = -currentIndex * (slideWidth + gap);
+    prevTranslate = currentTranslate;
+
+    track.classList.remove('is-dragging');
+    setSliderPosition();
+    updateUI();
+  };
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      goToSlide(currentIndex - 1);
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      goToSlide(currentIndex + 1);
+    });
+  }
+
+  // Pointer & Touch Drag Events
+  const pointerDown = (e) => {
+    if (e.target.closest('.btn-product-tool')) return;
+    isDragging = true;
+    startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    animationID = requestAnimationFrame(animation);
+    track.classList.add('is-dragging');
+  };
+
+  const pointerMove = (e) => {
+    if (!isDragging) return;
+    const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    const diff = currentX - startX;
+    currentTranslate = prevTranslate + diff;
+  };
+
+  const pointerUp = (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    cancelAnimationFrame(animationID);
+    track.classList.remove('is-dragging');
+
+    const movedBy = currentTranslate - prevTranslate;
+    const threshold = 60; // 60px swipe eşiği
+
+    if (movedBy < -threshold) {
+      goToSlide(currentIndex + 1);
+    } else if (movedBy > threshold) {
+      goToSlide(currentIndex - 1);
+    } else {
+      goToSlide(currentIndex);
+    }
+  };
+
+  // Mouse & Touch Listeners
+  track.addEventListener('mousedown', pointerDown);
+  window.addEventListener('mousemove', pointerMove);
+  window.addEventListener('mouseup', pointerUp);
+
+  track.addEventListener('touchstart', pointerDown, { passive: true });
+  track.addEventListener('touchmove', pointerMove, { passive: true });
+  track.addEventListener('touchend', pointerUp);
+
+  // Klavye Gezinmesi
+  sliderComponent.setAttribute('tabindex', '0');
+  sliderComponent.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      goToSlide(currentIndex - 1);
+    } else if (e.key === 'ArrowRight') {
+      goToSlide(currentIndex + 1);
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    buildDots();
+    goToSlide(currentIndex);
+  });
+
+  buildDots();
+  goToSlide(0);
+})();

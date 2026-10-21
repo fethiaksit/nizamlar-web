@@ -62,9 +62,10 @@
 
   
   <rect width="600" height="680" fill="#18191b" rx="16" />
-  <radialGradient id="pantsLight" cx="50%" cy="30%" r="65%">
-    <stop offset="0%" stop-color="#2c2d30" stop-opacity="0.7" />
-    <stop offset="100%" stop-color="#121314" stop-opacity="0.95" />
+  <radialGradient id="pantsLight" cx="50%" cy="42%" r="60%">
+    <stop offset="0%" stop-color="#42454c" stop-opacity="0.85" />
+    <stop offset="50%" stop-color="#2a2c30" stop-opacity="0.9" />
+    <stop offset="100%" stop-color="#141517" stop-opacity="1" />
   </radialGradient>
   <rect width="600" height="680" fill="url(#pantsLight)" rx="16" />
   <ellipse cx="300" cy="650" rx="220" ry="18" fill="#080809" opacity="0.7" filter="blur(8px)" />

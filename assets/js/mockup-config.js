@@ -73,34 +73,61 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
           },
           positions: {
             gogus: {
-              id: 'gogus',
-              name: 'Sol Göğüs (Cep)',
+              id: "gogus",
+              name: "Sol Göğüs (Cep)",
+              x: 245,
+              y: 205,
+              scale: 0.42,
+              rotation: 0,
+              desc: "10 x 10 cm Arma / Logo"
+            },
+            tam_on: {
+              id: "tam_on",
+              name: "Büyük Ön Baskı (A4/A3)",
+              x: 300,
+              y: 330,
+              scale: 0.95,
+              rotation: 0,
+              desc: "Geniş A3+ Sanatsal Ön Format"
+            },
+            sol_gogus: {
+              id: 'sol_gogus',
+              name: 'Sol Göğüs',
               x: 245,
               y: 205,
               scale: 0.42,
               rotation: 0,
               desc: '10 x 10 cm Arma / Logo'
             },
-            tam_on: {
-              id: 'tam_on',
-              name: 'Tam Ön (A4 / A3)',
-              x: 300,
-              y: 330,
-              scale: 0.95,
+            sag_gogus: {
+              id: 'sag_gogus',
+              name: 'Sağ Göğüs',
+              x: 355,
+              y: 205,
+              scale: 0.42,
               rotation: 0,
-              desc: 'Geniş Göğüs Formatı'
+              desc: '10 x 10 cm Sağ Göğüs Arması'
             },
             orta_gogus: {
               id: 'orta_gogus',
               name: 'Göğüs Orta',
               x: 300,
-              y: 240,
+              y: 245,
               scale: 0.70,
               rotation: 0,
-              desc: '20 x 20 cm Kare / Yazı'
+              desc: '20 x 20 cm Tipografik Şerit'
+            },
+            buyuk_on: {
+              id: 'buyuk_on',
+              name: 'Büyük Ön Baskı',
+              x: 300,
+              y: 330,
+              scale: 0.95,
+              rotation: 0,
+              desc: 'Geniş A3+ Sanatsal Ön Format'
             }
           },
-          defaultPosition: 'tam_on'
+          defaultPosition: 'buyuk_on'
         },
         back: {
           label: 'Sırt Görünümü',
@@ -116,26 +143,44 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
             label: 'Sırt Baskı Alanı (Maks. 40x50 cm)'
           },
           positions: {
-            sirt_tam: {
-              id: 'sirt_tam',
-              name: 'Büyük Sırt (A3+)',
-              x: 300,
-              y: 310,
-              scale: 1.15,
-              rotation: 0,
-              desc: '32 x 45 cm Mega Sırt Baskı'
-            },
             ense_logo: {
               id: 'ense_logo',
-              name: 'Ense Altı Mikro Logo',
+              name: 'Ense / Yaka Altı',
               x: 300,
-              y: 160,
+              y: 165,
               scale: 0.35,
               rotation: 0,
-              desc: '8 x 6 cm Ense Baskısı'
+              desc: '8 x 6 cm Ense Mikro Baskı'
+            },
+            sirt_orta: {
+              id: 'sirt_orta',
+              name: 'Sırt Orta',
+              x: 300,
+              y: 260,
+              scale: 0.75,
+              rotation: 0,
+              desc: 'Standart A4 Sırt Yerleşimi'
+            },
+            sirt_tam: {
+              id: "sirt_tam",
+              name: "Büyük Sırt Baskısı (A3+)",
+              x: 300,
+              y: 320,
+              scale: 1.10,
+              rotation: 0,
+              desc: "35 x 45 cm Mega Sırt Sanatı"
+            },
+            buyuk_sirt: {
+              id: 'buyuk_sirt',
+              name: 'Büyük Sırt Baskısı',
+              x: 300,
+              y: 320,
+              scale: 1.10,
+              rotation: 0,
+              desc: '35 x 45 cm Mega Sırt Sanatı'
             }
           },
-          defaultPosition: 'sirt_tam'
+          defaultPosition: 'buyuk_sirt'
         }
       }
     },
@@ -167,17 +212,26 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
             label: 'Sweat Göğüs Alanı (Maks. 38x45 cm)'
           },
           positions: {
+            gogus: {
+              id: "gogus",
+              name: "Sol Göğüs (Cep)",
+              x: 245,
+              y: 205,
+              scale: 0.42,
+              rotation: 0,
+              desc: "10 x 10 cm Arma / Logo"
+            },
             tam_on: {
-              id: 'tam_on',
-              name: 'Tam Ön Baskı',
+              id: "tam_on",
+              name: "Büyük Ön Baskı (A4/A3)",
               x: 300,
               y: 330,
               scale: 0.95,
               rotation: 0,
-              desc: 'Geniş Sanatsal Artwork'
+              desc: "Geniş A3+ Sanatsal Ön Format"
             },
-            gogus: {
-              id: 'gogus',
+            sol_gogus: {
+              id: 'sol_gogus',
               name: 'Sol Göğüs',
               x: 245,
               y: 215,
@@ -185,17 +239,35 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
               rotation: 0,
               desc: 'Klasik Minimal Logo'
             },
-            orta_gogus: {
-              id: 'orta_gogus',
-              name: 'Göğüs Orta',
+            sag_gogus: {
+              id: 'sag_gogus',
+              name: 'Sağ Göğüs',
+              x: 355,
+              y: 215,
+              scale: 0.42,
+              rotation: 0,
+              desc: 'Sağ Göğüs Logo / Arma'
+            },
+            on_orta: {
+              id: 'on_orta',
+              name: 'Ön Orta',
               x: 300,
-              y: 250,
+              y: 260,
               scale: 0.72,
               rotation: 0,
               desc: 'Tipografik Göğüs Şeridi'
+            },
+            buyuk_on: {
+              id: 'buyuk_on',
+              name: 'Büyük Ön Baskı',
+              x: 300,
+              y: 330,
+              scale: 0.95,
+              rotation: 0,
+              desc: 'Geniş Sanatsal Artwork'
             }
           },
-          defaultPosition: 'tam_on'
+          defaultPosition: 'buyuk_on'
         }
       }
     },
@@ -227,6 +299,51 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
             label: 'Cep Üstü Baskı Alanı (28x32 cm)'
           },
           positions: {
+            gogus: {
+              id: "gogus",
+              name: "Sol Göğüs (Cep)",
+              x: 245,
+              y: 205,
+              scale: 0.42,
+              rotation: 0,
+              desc: "10 x 10 cm Arma / Logo"
+            },
+            tam_on: {
+              id: "tam_on",
+              name: "Büyük Ön Baskı (A4/A3)",
+              x: 300,
+              y: 330,
+              scale: 0.95,
+              rotation: 0,
+              desc: "Geniş A3+ Sanatsal Ön Format"
+            },
+            sol_gogus: {
+              id: 'sol_gogus',
+              name: 'Sol Göğüs',
+              x: 245,
+              y: 220,
+              scale: 0.40,
+              rotation: 0,
+              desc: '10x10 cm Minimal Logo'
+            },
+            sag_gogus: {
+              id: 'sag_gogus',
+              name: 'Sağ Göğüs',
+              x: 355,
+              y: 220,
+              scale: 0.40,
+              rotation: 0,
+              desc: 'Sağ Göğüs Logo / Arma'
+            },
+            on_orta: {
+              id: 'on_orta',
+              name: 'Ön Orta',
+              x: 300,
+              y: 255,
+              scale: 0.65,
+              rotation: 0,
+              desc: 'Göğüs Üstü Tipografi'
+            },
             cep_ustu: {
               id: 'cep_ustu',
               name: 'Cep Üstü Göğüs (A4)',
@@ -235,15 +352,6 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
               scale: 0.85,
               rotation: 0,
               desc: 'Kanguru Cep Üzeri Yerleşim'
-            },
-            sol_gogus: {
-              id: 'sol_gogus',
-              name: 'Sol Göğüs Logo',
-              x: 245,
-              y: 220,
-              scale: 0.40,
-              rotation: 0,
-              desc: '10x10 cm Minimal Logo'
             }
           },
           defaultPosition: 'cep_ustu'
@@ -278,35 +386,62 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
             label: 'Bacak Baskı Alanı (60x20 cm)'
           },
           positions: {
-            yan_paca: {
-              id: 'yan_paca',
-              name: 'Sol Yan Paça Şerit',
-              x: 215,
-              y: 380,
-              scale: 0.65,
-              rotation: 0,
-              desc: 'Dikey Boyuna Tipografi'
-            },
             ust_uyluk: {
-              id: 'ust_uyluk',
-              name: 'Üst Cep / Uyluk',
+              id: "ust_uyluk",
+              name: "Üst Cep / Uyluk",
               x: 240,
               y: 185,
               scale: 0.45,
               rotation: 0,
-              desc: '12 x 12 cm Amblem / Logo'
+              desc: "12 x 12 cm Amblem / Cep Yanı"
+            },
+            yan_paca: {
+              id: "yan_paca",
+              name: "Yan Bacak / Paça",
+              x: 215,
+              y: 350,
+              scale: 0.68,
+              rotation: 0,
+              desc: "Dikey Boyuna Tipografi"
+            },
+            ust_cep: {
+              id: 'ust_cep',
+              name: 'Üst Cep Bölgesi',
+              x: 240,
+              y: 185,
+              scale: 0.45,
+              rotation: 0,
+              desc: '12 x 12 cm Amblem / Cep Yanı'
+            },
+            sol_paca: {
+              id: 'sol_paca',
+              name: 'Sol Paça',
+              x: 220,
+              y: 440,
+              scale: 0.55,
+              rotation: 0,
+              desc: 'Sol Ayak Bileği / Paça'
             },
             sag_paca: {
               id: 'sag_paca',
-              name: 'Sağ Yan Paça',
-              x: 385,
-              y: 380,
-              scale: 0.65,
+              name: 'Sağ Paça',
+              x: 380,
+              y: 440,
+              scale: 0.55,
               rotation: 0,
-              desc: 'Sağ Bacak Dikey Baskı'
+              desc: 'Sağ Ayak Bileği / Paça'
+            },
+            yan_bacak: {
+              id: 'yan_bacak',
+              name: 'Yan Bacak Baskısı',
+              x: 215,
+              y: 350,
+              scale: 0.68,
+              rotation: 0,
+              desc: 'Dikey Boyuna Tipografi'
             }
           },
-          defaultPosition: 'yan_paca'
+          defaultPosition: 'yan_bacak'
         }
       }
     },
@@ -338,26 +473,35 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
             label: 'Çanta Ön Yüzü (28x35 cm)'
           },
           positions: {
-            orta: {
-              id: 'orta',
-              name: 'Orta Gövde (A4)',
+            ust_orta: {
+              id: 'ust_orta',
+              name: 'Üst Orta',
+              x: 300,
+              y: 310,
+              scale: 0.60,
+              rotation: 0,
+              desc: 'Ağız Kısmı Altı Üst Yerleşim'
+            },
+            orta_baski: {
+              id: 'orta_baski',
+              name: 'Orta Baskı',
               x: 300,
               y: 380,
               scale: 0.88,
               rotation: 0,
-              desc: 'Dengeli Merkez Baskı'
+              desc: 'Dengeli A4 Merkez Baskı'
             },
-            tam_format: {
-              id: 'tam_format',
-              name: 'Büyük Format (A3)',
+            buyuk_on: {
+              id: 'buyuk_on',
+              name: 'Büyük Ön Baskı',
               x: 300,
               y: 375,
               scale: 1.12,
               rotation: 0,
-              desc: 'Tüm Yüzeyi Kaplayan Sanatsal Baskı'
+              desc: 'Tüm Gövdeyi Kaplayan Sanatsal Baskı'
             }
           },
-          defaultPosition: 'orta'
+          defaultPosition: 'orta_baski'
         }
       }
     }

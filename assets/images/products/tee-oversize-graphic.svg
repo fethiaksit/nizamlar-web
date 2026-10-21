@@ -63,9 +63,10 @@
   
   <!-- Background Canvas Studio Tone -->
   <rect width="600" height="680" fill="#1a1b1d" rx="16" />
-  <radialGradient id="studioLight" cx="50%" cy="30%" r="60%">
-    <stop offset="0%" stop-color="#323337" stop-opacity="0.6" />
-    <stop offset="100%" stop-color="#161718" stop-opacity="0.9" />
+  <radialGradient id="studioLight" cx="50%" cy="42%" r="58%">
+    <stop offset="0%" stop-color="#3d4046" stop-opacity="0.85" />
+    <stop offset="50%" stop-color="#282a2e" stop-opacity="0.92" />
+    <stop offset="100%" stop-color="#161719" stop-opacity="1" />
   </radialGradient>
   <rect width="600" height="680" fill="url(#studioLight)" rx="16" />
 
@@ -141,6 +142,6 @@
   <g transform="translate(30, 30)">
     <rect width="130" height="26" rx="4" fill="rgba(22,23,24,0.85)" stroke="rgba(178,148,96,0.3)" stroke-width="1" />
     <circle cx="14" cy="13" r="3.5" fill="#b29460" />
-    <text x="26" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#f3efe7" font-weight="600" letter-spacing="0.5">240 GSM SUKUK</text>
+    <text x="26" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#f3efe7" font-weight="600" letter-spacing="0.5">240 GSM PENYE</text>
   </g>
 </svg>
