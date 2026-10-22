@@ -8,8 +8,10 @@
   'use strict';
 
   // CMS API Base URL (Aynı origin veya doğrudan Directus portu)
-  const API_BASE = window.location.port === '3030' ? '' : 'http://localhost:8055';
-  const DIRECTUS_API = 'http://localhost:8055';
+  // Browser requests must pass through the same-origin Express/Directus proxy.
+  // A localhost URL in the browser points to the visitor's device, not our server.
+  const API_BASE = '';
+  const DIRECTUS_API = '';
 
   // URL Parametreleri
   const urlParams = new URLSearchParams(window.location.search);
@@ -231,13 +233,13 @@
       }
 
       // Hero Title & Subtitle
-      const heroTitleEl = document.querySelector('.hero-title, .page-header-title, .page-hero h1');
+      const heroTitleEl = document.querySelector('.hero-title, .page-hero-title, .page-header-title, .page-hero h1');
       if (heroTitleEl && p.hero_title) {
         // Mevcut HTML yapısına dokunmadan iç metni güncelle
         heroTitleEl.textContent = p.hero_title;
       }
 
-      const heroSubtitleEl = document.querySelector('.hero-subtitle, .page-header-lead, .page-hero p');
+      const heroSubtitleEl = document.querySelector('.hero-subtitle, .page-hero-desc, .page-header-lead, .page-hero p');
       if (heroSubtitleEl && p.hero_subtitle) {
         heroSubtitleEl.textContent = p.hero_subtitle;
       }
