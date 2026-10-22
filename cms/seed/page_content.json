@@ -1,0 +1,152 @@
+{
+  "home": {
+    "hero": {
+      "title": "Tekstil Baskıda\n*Renk, Kalite* ve Güven.",
+      "subtitle": "Nizamlar Baskı; robotik serigrafi ahtapotları, yeni nesil DTF transfer hatları ve hassas fikse üniteleriyle hazır giyim ve kurumsal projelere canlı, yıkanmaya dayanıklı ve sürdürülebilir baskılar üretir."
+    },
+    "sections": {
+      "s1": {
+        "tag": "Endüstriyel Parkur & Süreç Simülasyonu",
+        "title": "DTF ve Transfer Baskı Nasıl Üretilir?",
+        "desc": "Makinelerimiz yalnızca durağan ekipmanlar değildir. 6 adımlı üretim simülasyonumuzla film girişinden fiksaj presine kadar canlı üretim sürecini izleyin."
+      },
+      "s2": {
+        "tag": "Zengin Tekstil Koleksiyonu",
+        "title": "Gerçekçi Baskı Detaylarıyla Üretim Örnekleri",
+        "desc": "Tişörtten sweatshirt'e, jogger'dan kanvas bez çantaya kadar her üründe belirgin, dokulu ve yüksek kaliteli baskı uygulamaları."
+      },
+      "s3": {
+        "tag": "Uzmanlık Alanlarımız",
+        "title": "Profesyonel Tekstil Baskı Çözümleri",
+        "desc": "Her kumaş türüne, sipariş adedine ve desen detayına en uygun baskı teknolojisini belirliyor; yüksek yıkama dayanımı ve canlı renk garantisi sağlıyoruz."
+      },
+      "s4": {
+        "tag": "Canlı Üretim Sahnesi",
+        "title": "İleri Teknoloji Tekstil Baskı Tesisimiz",
+        "desc": "Hassas kalıp pozlamadan serigrafi rakle geçişlerine, DTF fırınlamadan kalite kontrol laboratuvarımıza kadar her adımda yüksek standart."
+      },
+      "s5": {
+        "tag": "Doğa Dostu İmalat",
+        "title": "Sürdürülebilir Üretim & Uluslararası Standartlar",
+        "desc": "Gelecek nesillere temiz izler bırakmak için üretim süreçlerimizde su bazlı ekolojik boyaları, enerji tasarruflu fırınları ve sertifikalı kalite süreçlerini benimsiyoruz."
+      },
+      "s6": {
+        "tag": "Güvenilir İş Birlikleri",
+        "title": "Tekstil Sektöründe Güçlü Referanslar",
+        "desc": "Hazır giyim ihracatçıları, yerel ve global giyim markaları ve kurumsal şirketler için kesintisiz baskı tedariki sağlıyoruz."
+      }
+    }
+  },
+  "hakkimizda": {
+    "hero": {
+      "title": "Tekstilde Ustalık ve\n*Endüstriyel Üretim* Gücü",
+      "subtitle": "Nizamlar Baskı; yenilikçi teknolojileri, çevre dostu standartları ve uzman kadrosuyla tekstil sektörünün güvenilir parça baskı çözüm ortağıdır."
+    },
+    "sections": {
+      "s1": {
+        "tag": "Tesis & Donanım",
+        "title": "Tekstil Baskıda Uçtan Uca Departman Mimarisi",
+        "desc": "Her proje, tesisimiz içindeki uzmanlaşmış birimlerin koordineli çalışmasıyla hayat bulur."
+      }
+    }
+  },
+  "hizmetlerimiz": {
+    "hero": {
+      "title": "Kapsamlı ve Endüstriyel\n*Tekstil Baskı* Çözümleri",
+      "subtitle": "DTF baskı, serigrafi emprime, parça tişört baskı ve özel kimyasal efektlerle markanızın tasarım vizyonunu kumaşa kusursuz aktarıyoruz."
+    },
+    "sections": {
+      "s1": {
+        "tag": "Karar Rehberi",
+        "title": "Hangi Baskı Teknolojisi Projenize Uygun?",
+        "desc": "Sipariş adediniz, deseninizin renk yapısı ve kumaş türünüze göre en verimli seçimi yapabilmeniz için karşılaştırma tablosu."
+      }
+    }
+  },
+  "makine-parkurumuz": {
+    "hero": {
+      "title": "Endüstriyel Teknoloji &\n*Gelişmiş Makine* Parkuru",
+      "subtitle": "Otomatik döner serigrafi ahtapotlarından yeni nesil rulo DTF sistemlerine ve hassas kalıphane pozlama ünitelerine kadar üretim altyapımız."
+    },
+    "sections": {
+      "s1": {
+        "tag": "Donanım Altyapısı",
+        "title": "Yüksek Hassasiyetli Üretim Hatları",
+        "desc": "Tesisimizde kullanılan endüstriyel makineler düzenli olarak kalibre edilir; mikron düzeyinde renk hizalaması ve standart kalite sağlanır."
+      }
+    }
+  },
+  "uretim-surecleri": {
+    "hero": {
+      "title": "Fikirden Kumaşa\n*7 Aşamalı* Üretim Disiplini",
+      "subtitle": "Beydur referanslı kurumsal süreç mimarimizde her baskı projesi, milimetrik hassasiyet ve uluslararası kalite kontrol aşamalarıyla hayata geçirilir."
+    },
+    "sections": {}
+  },
+  "galeri": {
+    "hero": {
+      "title": "Üretim Galerisi &\n*Uygulama* Örnekleri",
+      "subtitle": "DTF transfer detaylarından otomatik ahtapot serigrafi makinelerine, kumaş tuşesinden bitmiş konfeksiyon ürünlerine kadar atölyemizden canlı kareler."
+    },
+    "sections": {}
+  },
+  "referanslarimiz": {
+    "hero": {
+      "title": "Güvenle Büyüyen\n*Sektörel İş* Birliklerimiz",
+      "subtitle": "Tekstil ihracatının öncü üreticilerinden bağımsız hazır giyim tasarımcılarına kadar geniş bir müşteri portföyüne kesintisiz baskı hizmeti veriyoruz."
+    },
+    "sections": {
+      "s1": {
+        "tag": "İş Ortaklarımız",
+        "title": "Hizmet Verdiğimiz Sektörel Alanlar",
+        "desc": "Gizlilik sözleşmelerimiz kapsamında iş ortaklarımızın koleksiyon tasarımlarını titizlikle koruyor, termin sürelerine sadakatle üretim yapıyoruz."
+      }
+    }
+  },
+  "sertifikalarimiz": {
+    "hero": {
+      "title": "Uluslararası Kalite &\n*Sertifikasyon* Belgelerimiz",
+      "subtitle": "Tekstil baskı süreçlerimizin küresel standartlara, insan sağlığı normlarına ve ekolojik yeterliliklere tam uyumu belgelenmiştir."
+    },
+    "sections": {
+      "s1": {
+        "tag": "Yeterlilik & Güvence",
+        "title": "Küresel Standartlarda Üretim Belgeleri",
+        "desc": "İhracatçı müşterilerimizin ve dünya markalarının talep ettiği ekolojik ve kalite yönetim sertifikalarımız."
+      }
+    }
+  },
+  "surdurulebilirlik": {
+    "hero": {
+      "title": "Geleceğe Sorumlu\n*Sürdürülebilir* Üretim Anlayışı",
+      "subtitle": "Tekstil baskıda çevreye duyarlı kimyasallar, enerji verimliliği ve sıfır atık ilkeleriyle doğaya saygılı bir üretim ekosistemi yönetiyoruz."
+    },
+    "sections": {
+      "s1": {
+        "tag": "Politikamız",
+        "title": "Sürdürülebilirlik İlkelerimiz"
+      }
+    }
+  },
+  "blog": {
+    "hero": {
+      "title": "Tekstil Baskı Dünyası &\n*Sektörel Teknik* Rehberler",
+      "subtitle": "Doğru baskı tekniği seçimi, ekolojik boya standartları, kumaş özellikleri ve endüstriyel üretim ipuçları."
+    },
+    "sections": {}
+  },
+  "iletisim": {
+    "hero": {
+      "title": "Bizimle İletişime Geçin &\n*Atölyemizi* Ziyaret Edin",
+      "subtitle": "Tekstil baskı projeleriniz, numune talepleriniz ve teknik danışmanlık için uzman müşteri temsilcilerimiz hizmetinizdedir."
+    },
+    "sections": {}
+  },
+  "teklif-al": {
+    "hero": {
+      "title": "Baskı Projeniz İçin\n*Detaylı Teklif* Talep Formu",
+      "subtitle": "Teknik parametreleri belirleyin, tasarım dosyanızı yükleyin ve adetlerinizi belirtin. Satış ve üretim mühendislerimiz aynı gün içinde en uygun fiyat ve termin tablonuzu iletsin."
+    },
+    "sections": {}
+  }
+}
