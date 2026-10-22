@@ -233,7 +233,7 @@
               Teknik ve kurumsal talepleriniz için lütfen formu doldurunuz. 2 iş saati içinde dönüş yapılacaktır.
             </p>
 
-            <form data-form-handler>
+            <form data-contact-form>
               <div class="form-grid">
                 <div class="form-group">
                   <label class="form-label" for="contact-name">Adınız Soyadınız *</label>
@@ -257,7 +257,7 @@
 
                 <div class="form-group full-width">
                   <label class="form-label" for="contact-subject">Konu *</label>
-                  <select id="contact-subject" name="service" class="form-select" required>
+                  <select id="contact-subject" name="subject" class="form-select" required>
                     <option value="">Lütfen Bir Konu Seçiniz</option>
                     <option value="dtf">DTF Baskı Talebi</option>
                     <option value="serigrafi">Serigrafi (Emprime) Siparişi</option>
@@ -269,7 +269,7 @@
 
                 <div class="form-group full-width">
                   <label class="form-label" for="contact-message">Mesajınız *</label>
-                  <textarea id="contact-message" name="notes" class="form-textarea" placeholder="Projeniz, kumaş detaylarınız ve beklentileriniz hakkında kısaca bilgi veriniz..." required></textarea>
+                  <textarea id="contact-message" name="message" class="form-textarea" placeholder="Projeniz, kumaş detaylarınız ve beklentileriniz hakkında kısaca bilgi veriniz..." required></textarea>
                 </div>
 
                 <div class="form-group full-width" style="margin-top: 0.5rem;">
@@ -311,7 +311,7 @@
         </div>
         <h3 style="font-size: 1.4rem; margin-bottom: 0.75rem; color: var(--c-anthracite);">Mesajınız Alındı</h3>
         <p style="font-size: 0.95rem; color: #555860; line-height: 1.6; margin-bottom: 1.5rem;">
-          Talebiniz kaydedilmiştir. Bu yerel önizleme ortamında form doğrulaması başarıyla test edilmiştir. Üretim yayınına geçerken gerçek backend/SMTP e-posta sunucunuz entegre edilecektir.
+          İletişim mesajınız başarıyla kaydedilmiştir. Müşteri temsilcilerimiz en kısa sürede sizinle iletişime geçecektir.
         </p>
         <button class="btn btn-gold modal-feedback-close">Tamam</button>
       </div>
@@ -398,5 +398,6 @@
   <script src="../assets/js/nav-component.js"></script>
   <script src="../assets/js/main.js"></script>
   <script src="../assets/js/cms-client.js"></script>
+  <script src="../assets/js/contact-form.js"></script>
 </body>
 </html>

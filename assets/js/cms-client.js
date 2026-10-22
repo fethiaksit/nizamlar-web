@@ -746,7 +746,7 @@
 
   /* ------------------------------ teklif formları ------------------------------ */
   function setupForms() {
-    document.querySelectorAll('form[data-form-handler]').forEach(form => {
+    document.querySelectorAll('form[data-form-handler]:not([data-contact-form])').forEach(form => {
       const startedAt = Date.now();
       // Honeypot (insanlar görmez)
       const hp = document.createElement('input');

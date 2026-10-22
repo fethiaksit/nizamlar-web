@@ -320,6 +320,48 @@ app.post('/api/quote',
   }
 );
 
+/* ------------------------------------------------------------------ *
+ * 4B. İletişim formu (/api/contact)
+ * ------------------------------------------------------------------ */
+const { createContactHandler, sendNotification } = require('./cms/contact-service');
+
+app.post('/api/contact',
+  express.json({ limit: '1mb' }),
+  express.urlencoded({ extended: true, limit: '1mb' }),
+  rateLimit({ windowMs: 10 * 60e3, max: 10 }),
+  createContactHandler({
+    directusUrl: DIRECTUS_URL,
+    directusToken: SERVICE_TOKEN,
+    resendKey: process.env.RESEND_API_KEY,
+    mailFrom: process.env.RESEND_FROM || 'Nizamlar Baskı <onboarding@resend.dev>',
+    mailTo: process.env.CONTACT_NOTIFICATION_EMAIL || 'nizamlartekstill@gmail.com'
+  })
+);
+
+// Yetkili admin için başarısız e-posta bildirimini yeniden tetikleme
+app.post('/api/admin/contact-retry-email/:id', async (req, res) => {
+  if (!(await isStaffRequest(req))) return res.status(401).json({ error: 'Yetkisiz erişim' });
+  const id = req.params.id;
+  try {
+    const r = await directus(`/items/contact_messages/${encodeURIComponent(id)}`);
+    if (!r.ok || !r.json || !r.json.data) return res.status(404).json({ error: 'Mesaj bulunamadı' });
+    const item = r.json.data;
+    const result = await sendNotification(item, id, {
+      resendKey: process.env.RESEND_API_KEY,
+      mailFrom: process.env.RESEND_FROM || 'Nizamlar Baskı <onboarding@resend.dev>',
+      mailTo: process.env.CONTACT_NOTIFICATION_EMAIL || 'nizamlartekstill@gmail.com'
+    });
+    const emailStatus = result.ok ? 'sent' : 'failed';
+    await directus(`/items/contact_messages/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: { email_status: emailStatus }
+    });
+    return res.json({ success: true, email_status: emailStatus, result });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Teklif dosyaları: yalnızca giriş yapmış Directus kullanıcıları
 app.get('/api/admin/quote-file/:name', async (req, res) => {
   if (!/^[0-9a-f-]{36}\.[a-z0-9]{2,4}$/.test(req.params.name)) return res.status(400).end();

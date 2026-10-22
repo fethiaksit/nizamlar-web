@@ -1,26 +1,15 @@
 'use strict';
 
-// Safe, idempotent migration. Never run cms:setup for contact messages:
-// that command deletes and recreates pre-existing collections.
-const base = process.env.DIRECTUS_URL || 'http://127.0.0.1:8055';
+/**
+ * NİZAMLAR BASKI — İLETİŞİM MESAJLARI KOLEKSİYONU KURULUMU (idempotent)
+ *
+ * Güvenli, tekrarlanabilir göç scripti.
+ * Kesinlikle cms:setup çalıştırmaz; mevcut veritabanını ve koleksiyonları korur.
+ * contact_messages koleksiyonunu oluşturur veya eksik alanları tamamlar.
+ * Yalnızca yöneticilere ve servis kullanıcısına yetki verir; ziyaretçilere (public) kapalıdır.
+ */
 
-async function authHeaders() {
-  let token = process.env.DIRECTUS_ADMIN_TOKEN;
-  if (!token) {
-    if (!process.env.DIRECTUS_ADMIN_EMAIL || !process.env.DIRECTUS_ADMIN_PASSWORD) {
-      throw new Error('Set DIRECTUS_ADMIN_TOKEN or DIRECTUS_ADMIN_EMAIL and DIRECTUS_ADMIN_PASSWORD in environment.');
-    }
-    const result = await fetch(new URL('/auth/login', base), {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: process.env.DIRECTUS_ADMIN_EMAIL,
-        password: process.env.DIRECTUS_ADMIN_PASSWORD })
-    });
-    if (!result.ok) throw new Error('Directus admin login failed: HTTP ' + result.status);
-    token = (await result.json()).data?.access_token;
-  }
-  if (!token) throw new Error('Missing Directus admin token.');
-  return { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
-}
+const { adminClient } = require('./lib/env');
 
 const fieldDefs = [
   { field: 'id', type: 'integer', schema: { is_primary_key: true, has_auto_increment: true }, meta: { hidden: true } },
@@ -30,65 +19,119 @@ const fieldDefs = [
   { field: 'email', type: 'string', meta: { interface: 'input', width: 'half', translations: [{ language: 'tr-TR', translation: 'E-posta' }] } },
   { field: 'subject', type: 'string', meta: { interface: 'input', width: 'full', translations: [{ language: 'tr-TR', translation: 'Konu' }] } },
   { field: 'message', type: 'text', meta: { interface: 'textarea', width: 'full', translations: [{ language: 'tr-TR', translation: 'Mesaj' }] } },
-  { field: 'status', type: 'string', meta: { interface: 'select-dropdown', width: 'half', options: { choices: [
-    { text: 'Yeni', value: 'new' }, { text: 'Okundu', value: 'read' }, { text: 'Yanıtlandı', value: 'replied' }
-  ] }, translations: [{ language: 'tr-TR', translation: 'Mesaj Durumu' }] } },
-  { field: 'received_at', type: 'timestamp', meta: { interface: 'datetime', width: 'half', translations: [{ language: 'tr-TR', translation: 'Alınma Zamanı' }] } },
-  { field: 'email_status', type: 'string', meta: { interface: 'select-dropdown', width: 'half', options: { choices: [
-    { text: 'Beklemede', value: 'pending' }, { text: 'Gönderildi', value: 'sent' }
-  ] }, translations: [{ language: 'tr-TR', translation: 'E-posta Bildirimi' }] } }
+  {
+    field: 'status',
+    type: 'string',
+    schema: { default_value: 'new' },
+    meta: {
+      interface: 'select-dropdown',
+      width: 'half',
+      options: {
+        choices: [
+          { text: 'Yeni', value: 'new' },
+          { text: 'Okundu', value: 'read' },
+          { text: 'Yanıtlandı', value: 'replied' }
+        ]
+      },
+      translations: [{ language: 'tr-TR', translation: 'Mesaj Durumu' }]
+    }
+  },
+  {
+    field: 'email_status',
+    type: 'string',
+    schema: { default_value: 'pending' },
+    meta: {
+      interface: 'select-dropdown',
+      width: 'half',
+      options: {
+        choices: [
+          { text: 'Bekliyor', value: 'pending' },
+          { text: 'Gönderildi', value: 'sent' },
+          { text: 'Başarısız', value: 'failed' }
+        ]
+      },
+      translations: [{ language: 'tr-TR', translation: 'E-posta Bildirimi' }]
+    }
+  },
+  {
+    field: 'received_at',
+    type: 'timestamp',
+    schema: { default_value: 'NOW()' },
+    meta: {
+      interface: 'datetime',
+      width: 'half',
+      translations: [{ language: 'tr-TR', translation: 'Gönderim Zamanı' }]
+    }
+  }
 ];
 
 async function run() {
-  const headers = await authHeaders();
-  const request = async (path, opts = {}) => {
-    const res = await fetch(new URL(path, base), { ...opts, headers });
-    if (res.ok) return res.json().catch(() => ({}));
-    const body = (await res.text()).slice(0, 300);
-    const error = new Error('Directus ' + opts.method?.toUpperCase() + ' ' + path +
-      ': HTTP ' + res.status + ' ' + body);
-    error.status = res.status;
-    throw error;
-  };
+  const { api } = await adminClient();
 
-  let exists = false;
-  try {
-    await request('/collections/contact_messages');
-    exists = true;
-  } catch (err) {
-    if (err.status !== 404) throw err;
-  }
+  const allCols = await api('GET', '/collections');
+  const exists = Array.isArray(allCols) && allCols.some(c => c.collection === 'contact_messages');
 
   if (!exists) {
-    let group = null;
-    try { await request('/collections/grp_iletisim'); group = 'grp_iletisim'; }
-    catch (e) { if (e.status !== 404) throw e; }
-    await request('/collections', {
-      method: 'POST',
-      body: JSON.stringify({
-        collection: 'contact_messages', schema: {},
-        meta: {
-          collection: 'contact_messages', icon: 'mark_email_unread',
-          group, note: 'Yalnızca yöneticilerin erişebildiği iletişim talepleri',
-          translations: [{ language: 'tr-TR', translation: 'İletişim Mesajları' }]
-        },
-        fields: fieldDefs
-      })
+    const hasGroup = Array.isArray(allCols) && allCols.some(c => c.collection === 'grp_iletisim');
+    const group = hasGroup ? 'grp_iletisim' : null;
+
+    await api('POST', '/collections', {
+      collection: 'contact_messages',
+      schema: {},
+      meta: {
+        collection: 'contact_messages',
+        icon: 'mark_email_unread',
+        group,
+        note: 'Web sitesi iletişim formu üzerinden gönderilen müşteri mesajları',
+        translations: [{ language: 'tr-TR', translation: 'İletişim Mesajları' }]
+      },
+      fields: fieldDefs
     });
-    console.log('İletişim Mesajları koleksiyonu oluşturuldu.');
+    console.log('✨ [contact_messages] Koleksiyonu başarıyla oluşturuldu.');
   } else {
-    const result = await request('/fields/contact_messages');
-    const existing = new Set((result.data || []).map(item => item.field));
+    const fields = await api('GET', '/fields/contact_messages');
+    const existing = new Set((fields || []).map(f => f.field));
     for (const field of fieldDefs) {
-      if (existing.has(field.field)) continue;
-      if (field.field === 'id') continue;
-      await request('/fields/contact_messages', { method: 'POST', body: JSON.stringify(field) });
-      console.log('Eksik alan eklendi:', field.field);
+      if (existing.has(field.field) || field.field === 'id') continue;
+      try {
+        await api('POST', '/fields/contact_messages', field);
+        console.log(`✨ [contact_messages] Eksik alan eklendi: ${field.field}`);
+      } catch (err) {
+        console.warn(`⚠️ [contact_messages] Alan ekleme uyarısı (${field.field}):`, err.message);
+      }
     }
-    console.log('İletişim Mesajları koleksiyonu mevcut; eksik alanlar kontrol edildi.');
+    console.log('↩️  [contact_messages] Koleksiyonu zaten mevcut; alanlar doğrulandı.');
   }
-  console.log('Güvenlik: Public read/create izinleri VERİLMEDİ. Mesaj ekleme backend token ile yapılır.');
+
+  // Servis Kullanıcısı Yetkileri (Express'in DIRECTUS_SERVICE_TOKEN ile mesaj kaydedebilmesi ve email_status güncelleyebilmesi için)
+  const POLICY_NAME = 'Quote Intake (service)';
+  let policy = (await api('GET', `/policies?filter[name][_eq]=${encodeURIComponent(POLICY_NAME)}`))[0];
+  if (policy) {
+    const perms = await api('GET', `/permissions?limit=-1&filter[policy][_eq]=${policy.id}&filter[collection][_eq]=contact_messages`);
+    const actions = ['create', 'read', 'update'];
+    for (const action of actions) {
+      if (!perms.some(p => p.action === action)) {
+        await api('POST', '/permissions', {
+          policy: policy.id,
+          collection: 'contact_messages',
+          action,
+          permissions: {},
+          fields: ['*']
+        });
+        console.log(`🔐 Servis kullanıcısına contact_messages [${action}] izni verildi.`);
+      }
+    }
+  }
+
+  console.log('🔒 Güvenlik Kontrolü: contact_messages için public read/create erişimi VERİLMEDİ.');
+  console.log('🎉 İletişim Mesajları kurulumu tamamlandı!');
 }
 
-if (require.main === module) run().catch(err => { console.error(err.message); process.exitCode = 1; });
+if (require.main === module) {
+  run().catch(err => {
+    console.error('❌ Hata:', err.message);
+    process.exit(1);
+  });
+}
+
 module.exports = { fieldDefs, run };
