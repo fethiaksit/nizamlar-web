@@ -216,6 +216,9 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
+// Dynamic service detail pages and canonical redirects must precede static file serving.
+require('./cms/service-routes')(app, { directusUrl: DIRECTUS_URL, root: __dirname });
+
 // 5. Statik Dosyaları ve Sayfaları Sunma
 app.use(express.static(__dirname, {
   extensions: ['html', 'htm'],
