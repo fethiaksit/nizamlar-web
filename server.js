@@ -1,59 +1,88 @@
 /**
  * NİZAMLAR BASKI — UNIFIED WEB & CMS SERVER
- * Express + Directus Proxy + Güvenli Teklif Yükleme + Otomatik CMS Enjeksiyonu
+ * Express: statik site + Directus proxy (/admin, /items, /assets/:id) + filtreli public içerik API'si
+ *          (/api/public/*) + güvenli teklif API'si (/api/quote).
+ *
+ * Güvenlik özeti:
+ *  - Sırlar yalnızca .env / ortam değişkenlerinden okunur.
+ *  - Yalnızca beyaz listedeki dizinler yayınlanır (proje kökü, .git, cms/, node_modules ASLA).
+ *  - Ziyaretçiler içeriği /api/public/* üzerinden, sunucu tarafında ZORUNLU status=published filtresiyle okur.
+ *  - Teklifler doğrulanır, spam korumalıdır; DB kaydı başarısızsa kullanıcıya hata döner (sahte başarı yok).
+ *  - Teklif dosyaları web köküne konmaz; yalnızca oturum açmış Directus kullanıcıları indirebilir.
  */
+
+require('./cms/lib/env'); // .env yükler
 
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const multer = require('multer');
 
 const app = express();
+const IS_PROD = process.env.NODE_ENV === 'production';
 const PORT = process.env.PORT || 3030;
-const DIRECTUS_URL = process.env.DIRECTUS_URL || 'http://127.0.0.1:8055';
+const DIRECTUS_URL = (process.env.DIRECTUS_URL || 'http://127.0.0.1:8055').replace(/\/$/, '');
+const SERVICE_TOKEN = process.env.DIRECTUS_SERVICE_TOKEN || '';
+const ROOT = __dirname;
 
-// Teklif dosyaları için güvenli depolama dizini
-const QUOTES_DIR = path.join(__dirname, 'cms', 'uploads', 'quotes');
-if (!fs.existsSync(QUOTES_DIR)) {
-  fs.mkdirSync(QUOTES_DIR, { recursive: true });
+app.disable('x-powered-by');
+app.set('trust proxy', process.env.TRUST_PROXY ? Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY : 'loopback');
+
+/* ------------------------------------------------------------------ *
+ * 0. Yardımcılar
+ * ------------------------------------------------------------------ */
+const PRIVATE_QUOTE_DIR = path.join(ROOT, 'cms', 'private', 'quotes'); // statik olarak ASLA sunulmaz
+fs.mkdirSync(PRIVATE_QUOTE_DIR, { recursive: true });
+
+async function directus(pathAndQuery, { method = 'GET', body, token = SERVICE_TOKEN, timeoutMs = 8000 } = {}) {
+  const res = await fetch(`${DIRECTUS_URL}${pathAndQuery}`, {
+    method,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    signal: AbortSignal.timeout(timeoutMs)
+  });
+  const text = await res.text();
+  let json = null;
+  try { json = text ? JSON.parse(text) : null; } catch (e) { /* düz metin */ }
+  return { ok: res.ok, status: res.status, json, text };
 }
 
-// Multer Dosya Yükleme Yapılandırması (MIME ve Boyut Güvenliği)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, QUOTES_DIR);
-  },
-  filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const cleanName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, `${timestamp}_${cleanName}`);
-  }
-});
+function parseCookies(header) {
+  const out = {};
+  String(header || '').split(';').forEach(p => {
+    const i = p.indexOf('=');
+    if (i > 0) out[p.slice(0, i).trim()] = decodeURIComponent(p.slice(i + 1).trim());
+  });
+  return out;
+}
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
-  fileFilter: (req, file, cb) => {
-    const allowedExts = ['.pdf', '.ai', '.psd', '.png', '.jpg', '.jpeg', '.svg', '.zip', '.rar'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowedExts.includes(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Desteklenmeyen dosya formatı. Lütfen PDF, AI, PSD, PNG, JPG, SVG veya ZIP yükleyiniz.'));
-    }
-  }
-});
+/** Directus oturumu (yönetici paneli çerezi) geçerli mi? Önizleme ve teklif dosyası indirme için. */
+async function isStaffRequest(req) {
+  const t = parseCookies(req.headers.cookie).directus_session_token;
+  if (!t) return false;
+  try {
+    const r = await directus('/users/me?fields=id,status', { token: t, timeoutMs: 4000 });
+    return r.ok && r.json && r.json.data && r.json.data.status === 'active';
+  } catch (e) { return false; }
+}
 
-// 1. Güvenlik Başlıkları
+/* ------------------------------------------------------------------ *
+ * 1. Güvenlik başlıkları
+ * ------------------------------------------------------------------ */
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (IS_PROD) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
 });
 
-// 2. Directus Proxy Entegrasyonu
-// Path prefix stripping olmadan /admin ve tüm Directus API rotalarını 127.0.0.1:8055'e proxy'ler
+/* ------------------------------------------------------------------ *
+ * 2. Directus proxy (/admin, /items, /auth, /assets/:uuid ...)
+ * ------------------------------------------------------------------ */
 const directusProxy = createProxyMiddleware({
   target: DIRECTUS_URL,
   changeOrigin: true,
@@ -62,187 +91,381 @@ const directusProxy = createProxyMiddleware({
   on: {
     error: (err, req, res) => {
       console.error('Directus proxy hatası:', err.message);
-      if (!res.headersSent) {
-        res.status(502).json({ error: 'Directus proxy bağlantı hatası', details: err.message });
-      }
+      if (res && !res.headersSent && res.status) res.status(502).json({ error: 'CMS şu anda erişilemiyor' });
     }
   }
 });
 
-// Directus API & Yönetim Paneli Rotaları
 const DIRECTUS_ROUTES = [
-  'admin',
-  'auth',
-  'activity',
-  'collections',
-  'comments',
-  'dashboards',
-  'extensions',
-  'fields',
-  'files',
-  'flows',
-  'folders',
-  'graphql',
-  'insights',
-  'items',
-  'notifications',
-  'operations',
-  'panels',
-  'permissions',
-  'policies',
-  'presets',
-  'relations',
-  'revisions',
-  'roles',
-  'schema',
-  'server',
-  'settings',
-  'shares',
-  'sync',
-  'translations',
-  'tours',
-  'users',
-  'utils',
-  'versions',
-  'websocket'
+  'admin', 'auth', 'activity', 'collections', 'comments', 'dashboards', 'extensions', 'fields', 'files', 'flows',
+  'folders', 'graphql', 'insights', 'items', 'notifications', 'operations', 'panels', 'permissions', 'policies',
+  'presets', 'relations', 'revisions', 'roles', 'schema', 'server', 'settings', 'shares', 'sync', 'translations',
+  'tours', 'users', 'utils', 'versions', 'websocket', 'access', 'metrics'
 ];
-
-// Favicon yönlendirmesi
-app.get('/favicon.ico', (req, res) => {
-  const faviconSvg = path.join(__dirname, 'assets', 'images', 'logo.svg');
-  if (fs.existsSync(faviconSvg)) {
-    res.setHeader('Content-Type', 'image/svg+xml');
-    return res.sendFile(faviconSvg);
-  }
-  res.status(204).end();
-});
+const STATIC_ASSET_DIRS = ['css', 'js', 'images', 'videos']; // /assets/<bunlar> Express'e, /assets/<uuid> Directus'a gider
 
 app.use((req, res, next) => {
   const p = req.path;
-
-  // Statik frontend varlıklarını Express sunar
-  if (
-    p.startsWith('/assets/css') ||
-    p.startsWith('/assets/js') ||
-    p.startsWith('/assets/images') ||
-    p.startsWith('/assets/videos')
-  ) {
-    return next();
-  }
-
-  // Directus yüklenen dosyaları (/assets/:id)
   if (p === '/assets' || p.startsWith('/assets/')) {
-    return directusProxy(req, res, next);
+    const seg = p.split('/')[2];
+    if (STATIC_ASSET_DIRS.includes(seg)) return next();
+    return directusProxy(req, res, next); // Directus dosyaları
   }
-
-  // Directus admin ve API rotaları
-  const isDirectusRoute = DIRECTUS_ROUTES.some(
-    route => p === `/${route}` || p.startsWith(`/${route}/`)
-  );
-
-  if (isDirectusRoute) {
-    return directusProxy(req, res, next);
-  }
-
+  if (DIRECTUS_ROUTES.some(r => p === `/${r}` || p.startsWith(`/${r}/`))) return directusProxy(req, res, next);
   next();
 });
 
-// 3. Teklif Formu API'si (/api/quote)
-app.post('/api/quote', upload.single('design_file'), async (req, res) => {
-  try {
-    const {
-      name, customer_name,
-      company, company_name,
-      phone, email,
-      service, print_type,
-      quantity,
-      notes, description, message
-    } = req.body;
+/* ------------------------------------------------------------------ *
+ * 3. Public içerik API'si (yalnızca yayımlanmış içerik)
+ * ------------------------------------------------------------------ */
+const PUBLIC_COLLECTIONS = {
+  site_settings: { singleton: true },
+  whatsapp_settings: { singleton: true },
+  mockup_preview_settings: { singleton: true },
+  seo_settings: { sort: 'id' },
+  pages: { status: true, filters: ['slug'], slugIn: true },
+  products: { status: true, sort: 'sort' },
+  services: { status: true, sort: 'sort', filters: ['slug'] },
+  machines: { status: true, sort: 'sort' },
+  production_processes: { status: true, sort: 'sort,step_number' },
+  references: { status: true, sort: 'sort' },
+  certificates: { status: true, sort: 'sort' },
+  blog_posts: { status: true, sort: '-published_date', filters: ['slug'] },
+  animations_config: { status: true, filters: ['key'] },
+  navigation_menus: { status: true, sort: 'sort' }
+};
+const SAFE_VALUE = /^[\p{L}\p{N}\-_./ ]{1,160}$/u;
 
-    const uploadedFile = req.file;
+app.get('/api/public/:collection', async (req, res) => {
+  const cfg = PUBLIC_COLLECTIONS[req.params.collection];
+  res.setHeader('Cache-Control', 'no-cache'); // her yenilemede doğrula (ETag ile 304)
+  if (!cfg) return res.status(404).json({ error: 'Bilinmeyen koleksiyon' });
+  if (!SERVICE_TOKEN) return res.status(503).json({ error: 'CMS servis anahtarı yapılandırılmamış' });
 
-    const payload = {
-      customer_name: name || customer_name || 'İsimsiz Talep',
-      company_name: company || company_name || '',
-      phone: phone || '',
-      email: email || '',
-      print_type: service || print_type || 'Genel Tekstil Baskı',
-      quantity: quantity || 'Belirtilmedi',
-      description: notes || description || message || '',
-      file_url: uploadedFile ? `/cms/uploads/quotes/${uploadedFile.filename}` : '',
-      file_name: uploadedFile ? uploadedFile.originalname : '',
-      status: 'Yeni',
-      created_at: new Date().toISOString()
-    };
-
-    // Directus veritabanına kaydet
-    const directusRes = await fetch(`${DIRECTUS_URL}/items/quote_requests`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (directusRes.ok) {
-      const text = await directusRes.text();
-      let data = null;
-      if (text) {
-        try { data = JSON.parse(text); } catch (e) {}
-      }
-      return res.status(200).json({ success: true, message: 'Teklif talebi başarıyla kaydedildi.', data });
-    } else {
-      console.warn('Directus kayıt uyarısı:', await directusRes.text());
-      return res.status(200).json({ success: true, message: 'Teklif talebi alındı.' });
-    }
-  } catch (err) {
-    console.error('Teklif işleme hatası:', err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// 4. Sistem Sağlık & Durum Kontrolü
-app.get('/api/health', async (req, res) => {
-  let cmsStatus = 'offline';
-  try {
-    const ping = await fetch(`${DIRECTUS_URL}/server/ping`);
-    if (ping.ok) cmsStatus = 'online';
-  } catch (e) {}
-
-  res.json({
-    status: 'ok',
-    cms_status: cmsStatus,
-    directus_url: DIRECTUS_URL,
-    timestamp: new Date().toISOString(),
-    version: '2.0.0-directus'
-  });
-});
-
-// 5. Statik Dosyaları ve Sayfaları Sunma
-app.use(express.static(__dirname, {
-  extensions: ['html', 'htm'],
-  index: 'index.html',
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache');
-    }
-  }
-}));
-
-// Fallback: 404 Sayfası
-app.use((req, res) => {
-  const file404 = path.join(__dirname, '404.html');
-  if (fs.existsSync(file404)) {
-    res.status(404).sendFile(file404);
+  const q = new URLSearchParams();
+  if (cfg.singleton) {
+    // tek kayıt
   } else {
-    res.status(404).send('Sayfa bulunamadı.');
+    q.set('limit', '-1');
+    if (cfg.sort) q.set('sort', cfg.sort);
+    const wantsPreview = req.query.preview === '1';
+    const preview = wantsPreview && cfg.status && await isStaffRequest(req);
+    if (cfg.status && !preview) q.set('filter[status][_eq]', 'published'); // ZORUNLU filtre
+    for (const f of cfg.filters || []) {
+      if (req.query[f] === undefined) continue;
+      const v = String(req.query[f]);
+      if (!SAFE_VALUE.test(v)) return res.status(400).json({ error: `Geçersiz ${f}` });
+      q.set(`filter[${f}][_eq]`, v);
+    }
+    if (cfg.slugIn && req.query.slugs) {
+      const list = String(req.query.slugs).split(',').filter(v => SAFE_VALUE.test(v)).slice(0, 6);
+      if (list.length) q.set('filter[slug][_in]', list.join(','));
+    }
+  }
+
+  try {
+    const r = await directus(`/items/${req.params.collection}?${q.toString()}`);
+    if (!r.ok) {
+      console.error(`/api/public/${req.params.collection} -> Directus HTTP ${r.status}`);
+      return res.status(502).json({ error: 'CMS verisi okunamadı' });
+    }
+    res.json(r.json);
+  } catch (e) {
+    console.error('Public API hatası:', e.message);
+    res.status(502).json({ error: 'CMS erişilemiyor' });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`\n======================================================`);
-  console.log(`🌟 NİZAMLAR BASKI KURUMSAL WEB & CMS YAYINDA`);
-  console.log(`======================================================`);
-  console.log(`🌍 Web Sitesi:          http://localhost:${PORT}`);
-  console.log(`⚙️  Yönetim Paneli:      http://localhost:${PORT}/admin`);
-  console.log(`🔌 Doğrudan Directus:   ${DIRECTUS_URL}/admin`);
-  console.log(`======================================================\n`);
+/* ------------------------------------------------------------------ *
+ * 4. Teklif formu (/api/quote)
+ * ------------------------------------------------------------------ */
+const ALLOWED_EXT = ['.pdf', '.ai', '.psd', '.png', '.jpg', '.jpeg', '.svg', '.tif', '.tiff', '.zip', '.rar'];
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, PRIVATE_QUOTE_DIR),
+    filename: (req, file, cb) => cb(null, `${crypto.randomUUID()}${path.extname(file.originalname).toLowerCase()}`)
+  }),
+  limits: { fileSize: MAX_FILE_BYTES, files: 1, fields: 20, fieldSize: 8 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ALLOWED_EXT.includes(ext)) return cb(null, true);
+    const err = new Error('Desteklenmeyen dosya formatı. PDF, AI, PSD, PNG, JPG, SVG, TIFF, ZIP veya RAR yükleyin.');
+    err.code = 'BAD_FILE_TYPE';
+    cb(err);
+  }
 });
+
+/** Dosya içeriğini (ilk baytlar) uzantıyla doğrular — yalnızca uzantıya güvenmez. */
+function fileContentMatches(file) {
+  const fd = fs.openSync(file.path, 'r');
+  const buf = Buffer.alloc(512);
+  const n = fs.readSync(fd, buf, 0, 512, 0);
+  fs.closeSync(fd);
+  const head = buf.subarray(0, n);
+  const ext = path.extname(file.originalname).toLowerCase();
+  const starts = sig => head.subarray(0, sig.length).equals(Buffer.from(sig));
+  switch (ext) {
+    case '.pdf': return starts([0x25, 0x50, 0x44, 0x46]);
+    case '.ai': return starts([0x25, 0x50, 0x44, 0x46]) || starts([0x25, 0x21]); // PDF tabanlı veya PostScript
+    case '.psd': return starts([0x38, 0x42, 0x50, 0x53]);
+    case '.png': return starts([0x89, 0x50, 0x4e, 0x47]);
+    case '.jpg': case '.jpeg': return starts([0xff, 0xd8, 0xff]);
+    case '.tif': case '.tiff': return starts([0x49, 0x49, 0x2a, 0x00]) || starts([0x4d, 0x4d, 0x00, 0x2a]);
+    case '.zip': return starts([0x50, 0x4b, 0x03, 0x04]) || starts([0x50, 0x4b, 0x05, 0x06]);
+    case '.rar': return starts([0x52, 0x61, 0x72, 0x21]);
+    case '.svg': {
+      const txt = fs.readFileSync(file.path, 'utf8');
+      return /<svg[\s>]/i.test(txt.slice(0, 2048)) && !/<script|onload\s*=|onerror\s*=|javascript:/i.test(txt);
+    }
+    default: return false;
+  }
+}
+
+// Basit bellek içi hız sınırı (IP başına)
+const rateBuckets = new Map();
+function rateLimit({ windowMs, max }) {
+  return (req, res, next) => {
+    const now = Date.now();
+    const key = req.ip;
+    const hits = (rateBuckets.get(key) || []).filter(t => now - t < windowMs);
+    if (hits.length >= max) {
+      res.setHeader('Retry-After', Math.ceil(windowMs / 1000));
+      return res.status(429).json({ success: false, error: 'Çok fazla deneme. Lütfen biraz sonra tekrar deneyin.' });
+    }
+    hits.push(now);
+    rateBuckets.set(key, hits);
+    next();
+  };
+}
+setInterval(() => { const now = Date.now(); for (const [k, v] of rateBuckets) if (!v.some(t => now - t < 3600e3)) rateBuckets.delete(k); }, 600e3).unref();
+
+const clean = (v, max) => String(v === undefined || v === null ? '' : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim().slice(0, max);
+
+function validateQuote(b) {
+  const errors = {};
+  const name = clean(b.name || b.customer_name, 120);
+  const email = clean(b.email, 160);
+  const phone = clean(b.phone, 40);
+  if (name.length < 2) errors.name = 'Ad soyad zorunludur.';
+  if (!phone && !email) errors.contact = 'Telefon veya e-posta bilgisinden en az biri zorunludur.';
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) errors.email = 'E-posta adresi geçersiz.';
+  if (phone && (phone.replace(/\D/g, '').length < 7 || !/^[+\d\s()\-.]+$/.test(phone))) errors.phone = 'Telefon numarası geçersiz.';
+  const extra = [['Ürün türü', b.product_type], ['Baskı ebadı', b.print_size], ['Kumaş', b.fabric]]
+    .map(([k, v]) => [k, clean(v, 200)]).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`);
+  const description = clean([clean(b.notes || b.description || b.message, 3500), ...extra].filter(Boolean).join('\n'), 4000);
+  return {
+    errors,
+    value: {
+      customer_name: name,
+      company_name: clean(b.company || b.company_name, 160),
+      phone,
+      email,
+      print_type: clean(b.service || b.print_type, 120) || 'Genel Tekstil Baskı',
+      quantity: clean(b.quantity, 60) || 'Belirtilmedi',
+      description
+    }
+  };
+}
+
+const discard = file => { if (file && file.path) fs.unlink(file.path, () => {}); };
+
+app.post('/api/quote',
+  express.json({ limit: '10mb' }),
+  express.urlencoded({ extended: true, limit: '10mb' }),
+  rateLimit({ windowMs: 10 * 60e3, max: 6 }),
+  (req, res, next) => upload.single('design_file')(req, res, err => {
+    if (!err) return next();
+    const msg = err.code === 'LIMIT_FILE_SIZE' ? `Dosya en fazla ${MAX_FILE_BYTES / 1024 / 1024} MB olabilir.` : err.message;
+    return res.status(400).json({ success: false, error: msg });
+  }),
+  async (req, res) => {
+    const file = req.file;
+    try {
+      const b = req.body || {};
+      // Spam: honeypot + çok hızlı gönderim
+      if (clean(b.website, 200) || clean(b.company_url, 200)) { discard(file); return res.status(400).json({ success: false, error: 'Geçersiz istek.' }); }
+      const started = Number(b._form_ts);
+      if (!started || Date.now() - started < 2500) { discard(file); return res.status(400).json({ success: false, error: 'Form çok hızlı gönderildi. Lütfen tekrar deneyin.' }); }
+
+      const { errors, value } = validateQuote(b);
+      if (Object.keys(errors).length) { discard(file); return res.status(422).json({ success: false, error: 'Lütfen form alanlarını kontrol edin.', fields: errors }); }
+
+      if (file && !fileContentMatches(file)) { discard(file); return res.status(400).json({ success: false, error: 'Dosya içeriği uzantısıyla uyuşmuyor veya güvenli değil.' }); }
+      if (!SERVICE_TOKEN) { discard(file); console.error('DIRECTUS_SERVICE_TOKEN tanımsız: teklif kaydedilemedi'); return res.status(503).json({ success: false, error: 'Teklif sistemi şu anda yapılandırılmamış. Lütfen telefon veya WhatsApp ile ulaşın.' }); }
+
+      const payload = {
+        ...value,
+        file_url: file ? `/api/admin/quote-file/${file.filename}` : '',
+        file_name: file ? clean(file.originalname, 200) : '',
+        status: 'Yeni',
+        created_at: new Date().toISOString(),
+        source_ip_hash: crypto.createHash('sha256').update(String(req.ip)).digest('hex').slice(0, 16)
+      };
+
+      const r = await directus('/items/quote_requests', { method: 'POST', body: payload });
+      if (!r.ok) {
+        discard(file);
+        console.error(`Teklif Directus'a kaydedilemedi: HTTP ${r.status} ${r.text.slice(0, 300)}`);
+        return res.status(502).json({ success: false, error: 'Talebiniz kaydedilemedi. Lütfen tekrar deneyin veya bizi arayın.' });
+      }
+      return res.status(201).json({ success: true, message: 'Teklif talebiniz başarıyla kaydedildi.', id: r.json && r.json.data && r.json.data.id });
+    } catch (err) {
+      discard(file);
+      console.error('Teklif işleme hatası:', err);
+      return res.status(500).json({ success: false, error: 'Beklenmeyen bir hata oluştu. Talebiniz kaydedilmedi.' });
+    }
+  }
+);
+
+// Teklif dosyaları: yalnızca giriş yapmış Directus kullanıcıları
+app.get('/api/admin/quote-file/:name', async (req, res) => {
+  if (!/^[0-9a-f-]{36}\.[a-z0-9]{2,4}$/.test(req.params.name)) return res.status(400).end();
+  if (!(await isStaffRequest(req))) return res.status(401).json({ error: 'Yetkisiz' });
+  const full = path.join(PRIVATE_QUOTE_DIR, req.params.name);
+  if (!fs.existsSync(full)) return res.status(404).json({ error: 'Dosya yok' });
+  res.setHeader('Cache-Control', 'private, no-store');
+  res.download(full);
+});
+
+/* ------------------------------------------------------------------ *
+ * 5. Sağlık
+ * ------------------------------------------------------------------ */
+app.get('/api/health', async (req, res) => {
+  let cms = 'offline';
+  try { cms = (await directus('/server/ping', { token: '', timeoutMs: 3000 })).ok ? 'online' : 'error'; } catch (e) { /* offline */ }
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({ status: 'ok', cms_status: cms, quote_ready: Boolean(SERVICE_TOKEN), timestamp: new Date().toISOString() });
+});
+
+/* ------------------------------------------------------------------ *
+ * 6. Dinamik detay sayfaları (blog yazıları ve hizmet detayları)
+ *    - Taslak/silinmiş içerik 404 döner (statik yedek sayfa olsa bile).
+ *    - CMS kapalıysa statik yedek sayfaya düşer.
+ * ------------------------------------------------------------------ */
+const esc = s => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function renderTemplate(file, vars, res) {
+  let html = fs.readFileSync(path.join(ROOT, 'templates', file), 'utf8');
+  for (const [k, v] of Object.entries(vars)) html = html.split(`{{${k}}}`).join(esc(v));
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.send(versionAssets(html));
+}
+
+function dynamicDetail(collection, base, template) {
+  return async (req, res, next) => {
+    const slug = req.params.slug;
+    if (!SAFE_VALUE.test(slug) || !SERVICE_TOKEN) return next();
+    if (!req.path.endsWith('/')) return res.redirect(301, `${base}/${encodeURIComponent(slug)}/`);
+    try {
+      const r = await directus(`/items/${collection}?limit=1&filter[slug][_eq]=${encodeURIComponent(slug)}&fields=slug,title,status,summary,short_desc,seo_description`);
+      if (!r.ok) return next(); // CMS sorunu: statik yedeğe düş
+      const item = r.json.data && r.json.data[0];
+      if (!item) return next(); // CMS'te yok: statik (varsa) devam
+      const preview = req.query.preview === '1' && await isStaffRequest(req);
+      if (item.status !== 'published' && !preview) return res.status(404).sendFile(path.join(ROOT, '404.html'));
+      return renderTemplate(template, {
+        TITLE: `${item.title} | Nizamlar Baskı`,
+        DESC: item.seo_description || item.summary || item.short_desc || '',
+        SLUG: slug
+      }, res);
+    } catch (e) { return next(); }
+  };
+}
+app.get('/blog/:slug', dynamicDetail('blog_posts', '/blog', 'blog-post.html'));
+app.get('/blog/:slug/', dynamicDetail('blog_posts', '/blog', 'blog-post.html'));
+app.get('/hizmetlerimiz/:slug', dynamicDetail('services', '/hizmetlerimiz', 'service-detail.html'));
+app.get('/hizmetlerimiz/:slug/', dynamicDetail('services', '/hizmetlerimiz', 'service-detail.html'));
+
+/* ------------------------------------------------------------------ *
+ * 7. Statik site (YALNIZCA beyaz liste) + sürümlü JS/CSS
+ * ------------------------------------------------------------------ */
+const PAGE_DIRS = ['blog', 'galeri', 'hakkimizda', 'hizmetlerimiz', 'iletisim', 'makine-parkurumuz', 'referanslarimiz', 'sertifikalarimiz', 'surdurulebilirlik', 'teklif-al', 'uretim-surecleri'];
+const ROOT_FILES = { '/robots.txt': 'robots.txt', '/sitemap.xml': 'sitemap.xml' };
+
+const versionCache = new Map();
+function assetVersion(rel) {
+  const full = path.join(ROOT, rel);
+  try {
+    const st = fs.statSync(full);
+    const hit = versionCache.get(full);
+    if (hit && hit.m === st.mtimeMs) return hit.v;
+    const v = crypto.createHash('md5').update(fs.readFileSync(full)).digest('hex').slice(0, 10);
+    versionCache.set(full, { m: st.mtimeMs, v });
+    return v;
+  } catch (e) { return null; }
+}
+/** HTML içindeki yerel .js/.css bağlantılarına içerik özetli ?v= ekler (önbellek kırma). */
+function versionAssets(html) {
+  return html.replace(/((?:src|href)=")((?:\.\.\/|\.\/|\/)*(assets\/(?:js|css)\/[^"?#]+))(")/g, (m, a, url, rel, d) => {
+    const v = assetVersion(rel);
+    return v ? `${a}${url}?v=${v}${d}` : m;
+  });
+}
+
+function sendHtml(res, file) {
+  try {
+    const html = fs.readFileSync(file, 'utf8');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache'); // HTML her zaman doğrulanır; içerik zaten API'den gelir
+    res.send(versionAssets(html));
+  } catch (e) {
+    res.status(404).sendFile(path.join(ROOT, '404.html'));
+  }
+}
+
+app.get('/favicon.ico', (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.sendFile(path.join(ROOT, 'assets', 'images', 'logo.svg'));
+});
+
+app.get(Object.keys(ROOT_FILES), (req, res) => res.sendFile(path.join(ROOT, ROOT_FILES[req.path])));
+
+// Statik varlıklar. JS/CSS ?v=<içerik özeti> ile istenirse (HTML'e sunucu ekler) üretimde 1 yıl önbelleğe alınır;
+// özetsiz istek her seferinde doğrulanır. Görseller kısa süre önbelleğe alınır.
+const staticOpts = {
+  index: false, dotfiles: 'ignore', redirect: false,
+  setHeaders: (res, filePath) => {
+    const versioned = Boolean(res.req && res.req.query && res.req.query.v);
+    if (/\.(js|css)$/.test(filePath)) {
+      res.setHeader('Cache-Control', IS_PROD && versioned ? 'public, max-age=31536000, immutable' : 'no-cache');
+    } else {
+      res.setHeader('Cache-Control', IS_PROD ? 'public, max-age=3600, stale-while-revalidate=86400' : 'no-cache');
+    }
+  }
+};
+for (const dir of STATIC_ASSET_DIRS) app.use(`/assets/${dir}`, express.static(path.join(ROOT, 'assets', dir), staticOpts));
+
+// Sayfalar
+app.use((req, res, next) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  let p = decodeURIComponent(req.path);
+  if (p === '/' || p === '/index.html') return sendHtml(res, path.join(ROOT, 'index.html'));
+  const top = p.split('/')[1];
+  if (!PAGE_DIRS.includes(top)) return next();
+  if (!p.endsWith('/') && !path.extname(p)) return res.redirect(301, `${p}/`);
+  const rel = p.endsWith('/') ? `${p}index.html` : p;
+  const full = path.normalize(path.join(ROOT, rel));
+  if (!full.startsWith(ROOT + path.sep) || !full.endsWith('.html')) return next();
+  if (!fs.existsSync(full)) return next();
+  sendHtml(res, full);
+});
+
+app.use((req, res) => {
+  res.status(404);
+  const f = path.join(ROOT, '404.html');
+  if (req.accepts('html') && fs.existsSync(f)) return res.sendFile(f);
+  res.json({ error: 'Bulunamadı' });
+});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Nizamlar Baskı: http://localhost:${PORT}  (yönetim: /admin)  [${IS_PROD ? 'production' : 'development'}]`);
+    if (!SERVICE_TOKEN) console.warn('⚠️  DIRECTUS_SERVICE_TOKEN tanımsız: içerik API\'si ve teklif formu çalışmaz. Çalıştırın: node cms/setup_service_user.js');
+  });
+}
+
+module.exports = app;
