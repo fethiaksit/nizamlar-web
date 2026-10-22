@@ -8,7 +8,11 @@
     "cms:up": "docker compose -f cms/docker-compose.yml up -d",
     "cms:down": "docker compose -f cms/docker-compose.yml down",
     "cms:seed": "node cms/seed_content.js",
-    "cms:setup": "node cms/rebuild_collections.js && node cms/seed_content.js && node cms/set_public_permissions.js"
+    "cms:preview-links": "node cms/setup_preview_links.js",
+    "cms:setup": "node cms/rebuild_collections.js && node cms/seed_content.js && node cms/set_public_permissions.js && node cms/setup_preview_links.js",
+    "test:services": "node cms/test_services_e2e.js",
+    "test:preview": "node cms/test_preview_redirect.js",
+    "test:all": "node cms/test_services_e2e.js && node cms/test_preview_redirect.js && node cms/test_suite.js"
   },
   "keywords": [
     "tekstil-baski",

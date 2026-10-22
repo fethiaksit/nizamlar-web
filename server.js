@@ -362,7 +362,20 @@ function dynamicDetail(collection, base, template) {
     try {
       const r = await directus(`/items/${collection}?limit=1&filter[slug][_eq]=${encodeURIComponent(slug)}`);
       if (!r.ok) return next(); // CMS sorunu: statik yedeğe düş
-      const item = r.json.data && r.json.data[0];
+      let item = r.json.data && r.json.data[0];
+
+      // Slug doğrudan eşleşmediyse bilinen alias eşleşmelerini kontrol et (örn: serigrafi-baski <-> emprime-baski)
+      if (!item && collection === 'services') {
+        const aliasMap = { 'serigrafi-baski': 'emprime-baski', 'emprime-baski': 'serigrafi-baski' };
+        const altSlug = aliasMap[slug];
+        if (altSlug) {
+          const altR = await directus(`/items/services?limit=1&filter[slug][_eq]=${encodeURIComponent(altSlug)}`);
+          if (altR.ok && altR.json.data && altR.json.data[0]) {
+            return res.redirect(301, `${base}/${encodeURIComponent(altSlug)}/`);
+          }
+        }
+      }
+
       if (!item) return next(); // CMS'te yok: statik (varsa) devam
       const preview = req.query.preview === '1' && await isStaffRequest(req);
       if (item.status !== 'published' && !preview) return res.status(404).sendFile(path.join(ROOT, '404.html'));
@@ -378,10 +391,13 @@ function dynamicDetail(collection, base, template) {
         if (item.title) {
           html = html.replace(/<title>.*?<\/title>/i, `<title>${esc(pageTitle)}</title>`);
           html = html.replace(/(<meta\s+property=["']og:title["']\s+content=["']).*?(["'])/i, `$1${esc(pageTitle)}$2`);
+          html = html.replace(/(<h1[^>]*class=["'][^"']*page-hero-title[^"']*["'][^>]*>)([\s\S]*?)(<\/h1>)/i, `$1${esc(item.title)}$3`);
+          html = html.replace(/(<span[^>]*data-cms-field=["']title["'][^>]*>)([\s\S]*?)(<\/span>)/i, `$1${esc(item.title)}$3`);
         }
         if (pageDesc) {
           html = html.replace(/(<meta\s+name=["']description["']\s+content=["']).*?(["'])/i, `$1${esc(pageDesc)}$2`);
           html = html.replace(/(<meta\s+property=["']og:description["']\s+content=["']).*?(["'])/i, `$1${esc(pageDesc)}$2`);
+          html = html.replace(/(<p[^>]*class=["'][^"']*page-hero-desc[^"']*["'][^>]*>)([\s\S]*?)(<\/p>)/i, `$1${esc(pageDesc)}$3`);
         }
         res.setHeader('Content-Type', 'text/html; charset=utf-8');
         res.setHeader('Cache-Control', 'no-cache');
@@ -389,13 +405,26 @@ function dynamicDetail(collection, base, template) {
       }
 
       return renderTemplate(template, {
-        TITLE: pageTitle,
+        HEAD_TITLE: pageTitle,
+        TITLE: item.title,
         DESC: pageDesc,
         SLUG: slug
       }, res);
     } catch (e) { return next(); }
   };
 }
+
+/* ------------------------------------------------------------------ *
+ * Directus Admin "Bu Sayfaya Git" köprü yönlendirmeleri
+ * ------------------------------------------------------------------ */
+app.get('/go/services/:slug', (req, res) => res.redirect(302, `/hizmetlerimiz/${encodeURIComponent(req.params.slug)}/`));
+app.get('/go/services', (req, res) => res.redirect(302, '/hizmetlerimiz/'));
+app.get('/go/blog/:slug', (req, res) => res.redirect(302, `/blog/${encodeURIComponent(req.params.slug)}/`));
+app.get('/go/blog', (req, res) => res.redirect(302, '/blog/'));
+app.get('/go/pages/:slug', (req, res) => {
+  const s = req.params.slug;
+  return res.redirect(302, s === 'home' ? '/' : `/${encodeURIComponent(s)}/`);
+});
 app.get('/blog/:slug', dynamicDetail('blog_posts', '/blog', 'blog-post.html'));
 app.get('/blog/:slug/', dynamicDetail('blog_posts', '/blog', 'blog-post.html'));
 app.get('/hizmetlerimiz/:slug', dynamicDetail('services', '/hizmetlerimiz', 'service-detail.html'));
