@@ -18,6 +18,12 @@
   const prefix = getDepthPrefix();
   const currentPath = window.location.pathname.replace(/\/index\.html$/, '/');
 
+  // Merkezi URL Yardımcı Fonksiyonu
+  window.getServiceUrl = function (slug) {
+    if (!slug) return '/hizmetlerimiz/';
+    return `/hizmetlerimiz/${slug}/`;
+  };
+
   // Menü Veri Modeli (Tek Merkezden Yönetim)
   const NAV_CONFIG = [
     { label: 'Ana Sayfa', href: prefix ? prefix : './', id: 'home' },
@@ -33,13 +39,14 @@
     },
     {
       label: 'Hizmetlerimiz',
-      href: `${prefix}hizmetlerimiz/`,
+      href: '/hizmetlerimiz/',
       id: 'hizmetler',
       dropdown: [
-        { label: 'Tüm Hizmetler', href: `${prefix}hizmetlerimiz/` },
-        { label: 'DTF Baskı', href: `${prefix}hizmetlerimiz/dtf-baski/`, tag: 'Popüler' },
-        { label: 'Serigrafi Baskı', href: `${prefix}hizmetlerimiz/serigrafi-baski/` },
-        { label: 'Tişört Baskı', href: `${prefix}hizmetlerimiz/tisort-baski/` }
+        { label: 'Tüm Hizmetler', href: '/hizmetlerimiz/' },
+        { label: 'DTF Baskı', href: '/hizmetlerimiz/dtf-baski/', tag: 'Popüler' },
+        { label: 'Emprime Baskı', href: '/hizmetlerimiz/emprime-baski/' },
+        { label: 'Tişört Baskı', href: '/hizmetlerimiz/tisort-baski/' },
+        { label: 'Konfeksiyon Parça Baskı', href: '/hizmetlerimiz/emprime-parca-baski/' }
       ]
     },
     {
@@ -202,8 +209,8 @@
       </div>
       <div class="mobile-drawer-footer">
         <a href="${prefix}teklif-al/" class="btn btn-gold" style="width: 100%;">Fiyat Teklifi Al</a>
-        <div class="mobile-contact-line"><span>📍 İstanbul / Türkiye</span></div>
-        <div class="mobile-contact-line"><span>✉️ info@nizamlarbaski.com</span></div>
+        <div class="mobile-contact-line"><span data-cms-site="contact_address" data-cms-prefix="📍 ">📍 İstanbul / Türkiye</span></div>
+        <div class="mobile-contact-line"><span data-cms-site="contact_email" data-cms-prefix="✉️ ">✉️ info@nizamlarbaski.com</span></div>
       </div>
     `;
   }
@@ -268,14 +275,62 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderNavbar);
-  } else {
+  async function syncServicesWithCms() {
+    try {
+      const res = await fetch('/api/public/services');
+      if (!res.ok) return;
+      const json = await res.json();
+      const list = json.data;
+      if (!Array.isArray(list) || !list.length) return;
+
+      const published = list.filter(s => s.status === 'published' && s.title && s.slug);
+      published.sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || (a.id - b.id));
+
+      const hizmetlerItem = NAV_CONFIG.find(item => item.id === 'hizmetler');
+      if (hizmetlerItem) {
+        hizmetlerItem.dropdown = [
+          { label: 'Tüm Hizmetler', href: '/hizmetlerimiz/' },
+          ...published.map(service => {
+            const serviceUrl = `/hizmetlerimiz/${service.slug}/`;
+            return {
+              label: service.title,
+              href: serviceUrl,
+              tag: service.badge && service.badge.toLowerCase().includes('popüler') ? 'Popüler' : undefined
+            };
+          })
+        ];
+        renderNavbar();
+      }
+
+      // Footer hizmet linklerini de senkronize et
+      document.querySelectorAll('.footer-links').forEach(ul => {
+        const isServicesColumn = Array.from(ul.querySelectorAll('a')).some(a => a.href.includes('/hizmetlerimiz/'));
+        if (isServicesColumn) {
+          ul.innerHTML = published.map(service => {
+            const serviceUrl = `/hizmetlerimiz/${service.slug}/`;
+            return `<li><a href="${serviceUrl}" class="footer-link">${service.title}</a></li>`;
+          }).join('') + `<li><a href="/hizmetlerimiz/" class="footer-link">Tüm Baskı Çözümleri</a></li>`;
+        }
+      });
+    } catch (e) {
+      // Offline fallback
+    }
+  }
+
+  function init() {
     renderNavbar();
+    syncServicesWithCms();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 
   window.NizamlarNavbar = {
     refresh: renderNavbar,
-    version: '2.1.0'
+    sync: syncServicesWithCms,
+    version: '2.2.0'
   };
 })();

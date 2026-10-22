@@ -4,9 +4,9 @@
  * ve public okuma yetkisi verir.
  */
 
-const DIRECTUS_URL = 'http://localhost:8055';
-const ADMIN_EMAIL = 'admin@nizamlarbaski.com';
-const ADMIN_PASSWORD = 'NizamlarAdmin2026!';
+const { DIRECTUS_URL, required } = require('./lib/env');
+const ADMIN_EMAIL = required('ADMIN_EMAIL');
+const ADMIN_PASSWORD = required('ADMIN_PASSWORD');
 
 async function setupMockupCollection() {
   console.log('🚀 Directus Mockup Preview Koleksiyonu Kurulumu Başlatılıyor...');

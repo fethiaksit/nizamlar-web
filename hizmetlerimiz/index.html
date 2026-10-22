@@ -55,7 +55,7 @@
           <ul class="dropdown-menu">
             <li class="dropdown-item"><a href="../hizmetlerimiz/" class="dropdown-link active">Tüm Hizmetler</a></li>
             <li class="dropdown-item"><a href="../hizmetlerimiz/dtf-baski/" class="dropdown-link">DTF Baskı <span class="dropdown-tag">Popüler</span></a></li>
-            <li class="dropdown-item"><a href="../hizmetlerimiz/serigrafi-baski/" class="dropdown-link">Serigrafi Baskı</a></li>
+            <li class="dropdown-item"><a href="../hizmetlerimiz/emprime-baski/" class="dropdown-link">Emprime Baskı</a></li>
             <li class="dropdown-item"><a href="../hizmetlerimiz/tisort-baski/" class="dropdown-link">Tişört Baskı</a></li>
           </ul>
         </div>
@@ -112,7 +112,7 @@
           <ul class="mobile-submenu">
             <li><a href="../hizmetlerimiz/" class="mobile-submenu-link active">Tüm Hizmetler</a></li>
             <li><a href="../hizmetlerimiz/dtf-baski/" class="mobile-submenu-link">DTF Baskı</a></li>
-            <li><a href="../hizmetlerimiz/serigrafi-baski/" class="mobile-submenu-link">Serigrafi Baskı</a></li>
+            <li><a href="../hizmetlerimiz/emprime-baski/" class="mobile-submenu-link">Emprime Baskı</a></li>
             <li><a href="../hizmetlerimiz/tisort-baski/" class="mobile-submenu-link">Tişört Baskı</a></li>
           </ul>
         </li>
@@ -145,18 +145,20 @@
           <span class="breadcrumb-sep">/</span>
           <span>Hizmetlerimiz</span>
         </div>
-        <h1 class="page-hero-title">
+        <h1 class="page-hero-title" data-cms-hero="title">
           Kapsamlı ve Endüstriyel <br>
           <span class="editorial-italic">Tekstil Baskı</span> Çözümleri
         </h1>
-        <p class="page-hero-desc">
+        <p class="page-hero-desc" data-cms-hero="subtitle">
           DTF baskı, serigrafi emprime, parça tişört baskı ve özel kimyasal efektlerle markanızın tasarım vizyonunu kumaşa kusursuz aktarıyoruz.
         </p>
       </div>
     </section>
 
+    <!-- HİZMETLER BLOKLARI KAPSAYICISI -->
+    <div id="services-blocks-container">
     <!-- HİZMET 1: DTF BASKI GENİŞ BLOK -->
-    <section class="section bg-cream">
+    <section data-cms-service="dtf-baski" class="section bg-cream">
       <div class="container">
         <div class="grid grid-2 items-center gap-6">
           <div data-reveal="fade-up">
@@ -210,13 +212,13 @@
       </div>
     </section>
 
-    <!-- HİZMET 2: SERİGRAFİ BASKI GENİŞ BLOK -->
-    <section class="section bg-cream-pure" style="border-top: 1px solid var(--c-stone-border);">
+    <!-- HİZMET 2: EMPRİME BASKI GENİŞ BLOK -->
+    <section data-cms-service="emprime-baski serigrafi-baski emprime-baskı emprimebaskı" class="section bg-cream-pure" style="border-top: 1px solid var(--c-stone-border);">
       <div class="container">
         <div class="grid grid-2 items-center gap-6">
           <div data-reveal="fade-up" style="order: 2;">
             <div class="section-tag">Endüstriyel Hacim</div>
-            <h2 class="section-title">Serigrafi (Emprime) Baskı</h2>
+            <h2 class="section-title">Emprime Baskı</h2>
             <div class="gold-line-solid"></div>
             <p class="lead">
               Yüksek tirajlı giyim üretimlerinde rakipsiz birim maliyet, yoğun renk örtücülüğü ve geleneksel kalıplama uzmanlığı.
@@ -230,11 +232,11 @@
               <span class="badge badge-cream">Su Bazlı & Ekolojik</span>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
-              <a href="../hizmetlerimiz/serigrafi-baski/" class="btn btn-anthracite">
-                <span>Serigrafi Detay Sayfası</span>
+              <a href="../hizmetlerimiz/emprime-baski/" class="btn btn-anthracite">
+                <span>Emprime Baskı Detay Sayfası</span>
                 <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
-              <a href="../teklif-al/" class="btn btn-gold">Serigrafi Teklifi Al</a>
+              <a href="../teklif-al/" class="btn btn-gold">Emprime Teklifi Al</a>
             </div>
           </div>
 
@@ -266,7 +268,7 @@
     </section>
 
     <!-- HİZMET 3: TİŞÖRT & PARÇA BASKI GENİŞ BLOK -->
-    <section class="section bg-cream" style="border-top: 1px solid var(--c-stone-border);">
+    <section data-cms-service="tisort-baski" class="section bg-cream" style="border-top: 1px solid var(--c-stone-border);">
       <div class="container">
         <div class="grid grid-2 items-center gap-6">
           <div data-reveal="fade-up">
@@ -320,13 +322,65 @@
       </div>
     </section>
 
+    <!-- HİZMET 4: KONFEKSİYON PARÇA BASKI (EMPRİME) GENİŞ BLOK -->
+    <section data-cms-service="emprime-parca-baski" class="section bg-cream-pure" style="border-top: 1px solid var(--c-stone-border);">
+      <div class="container">
+        <div class="grid grid-2 items-center gap-6">
+          <div data-reveal="fade-up" style="order: 2;">
+            <div class="section-tag">Endüstriyel Hassasiyet</div>
+            <h2 class="section-title">Konfeksiyon Parça Baskı (Emprime)</h2>
+            <div class="gold-line-solid"></div>
+            <p class="lead">
+              Kesilmiş kumaş panelleri üzerine dikiş öncesi mikron hassasiyetinde parça emprime baskı çözümleri.
+            </p>
+            <p>
+              Montaj öncesi kumaş parçalarına uygulanan emprime baskı, karmaşık giysi kalıplarında kusursuz desen yerleşimi sağlar. Lazer hizalamalı hassas tablalarımızla sıfır fire ve milimetrik desen tekrarı elde edilir.
+            </p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 2rem 0;">
+              <span class="badge badge-gold">Lazer Hizalamalı Hassas Tablalar</span>
+              <span class="badge badge-anthracite">Kalıp Geometrisine Özel Pozlama</span>
+              <span class="badge badge-cream">Kapsamlı Kalite Kontrol Protokolü</span>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <a href="../hizmetlerimiz/emprime-parca-baski/" class="btn btn-anthracite">
+                <span>Konfeksiyon Parça Baskı Detay Sayfası</span>
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+              <a href="../teklif-al/" class="btn btn-gold">Parça Baskı Teklifi Al</a>
+            </div>
+          </div>
+
+          <div data-reveal="slide-right" data-delay="200" style="order: 1;">
+            <div style="position: relative; box-shadow: var(--shadow-card); border-radius: var(--radius-md); overflow: hidden; background: var(--c-anthracite); border: 1px solid var(--c-gold-border);">
+              <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                <span class="live-dot" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--c-gold); text-transform: uppercase;">Günde 40.000+ Parça</span>
+                <span class="badge badge-gold" style="font-size: 0.7rem;">Endüstriyel Hassasiyet</span>
+              </div>
+              <div class="product-card-enhanced" style="background: transparent; border: none; padding: 0;">
+                <div class="product-visual-box" style="height: 340px; background: radial-gradient(circle at center, #2e2825 0%, #1a1a1c 100%);">
+                  <div class="print-reveal-container" style="width: 100%; height: 100%;">
+                    <img src="../assets/images/simulations/dtf-step-4.svg" alt="Konfeksiyon Parça Baskı (Emprime)" style="width: 100%; height: 100%; object-fit: contain; padding: 1.5rem;">
+                  </div>
+                </div>
+              </div>
+              <div style="padding: 0.85rem 1.5rem; background: rgba(0,0,0,0.3); font-size: 0.85rem; color: var(--c-stone-light); display: flex; justify-content: space-between;">
+                <span>Örnek: Dikim Öncesi Kesim Paneli Baskısı</span>
+                <span style="color: var(--c-gold);">Mikron Kroslama</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
+
     <!-- KARŞILAŞTIRMA TABLOSU -->
     <section class="section bg-anthracite">
       <div class="container">
         <div class="section-header text-center" data-reveal="fade-up">
-          <div class="section-tag" style="color: var(--c-gold);">Karar Rehberi</div>
-          <h2 class="section-title" style="color: var(--c-cream-pure);">Hangi Baskı Teknolojisi Projenize Uygun?</h2>
-          <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;">
+          <div class="section-tag" style="color: var(--c-gold);" data-cms-text="s1.tag">Karar Rehberi</div>
+          <h2 class="section-title" style="color: var(--c-cream-pure);" data-cms-text="s1.title">Hangi Baskı Teknolojisi Projenize Uygun?</h2>
+          <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;" data-cms-text="s1.desc">
             Sipariş adediniz, deseninizin renk yapısı ve kumaş türünüze göre en verimli seçimi yapabilmeniz için karşılaştırma tablosu.
           </p>
         </div>
@@ -337,7 +391,7 @@
               <tr style="border-bottom: 2px solid var(--c-gold-border); color: var(--c-gold); font-family: var(--font-mono); font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase;">
                 <th style="padding: 1rem;">Kriter</th>
                 <th style="padding: 1rem;">DTF Baskı</th>
-                <th style="padding: 1rem;">Serigrafi Baskı</th>
+                <th style="padding: 1rem;">Emprime Baskı</th>
                 <th style="padding: 1rem;">Tişört Parça Baskı</th>
               </tr>
             </thead>
@@ -425,7 +479,7 @@
           <h4 class="footer-heading">Hizmetlerimiz</h4>
           <ul class="footer-links">
             <li><a href="../hizmetlerimiz/dtf-baski/" class="footer-link">DTF Baskı</a></li>
-            <li><a href="../hizmetlerimiz/serigrafi-baski/" class="footer-link">Serigrafi Baskı</a></li>
+            <li><a href="../hizmetlerimiz/emprime-baski/" class="footer-link">Emprime Baskı</a></li>
             <li><a href="../hizmetlerimiz/tisort-baski/" class="footer-link">Tişört Baskı</a></li>
             <li><a href="../hizmetlerimiz/" class="footer-link">Tüm Baskı Çözümleri</a></li>
             <li><a href="../galeri/" class="footer-link">Üretim Galerisi</a></li>
@@ -438,15 +492,15 @@
           <ul class="footer-contact-list">
             <li class="footer-contact-item">
               <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Organize Sanayi Bölgesi, Tekstilciler Sanayi Sitesi, İstanbul / Türkiye</span>
+              <span data-cms-site="contact_address">Organize Sanayi Bölgesi, Tekstilciler Sanayi Sitesi, İstanbul / Türkiye</span>
             </li>
             <li class="footer-contact-item">
               <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <a href="tel:+902120000000">+90 (212) 000 00 00</a>
+              <a href="tel:+902120000000" data-cms-site="contact_phone">+90 (212) 000 00 00</a>
             </li>
             <li class="footer-contact-item">
               <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <a href="mailto:info@nizamlarbaski.com">info@nizamlarbaski.com</a>
+              <a href="mailto:info@nizamlarbaski.com" data-cms-site="contact_email">info@nizamlarbaski.com</a>
             </li>
             <li class="footer-contact-item">
               <a href="../teklif-al/" class="btn btn-gold" style="width: 100%; margin-top: 0.5rem;">Fiyat Teklifi Al</a>
@@ -458,7 +512,7 @@
 
     <div class="footer-bottom">
       <div class="container footer-bottom-flex">
-        <div>© 2026 Nizamlar Baskı Tekstil San. ve Tic. Ltd. Şti. Tüm hakları saklıdır.</div>
+        <div>© 2026 <span data-cms-site="company_legal_name">Nizamlar Baskı Tekstil San. ve Tic. Ltd. Şti.</span> Tüm hakları saklıdır.</div>
         <ul class="footer-legal-links">
           <li><a href="../hakkimizda/">KVKK Aydınlatma Metni</a></li>
           <li><a href="../hakkimizda/">Gizlilik Politikası</a></li>

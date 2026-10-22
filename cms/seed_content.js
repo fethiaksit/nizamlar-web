@@ -3,9 +3,9 @@
  * Mevcut tüm site içeriklerini Directus veritabanına aktarır.
  */
 
-const DIRECTUS_URL = 'http://localhost:8055';
-const ADMIN_EMAIL = 'admin@nizamlarbaski.com';
-const ADMIN_PASSWORD = 'NizamlarAdmin2026!';
+const { DIRECTUS_URL, required } = require('./lib/env');
+const ADMIN_EMAIL = required('ADMIN_EMAIL');
+const ADMIN_PASSWORD = required('ADMIN_PASSWORD');
 
 async function seed() {
   console.log('📦 İçerik aktarımı başlatılıyor...');
@@ -22,38 +22,42 @@ async function seed() {
     'Authorization': `Bearer ${access_token}`
   };
 
+  // Singleton: yalnızca YOKSA oluşturur. Yöneticinin düzenlemelerini asla ezmez.
   async function insertOrUpdateSingleton(collection, data) {
     const check = await fetch(`${DIRECTUS_URL}/items/${collection}`, { headers });
     const current = await check.json();
     if (current && current.data && current.data.id) {
-      await fetch(`${DIRECTUS_URL}/items/${collection}`, {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify(data)
-      });
-      console.log(`✅ Singleton güncellendi: ${collection}`);
-    } else {
-      await fetch(`${DIRECTUS_URL}/items/${collection}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data)
-      });
-      console.log(`✨ Singleton oluşturuldu: ${collection}`);
+      console.log(`↩️  Singleton zaten var, dokunulmadı: ${collection}`);
+      return;
     }
+    const res = await fetch(`${DIRECTUS_URL}/items/${collection}`, { method: 'POST', headers, body: JSON.stringify(data) });
+    if (!res.ok) throw new Error(`Singleton oluşturulamadı (${collection}): HTTP ${res.status}`);
+    console.log(`✨ Singleton oluşturuldu: ${collection}`);
   }
 
+  // Doğal anahtar: aynı anahtara sahip kayıt varsa atlanır (tekrar kayıt ve ezme yok).
+  const NATURAL_KEY = {
+    pages: 'slug', products: 'name', services: 'slug', machines: 'name',
+    production_processes: 'step_number', references: 'company_name',
+    certificates: 'title', blog_posts: 'slug', animations_config: 'key',
+    navigation_menus: 'title'
+  };
+
   async function insertItems(collection, items) {
+    const key = NATURAL_KEY[collection];
+    if (!key) throw new Error(`Doğal anahtar tanımsız: ${collection}`);
+    const existingRes = await fetch(`${DIRECTUS_URL}/items/${collection}?limit=-1&fields=${key}`, { headers });
+    if (!existingRes.ok) throw new Error(`Mevcut kayıtlar okunamadı (${collection}): HTTP ${existingRes.status}`);
+    const existing = new Set((await existingRes.json()).data.map(r => String(r[key])));
+    let created = 0, skipped = 0, failed = 0;
     for (const item of items) {
-      const res = await fetch(`${DIRECTUS_URL}/items/${collection}`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(item)
-      });
-      if (!res.ok) {
-        console.warn(`⚠️  Öğe eklenirken uyarı (${collection}): ${res.status}`);
-      }
+      if (existing.has(String(item[key]))) { skipped++; continue; }
+      const res = await fetch(`${DIRECTUS_URL}/items/${collection}`, { method: 'POST', headers, body: JSON.stringify(item) });
+      if (res.ok) created++;
+      else { failed++; console.error(`❌ Eklenemedi (${collection}/${item[key]}): HTTP ${res.status} ${(await res.text()).slice(0, 160)}`); }
     }
-    console.log(`✅ ${items.length} öğe aktarıldı: ${collection}`);
+    console.log(`✅ ${collection}: ${created} yeni, ${skipped} mevcut (atlandı)${failed ? `, ${failed} BAŞARISIZ` : ''}`);
+    if (failed) process.exitCode = 1;
   }
 
   // 1. Site Ayarları
@@ -458,6 +462,8 @@ async function seed() {
     },
     {
       status: 'published',
+      sort: 3,
+      title: 'Tişört & Tekstil Parça Baskı',
       slug: 'tisort-baski',
       badge: 'Hızlı Termin',
       capacity_info: 'Günlük 25.000+ Tişört',

@@ -54,15 +54,15 @@
         </div>
 
         <div class="nav-item">
-          <a href="hizmetlerimiz/" class="nav-link">
+          <a href="/hizmetlerimiz/" class="nav-link">
             Hizmetlerimiz
             <svg class="nav-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
           </a>
           <ul class="dropdown-menu">
-            <li class="dropdown-item"><a href="hizmetlerimiz/" class="dropdown-link">Tüm Hizmetler</a></li>
-            <li class="dropdown-item"><a href="hizmetlerimiz/dtf-baski/" class="dropdown-link">DTF Baskı <span class="dropdown-tag">Popüler</span></a></li>
-            <li class="dropdown-item"><a href="hizmetlerimiz/serigrafi-baski/" class="dropdown-link">Serigrafi Baskı</a></li>
-            <li class="dropdown-item"><a href="hizmetlerimiz/tisort-baski/" class="dropdown-link">Tişört Baskı</a></li>
+            <li class="dropdown-item"><a href="/hizmetlerimiz/" class="dropdown-link">Tüm Hizmetler</a></li>
+            <li class="dropdown-item"><a href="/hizmetlerimiz/dtf-baski/" class="dropdown-link">DTF Baskı <span class="dropdown-tag">Popüler</span></a></li>
+            <li class="dropdown-item"><a href="/hizmetlerimiz/emprime-baski/" class="dropdown-link">Emprime Baskı</a></li>
+            <li class="dropdown-item"><a href="/hizmetlerimiz/tisort-baski/" class="dropdown-link">Tişört Baskı</a></li>
           </ul>
         </div>
 
@@ -117,10 +117,10 @@
         <li>
           <span class="mobile-nav-link" style="color: var(--c-gold);">Hizmetlerimiz</span>
           <ul class="mobile-submenu">
-            <li><a href="hizmetlerimiz/" class="mobile-submenu-link">Tüm Hizmetler</a></li>
-            <li><a href="hizmetlerimiz/dtf-baski/" class="mobile-submenu-link">DTF Baskı</a></li>
-            <li><a href="hizmetlerimiz/serigrafi-baski/" class="mobile-submenu-link">Serigrafi Baskı</a></li>
-            <li><a href="hizmetlerimiz/tisort-baski/" class="mobile-submenu-link">Tişört Baskı</a></li>
+            <li><a href="/hizmetlerimiz/" class="mobile-submenu-link">Tüm Hizmetler</a></li>
+            <li><a href="/hizmetlerimiz/dtf-baski/" class="mobile-submenu-link">DTF Baskı</a></li>
+            <li><a href="/hizmetlerimiz/emprime-baski/" class="mobile-submenu-link">Emprime Baskı</a></li>
+            <li><a href="/hizmetlerimiz/tisort-baski/" class="mobile-submenu-link">Tişört Baskı</a></li>
           </ul>
         </li>
         <li>
@@ -151,7 +151,7 @@
   <main>
     <!-- 1. HERO BÖLÜMÜ -->
     <section class="home-hero">
-      <div class="hero-bg-media">
+      <div class="hero-bg-media" data-cms-hero="media">
         <!-- Yüksek kaliteli tekstil & baskı arka plan görseli -->
         <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1920&q=80" alt="Nizamlar Baskı Tekstil Üretimi">
       </div>
@@ -163,12 +163,12 @@
           <span>Endüstriyel Tekstil Baskı Tesisleri & Atölye</span>
         </div>
 
-        <h1 class="hero-title" data-reveal="fade-up" data-delay="100">
+        <h1 class="hero-title" data-reveal="fade-up" data-delay="100" data-cms-hero="title">
           Tekstil Baskıda <br>
           <span class="editorial-italic">Renk, Kalite</span> ve Güven.
         </h1>
 
-        <p class="hero-subtitle" data-reveal="fade-up" data-delay="200">
+        <p class="hero-subtitle" data-reveal="fade-up" data-delay="200" data-cms-hero="subtitle">
           Nizamlar Baskı; robotik serigrafi ahtapotları, yeni nesil DTF transfer hatları ve hassas fikse üniteleriyle hazır giyim ve kurumsal projelere canlı, yıkanmaya dayanıklı ve sürdürülebilir baskılar üretir.
         </p>
 
@@ -177,7 +177,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
             <span>Kendi Baskını Canlı Gör</span>
           </a>
-          <a href="teklif-al/" class="btn btn-outline-light">
+          <a href="teklif-al/" class="btn btn-outline-light" data-cms-hero="button">
             <span>Teklif Al</span>
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -618,9 +618,9 @@
     <section class="section bg-anthracite" style="position: relative; overflow: hidden;">
       <div class="container" style="position: relative; z-index: 2;">
         <div class="section-header text-center" data-reveal="fade-up">
-          <div class="section-tag" style="color: var(--c-gold);">Endüstriyel Parkur & Süreç Simülasyonu</div>
-          <h2 class="section-title" style="color: var(--c-cream-pure);">DTF ve Transfer Baskı Nasıl Üretilir?</h2>
-          <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;">
+          <div class="section-tag" style="color: var(--c-gold);" data-cms-text="s1.tag">Endüstriyel Parkur & Süreç Simülasyonu</div>
+          <h2 class="section-title" style="color: var(--c-cream-pure);" data-cms-text="s1.title">DTF ve Transfer Baskı Nasıl Üretilir?</h2>
+          <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;" data-cms-text="s1.desc">
             Makinelerimiz yalnızca durağan ekipmanlar değildir. 6 adımlı üretim simülasyonumuzla film girişinden fiksaj presine kadar canlı üretim sürecini izleyin.
           </p>
         </div>
@@ -691,9 +691,9 @@
     <section class="section bg-cream-pure" style="border-top: 1px solid var(--c-stone-border);">
       <div class="container">
         <div class="section-header text-center" data-reveal="fade-up">
-          <div class="section-tag">Zengin Tekstil Koleksiyonu</div>
-          <h2 class="section-title">Gerçekçi Baskı Detaylarıyla Üretim Örnekleri</h2>
-          <p class="section-desc" style="margin: 0 auto;">
+          <div class="section-tag" data-cms-text="s2.tag">Zengin Tekstil Koleksiyonu</div>
+          <h2 class="section-title" data-cms-text="s2.title">Gerçekçi Baskı Detaylarıyla Üretim Örnekleri</h2>
+          <p class="section-desc" style="margin: 0 auto;" data-cms-text="s2.desc">
             Tişörtten sweatshirt'e, jogger'dan kanvas bez çantaya kadar her üründe belirgin, dokulu ve yüksek kaliteli baskı uygulamaları.
           </p>
         </div>
@@ -854,9 +854,9 @@
     <section class="section bg-cream" style="border-top: 1px solid var(--c-stone-border);">
       <div class="container">
         <div class="section-header text-center" data-reveal="fade-up">
-          <div class="section-tag">Uzmanlık Alanlarımız</div>
-          <h2 class="section-title">Profesyonel Tekstil Baskı Çözümleri</h2>
-          <p class="section-desc" style="margin: 0 auto;">
+          <div class="section-tag" data-cms-text="s3.tag">Uzmanlık Alanlarımız</div>
+          <h2 class="section-title" data-cms-text="s3.title">Profesyonel Tekstil Baskı Çözümleri</h2>
+          <p class="section-desc" style="margin: 0 auto;" data-cms-text="s3.desc">
             Her kumaş türüne, sipariş adedine ve desen detayına en uygun baskı teknolojisini belirliyor; yüksek yıkama dayanımı ve canlı renk garantisi sağlıyoruz.
           </p>
         </div>
@@ -887,21 +887,21 @@
                   Düşük ve orta adetlerde hızlı teslimat
                 </li>
               </ul>
-              <a href="hizmetlerimiz/dtf-baski/" class="service-link">
+              <a href="/hizmetlerimiz/dtf-baski/" class="service-link">
                 <span>Detaylı İncele</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
             </div>
           </article>
 
-          <!-- Serigrafi Baskı -->
+          <!-- Emprime Baskı -->
           <article class="service-card" data-reveal="fade-up" data-delay="200">
             <div class="service-img-box">
               <span class="service-badge">Endüstriyel Güç</span>
-              <img src="assets/images/machines/screen-print-carousel.svg" alt="Serigrafi Ahtapot İstasyonu">
+              <img src="assets/images/machines/screen-print-carousel.svg" alt="Emprime Ahtapot İstasyonu">
             </div>
             <div class="service-body">
-              <h3 class="service-title">Serigrafi Baskı</h3>
+              <h3 class="service-title">Emprime Baskı</h3>
               <p class="service-desc">
                 Yüksek adetli üretimlerde en ekonomik maliyet, doygun renk örtücülüğü ve su bazlı, plastizol ile deşarj boyalarla kusursuz yüzey bitişi.
               </p>
@@ -919,7 +919,7 @@
                   Endüstriyel fiksaj tünellerinde kalıcı sabitleme
                 </li>
               </ul>
-              <a href="hizmetlerimiz/serigrafi-baski/" class="service-link">
+              <a href="/hizmetlerimiz/emprime-baski/" class="service-link">
                 <span>Detaylı İncele</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
@@ -951,7 +951,7 @@
                   Özel numune hazırlama ve hızlı onay süreci
                 </li>
               </ul>
-              <a href="hizmetlerimiz/tisort-baski/" class="service-link">
+              <a href="/hizmetlerimiz/tisort-baski/" class="service-link">
                 <span>Detaylı İncele</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               </a>
@@ -960,7 +960,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 3.5rem;" data-reveal="fade-up">
-          <a href="hizmetlerimiz/" class="btn btn-outline-dark">
+          <a href="/hizmetlerimiz/" class="btn btn-outline-dark">
             <span>Tüm Hizmetlerimizi Keşfedin</span>
             <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
@@ -977,9 +977,9 @@
       <section class="section bg-anthracite" id="canli-uretim-sahnesi">
         <div class="container">
           <div class="section-header text-center" data-reveal="fade-up">
-            <div class="section-tag" style="color: var(--c-gold);">Canlı Üretim Sahnesi</div>
-            <h2 class="section-title" style="color: var(--c-cream-pure);">İleri Teknoloji Tekstil Baskı Tesisimiz</h2>
-            <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;">
+            <div class="section-tag" style="color: var(--c-gold);" data-cms-text="s4.tag">Canlı Üretim Sahnesi</div>
+            <h2 class="section-title" style="color: var(--c-cream-pure);" data-cms-text="s4.title">İleri Teknoloji Tekstil Baskı Tesisimiz</h2>
+            <p class="section-desc" style="color: var(--c-stone-light); margin: 0 auto;" data-cms-text="s4.desc">
               Hassas kalıp pozlamadan serigrafi rakle geçişlerine, DTF fırınlamadan kalite kontrol laboratuvarımıza kadar her adımda yüksek standart.
             </p>
           </div>
@@ -1084,9 +1084,9 @@
     <section class="section bg-cream-pure" style="border-top: 1px solid var(--c-stone-border);">
       <div class="container">
         <div class="section-header text-center" data-reveal="fade-up">
-          <div class="section-tag">Doğa Dostu İmalat</div>
-          <h2 class="section-title">Sürdürülebilir Üretim & Uluslararası Standartlar</h2>
-          <p class="section-desc" style="margin: 0 auto;">
+          <div class="section-tag" data-cms-text="s5.tag">Doğa Dostu İmalat</div>
+          <h2 class="section-title" data-cms-text="s5.title">Sürdürülebilir Üretim & Uluslararası Standartlar</h2>
+          <p class="section-desc" style="margin: 0 auto;" data-cms-text="s5.desc">
             Gelecek nesillere temiz izler bırakmak için üretim süreçlerimizde su bazlı ekolojik boyaları, enerji tasarruflu fırınları ve sertifikalı kalite süreçlerini benimsiyoruz.
           </p>
         </div>
@@ -1128,14 +1128,14 @@
     <section class="section bg-cream">
       <div class="container">
         <div class="section-header text-center" data-reveal="fade-up">
-          <div class="section-tag">Güvenilir İş Birlikleri</div>
-          <h2 class="section-title">Tekstil Sektöründe Güçlü Referanslar</h2>
-          <p class="section-desc" style="margin: 0 auto;">
+          <div class="section-tag" data-cms-text="s6.tag">Güvenilir İş Birlikleri</div>
+          <h2 class="section-title" data-cms-text="s6.title">Tekstil Sektöründe Güçlü Referanslar</h2>
+          <p class="section-desc" style="margin: 0 auto;" data-cms-text="s6.desc">
             Hazır giyim ihracatçıları, yerel ve global giyim markaları ve kurumsal şirketler için kesintisiz baskı tedariki sağlıyoruz.
           </p>
         </div>
 
-        <div class="references-grid" data-reveal="fade-up" data-delay="100">
+        <div class="references-grid" data-cms-list="references" data-reveal="fade-up" data-delay="100">
           <div class="reference-card">
             <span class="reference-category">Hazır Giyim</span>
             <div class="reference-name">Moda İhracat A.Ş.</div>
@@ -1222,10 +1222,10 @@
         <div>
           <h4 class="footer-heading">Hizmetlerimiz</h4>
           <ul class="footer-links">
-            <li><a href="hizmetlerimiz/dtf-baski/" class="footer-link">DTF Baskı</a></li>
-            <li><a href="hizmetlerimiz/serigrafi-baski/" class="footer-link">Serigrafi Baskı</a></li>
-            <li><a href="hizmetlerimiz/tisort-baski/" class="footer-link">Tişört Baskı</a></li>
-            <li><a href="hizmetlerimiz/" class="footer-link">Tüm Baskı Çözümleri</a></li>
+            <li><a href="/hizmetlerimiz/dtf-baski/" class="footer-link">DTF Baskı</a></li>
+            <li><a href="/hizmetlerimiz/emprime-baski/" class="footer-link">Emprime Baskı</a></li>
+            <li><a href="/hizmetlerimiz/tisort-baski/" class="footer-link">Tişört Baskı</a></li>
+            <li><a href="/hizmetlerimiz/" class="footer-link">Tüm Baskı Çözümleri</a></li>
             <li><a href="galeri/" class="footer-link">Üretim Galerisi</a></li>
             <li><a href="blog/" class="footer-link">Sektörel Blog</a></li>
           </ul>
@@ -1237,15 +1237,15 @@
           <ul class="footer-contact-list">
             <li class="footer-contact-item">
               <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span>Organize Sanayi Bölgesi, Tekstilciler Sanayi Sitesi, İstanbul / Türkiye</span>
+              <span data-cms-site="contact_address">Organize Sanayi Bölgesi, Tekstilciler Sanayi Sitesi, İstanbul / Türkiye</span>
             </li>
             <li class="footer-contact-item">
               <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              <a href="tel:+902120000000">+90 (212) 000 00 00</a>
+              <a href="tel:+902120000000" data-cms-site="contact_phone">+90 (212) 000 00 00</a>
             </li>
             <li class="footer-contact-item">
               <svg class="footer-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <a href="mailto:info@nizamlarbaski.com">info@nizamlarbaski.com</a>
+              <a href="mailto:info@nizamlarbaski.com" data-cms-site="contact_email">info@nizamlarbaski.com</a>
             </li>
             <li class="footer-contact-item">
               <a href="teklif-al/" class="btn btn-gold" style="width: 100%; margin-top: 0.5rem;">Fiyat Teklifi Al</a>
@@ -1259,7 +1259,7 @@
     <div class="footer-bottom">
       <div class="container footer-bottom-flex">
         <div>
-          © 2026 Nizamlar Baskı Tekstil San. ve Tic. Ltd. Şti. Tüm hakları saklıdır.
+          © 2026 <span data-cms-site="company_legal_name">Nizamlar Baskı Tekstil San. ve Tic. Ltd. Şti.</span> Tüm hakları saklıdır.
         </div>
         <ul class="footer-legal-links">
           <li><a href="hakkimizda/">KVKK Aydınlatma Metni</a></li>

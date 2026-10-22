@@ -1,0 +1,15 @@
+{
+  "name": "directus-extension-slug-manager",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "index.js",
+  "directus:extension": {
+    "host": "^12.0.0",
+    "type": "hook",
+    "path": "index.js",
+    "source": "index.js",
+    "sandbox": {
+      "enabled": false
+    }
+  }
+}
