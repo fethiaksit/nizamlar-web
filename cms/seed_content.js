@@ -462,6 +462,8 @@ async function seed() {
     },
     {
       status: 'published',
+      sort: 3,
+      title: 'Tişört & Tekstil Parça Baskı',
       slug: 'tisort-baski',
       badge: 'Hızlı Termin',
       capacity_info: 'Günlük 25.000+ Tişört',

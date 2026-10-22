@@ -360,15 +360,37 @@ function dynamicDetail(collection, base, template) {
     if (!SAFE_VALUE.test(slug) || !SERVICE_TOKEN) return next();
     if (!req.path.endsWith('/')) return res.redirect(301, `${base}/${encodeURIComponent(slug)}/`);
     try {
-      const r = await directus(`/items/${collection}?limit=1&filter[slug][_eq]=${encodeURIComponent(slug)}&fields=slug,title,status,summary,short_desc,seo_description`);
+      const r = await directus(`/items/${collection}?limit=1&filter[slug][_eq]=${encodeURIComponent(slug)}`);
       if (!r.ok) return next(); // CMS sorunu: statik yedeğe düş
       const item = r.json.data && r.json.data[0];
       if (!item) return next(); // CMS'te yok: statik (varsa) devam
       const preview = req.query.preview === '1' && await isStaffRequest(req);
       if (item.status !== 'published' && !preview) return res.status(404).sendFile(path.join(ROOT, '404.html'));
+
+      const pageTitle = `${item.title} | Nizamlar Baskı`;
+      const pageDesc = item.seo_description || item.summary || item.short_desc || '';
+
+      // Özel bir statik sayfa şablonu varsa (örn: hizmetlerimiz/dtf-baski/index.html):
+      // Onu oku ve CMS verileriyle dinamik zenginleştirerek sun (böylece özel bölümler korunur)
+      const specificPath = path.join(ROOT, base.replace(/^\//, ''), slug, 'index.html');
+      if (fs.existsSync(specificPath)) {
+        let html = fs.readFileSync(specificPath, 'utf8');
+        if (item.title) {
+          html = html.replace(/<title>.*?<\/title>/i, `<title>${esc(pageTitle)}</title>`);
+          html = html.replace(/(<meta\s+property=["']og:title["']\s+content=["']).*?(["'])/i, `$1${esc(pageTitle)}$2`);
+        }
+        if (pageDesc) {
+          html = html.replace(/(<meta\s+name=["']description["']\s+content=["']).*?(["'])/i, `$1${esc(pageDesc)}$2`);
+          html = html.replace(/(<meta\s+property=["']og:description["']\s+content=["']).*?(["'])/i, `$1${esc(pageDesc)}$2`);
+        }
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        return res.send(versionAssets(html));
+      }
+
       return renderTemplate(template, {
-        TITLE: `${item.title} | Nizamlar Baskı`,
-        DESC: item.seo_description || item.summary || item.short_desc || '',
+        TITLE: pageTitle,
+        DESC: pageDesc,
         SLUG: slug
       }, res);
     } catch (e) { return next(); }

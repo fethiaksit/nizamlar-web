@@ -429,57 +429,195 @@
 
   /* Hizmetler sayfası: tasarlanmış blokları yerinde bağla; yayından kalkanı gizle; eksik hizmeti ekle */
   async function hydrateServices() {
+    const container = document.getElementById('services-blocks-container');
     const blocks = Array.from(document.querySelectorAll('section[data-cms-service]'));
-    if (!blocks.length) return;
+    if (!blocks.length && !container) return;
     const services = await load('services');
-    const used = new Set();
+    if (!services || !services.length) return;
+
+    // Directus sort sırasına göre sırala
+    services.sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || (a.id - b.id));
+
+    const usedSlugs = new Set();
+    const serviceMap = new Map();
+    services.forEach(s => {
+      serviceMap.set(s.slug, s);
+      if (s.slug === 'serigrafi-baski') {
+        serviceMap.set('emprime-baski', s);
+        serviceMap.set('emprime-baskı', s);
+        serviceMap.set('emprimebaskı', s);
+      }
+    });
+
+    // 1. Mevcut DOM bloklarını güncelle
     blocks.forEach(block => {
-      const aliases = block.getAttribute('data-cms-service').split(/\s+/);
-      const svc = services.find(s => aliases.includes(s.slug));
-      if (!svc) { block.hidden = true; return; }
-      used.add(svc.slug);
-      const set = (sel, val) => { const el = block.querySelector(sel); if (el && val) el.textContent = val; };
-      set('.section-tag', svc.badge);
-      set('.section-title', svc.title);
-      set('.lead', svc.short_desc);
+      const aliases = (block.getAttribute('data-cms-service') || '').split(/\s+/);
+      let matched = null;
+      for (const a of aliases) {
+        if (serviceMap.has(a)) {
+          matched = serviceMap.get(a);
+          break;
+        }
+      }
+
+      if (!matched || matched.status !== 'published') {
+        block.style.display = 'none';
+        return;
+      }
+
+      block.style.display = '';
+      usedSlugs.add(matched.slug);
+
+      const set = (sel, val) => { const el = block.querySelector(sel); if (el && val !== undefined && val !== null) el.textContent = val; };
+      set('.section-tag', matched.badge);
+      set('.section-title', matched.title);
+      set('.lead', matched.short_desc);
+
       const detail = block.querySelector('a.btn-anthracite');
-      if (detail) detail.setAttribute('href', `/hizmetlerimiz/${encodeURIComponent(svc.slug)}/`);
-      if (Array.isArray(svc.features) && svc.features.length) {
+      if (detail) {
+        detail.setAttribute('href', `/hizmetlerimiz/${encodeURIComponent(matched.slug)}/`);
+        const label = detail.querySelector('span:not(.btn-icon)');
+        if (label && matched.title) label.textContent = `${matched.title} Detay Sayfası`;
+      }
+
+      if (Array.isArray(matched.features) && matched.features.length) {
         const holder = block.querySelector('[style*="flex-wrap"]');
         if (holder) {
           const cls = ['badge-gold', 'badge-anthracite', 'badge-cream'];
-          holder.innerHTML = svc.features.slice(0, 3).map((f, i) => `<span class="badge ${cls[i % 3]}">${esc(f)}</span>`).join('');
+          holder.innerHTML = matched.features.slice(0, 4).map((f, i) => `<span class="badge ${cls[i % cls.length]}">${esc(f)}</span>`).join('');
         }
       }
+
+      const liveDot = block.querySelector('.live-dot');
+      if (liveDot && (matched.capacity_info || matched.title)) liveDot.textContent = matched.capacity_info || matched.title;
+
+      const mediaUrl = pickMedia(matched, 'cover_image_file', 'cover_image');
+      if (mediaUrl) {
+        const img = block.querySelector('.product-visual-box img, .img-zoom-wrapper img');
+        if (img) {
+          img.src = mediaUrl;
+          img.alt = matched.title || '';
+        }
+      }
+
+      block.dataset.cmsSort = String(matched.sort ?? 999);
     });
-    const extra = services.filter(s => !used.has(s.slug) && s.title);
-    if (extra.length) {
-      const last = blocks[blocks.length - 1];
-      let anchor = last;
-      extra.forEach((s, i) => {
-        const sec = document.createElement('section');
-        sec.className = 'section ' + (i % 2 ? 'bg-cream-pure' : 'bg-cream');
-        sec.style.borderTop = '1px solid var(--c-stone-border)';
-        sec.innerHTML = `<div class="container"><div class="grid grid-2 items-center gap-6"><div>
-          <div class="section-tag">${esc(s.badge || '')}</div><h2 class="section-title">${esc(s.title)}</h2><div class="gold-line-solid"></div>
-          <p class="lead">${esc(s.short_desc || '')}</p>
-          <div style="display:flex;gap:1rem;align-items:center;margin-top:1.5rem"><a href="/hizmetlerimiz/${encodeURIComponent(s.slug)}/" class="btn btn-anthracite"><span>Detay Sayfası</span></a><a href="/teklif-al/" class="btn btn-gold">Teklif Al</a></div></div>
-          <div>${imgTag(pickMedia(s, 'cover_image_file', 'cover_image'), s.title, 'style="width:100%;border-radius:8px"')}</div></div></div>`;
-        anchor.after(sec);
-        anchor = sec;
+
+    // 2. CMS'de olup DOM'da olmayan yeni hizmetleri ekle
+    const unrendered = services.filter(s => !usedSlugs.has(s.slug) && s.status === 'published' && s.title);
+    if (unrendered.length) {
+      const parent = container || (blocks.length ? blocks[0].parentNode : null);
+      if (parent) {
+        unrendered.forEach(s => {
+          const totalExisting = parent.querySelectorAll('section[data-cms-service]').length;
+          const isOdd = totalExisting % 2 === 1;
+          const sec = document.createElement('section');
+          sec.setAttribute('data-cms-service', s.slug);
+          sec.className = `section ${isOdd ? 'bg-cream-pure' : 'bg-cream'}`;
+          sec.style.borderTop = '1px solid var(--c-stone-border)';
+          sec.dataset.cmsSort = String(s.sort ?? 999);
+
+          const mediaUrl = pickMedia(s, 'cover_image_file', 'cover_image') || '/assets/images/placeholder.svg';
+          const badges = Array.isArray(s.features) && s.features.length
+            ? s.features.slice(0, 3).map((f, i) => `<span class="badge ${['badge-gold', 'badge-anthracite', 'badge-cream'][i % 3]}">${esc(f)}</span>`).join('')
+            : '';
+
+          sec.innerHTML = `
+            <div class="container">
+              <div class="grid grid-2 items-center gap-6">
+                <div data-reveal="fade-up" style="${isOdd ? 'order: 2;' : ''}">
+                  <div class="section-tag">${esc(s.badge || 'Hizmet')}</div>
+                  <h2 class="section-title">${esc(s.title)}</h2>
+                  <div class="gold-line-solid"></div>
+                  <p class="lead">${esc(s.short_desc || '')}</p>
+                  <p>${esc(s.content ? s.content.slice(0, 260) + '...' : '')}</p>
+                  <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 2rem 0;">${badges}</div>
+                  <div style="display: flex; gap: 1rem; align-items: center;">
+                    <a href="/hizmetlerimiz/${encodeURIComponent(s.slug)}/" class="btn btn-anthracite">
+                      <span>${esc(s.title)} Detay Sayfası</span>
+                      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="/teklif-al/" class="btn btn-gold">Teklif Al</a>
+                  </div>
+                </div>
+                <div data-reveal="${isOdd ? 'slide-right' : 'clip-left'}" data-delay="200" style="${isOdd ? 'order: 1;' : ''}">
+                  <div style="position: relative; box-shadow: var(--shadow-card); border-radius: var(--radius-md); overflow: hidden; background: var(--c-anthracite); border: 1px solid var(--c-gold-border);">
+                    <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                      <span class="live-dot" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--c-gold); text-transform: uppercase;">${esc(s.capacity_info || s.title)}</span>
+                      <span class="badge badge-gold" style="font-size: 0.7rem;">${esc(s.badge || 'Profesyonel')}</span>
+                    </div>
+                    <div class="product-card-enhanced" style="background: transparent; border: none; padding: 0;">
+                      <div class="product-visual-box" style="height: 340px; background: radial-gradient(circle at center, #2e2825 0%, #1a1a1c 100%);">
+                        <div class="print-reveal-container" style="width: 100%; height: 100%;">
+                          <img src="${esc(mediaUrl)}" alt="${esc(s.title)}" style="width: 100%; height: 100%; object-fit: contain; padding: 1.5rem;">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+
+          if (container) container.appendChild(sec);
+          else if (blocks.length) blocks[blocks.length - 1].after(sec);
+        });
+      }
+    }
+
+    // 3. Sıralamayı (sort) DOM'a uygula
+    if (container) {
+      const allSections = Array.from(container.querySelectorAll('section[data-cms-service]'));
+      allSections.sort((a, b) => {
+        const sa = Number(a.dataset.cmsSort || 999);
+        const sb = Number(b.dataset.cmsSort || 999);
+        return sa - sb;
       });
+      allSections.forEach(s => container.appendChild(s));
     }
   }
 
   /* ------------------------------ detay sayfaları ------------------------------ */
   async function hydrateDetail() {
-    const root = document.querySelector('[data-cms-detail]');
-    if (!root) return;
-    const kind = root.getAttribute('data-cms-detail');
-    const slug = root.getAttribute('data-cms-slug');
-    const items = await load(kind === 'blog' ? 'blog_posts' : 'services', { slug });
+    let root = document.querySelector('[data-cms-detail]');
+    let kind = root ? root.getAttribute('data-cms-detail') : null;
+    let slug = root ? root.getAttribute('data-cms-slug') : null;
+
+    // URL'den otomatik tespiti destekle (/hizmetlerimiz/:slug/ ve /blog/:slug/)
+    if (!kind || !slug) {
+      if (segments.length >= 2 && segments[0] === 'hizmetlerimiz') {
+        kind = 'service';
+        slug = segments[1];
+        if (!root) root = document.querySelector('main') || document.body;
+      } else if (segments.length >= 2 && segments[0] === 'blog') {
+        kind = 'blog';
+        slug = segments[1];
+        if (!root) root = document.querySelector('main') || document.body;
+      }
+    }
+
+    if (!kind || !slug || !root) return;
+
+    const collection = kind === 'blog' ? 'blog_posts' : 'services';
+    const items = await load(collection, { slug });
     const it = items && items[0];
-    if (!it) { root.querySelector('[data-cms-html="content"]').innerHTML = '<p>İçerik bulunamadı.</p>'; return; }
+    if (!it) {
+      const c = root.querySelector('[data-cms-html="content"]');
+      if (c) c.innerHTML = '<p>İçerik bulunamadı veya henüz yayımlanmadı.</p>';
+      return;
+    }
+
+    // Başlık ve SEO etiketlerini güncelle
+    if (it.title) {
+      document.title = `${it.title} | Nizamlar Baskı`;
+      setMeta('meta[property="og:title"]', 'content', `${it.title} | Nizamlar Baskı`);
+    }
+    const desc = it.seo_description || it.summary || it.short_desc;
+    if (desc) {
+      setMeta('meta[name="description"]', 'content', desc);
+      setMeta('meta[property="og:description"]', 'content', desc);
+    }
+
+    // Doğrudan data-cms-field etiketli alanları güncelle
     root.querySelectorAll('[data-cms-field]').forEach(el => {
       const f = el.getAttribute('data-cms-field');
       let v = it[f];
@@ -487,16 +625,43 @@
         const d = it.published_date ? new Date(it.published_date).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
         v = [it.category, d, it.read_time, it.author].filter(Boolean).join(' • ');
       }
-      if (v) el.textContent = v;
+      if (v !== undefined && v !== null && v !== '') el.textContent = v;
     });
+
+    // Başlık ve açıklamaları seçicilerle güncelle
+    const heroTitle = root.querySelector('.page-hero-title, [data-cms-hero="title"]');
+    if (heroTitle && it.title) heroTitle.textContent = it.title;
+
+    const heroDesc = root.querySelector('.page-hero-desc, [data-cms-hero="subtitle"]');
+    if (heroDesc && (it.short_desc || it.summary)) heroDesc.textContent = it.short_desc || it.summary;
+
+    const sectionTitle = root.querySelector('.section-title');
+    if (sectionTitle && it.title) sectionTitle.textContent = it.title;
+
+    const badgeEl = root.querySelector('.section-tag');
+    if (badgeEl && it.badge) badgeEl.textContent = it.badge;
+
+    const leadEl = root.querySelector('.lead');
+    if (leadEl && it.short_desc) leadEl.textContent = it.short_desc;
+
     const html = root.querySelector('[data-cms-html="content"]');
-    if (html) html.innerHTML = sanitizeHtml(it.content || '');
-    const img = root.querySelector('[data-cms-image]');
+    if (html && it.content) html.innerHTML = sanitizeHtml(it.content);
+
     const src = pickMedia(it, 'cover_image_file', 'cover_image');
-    if (img && src) { img.src = src; img.alt = it.title || ''; img.dataset.cmsImg = '1'; img.hidden = false; }
+    if (src) {
+      root.querySelectorAll('img[data-cms-image], .img-zoom-wrapper img, .article-content > img').forEach(img => {
+        img.src = src;
+        img.alt = it.title || '';
+        img.dataset.cmsImg = '1';
+        img.hidden = false;
+      });
+      setMeta('meta[property="og:image"]', 'content', src);
+    }
+
     const ul = root.querySelector('[data-cms-list="features"]');
-    if (ul && Array.isArray(it.features)) ul.innerHTML = it.features.map(f => `<li>${esc(f)}</li>`).join('');
-    if (src) setMeta('meta[property="og:image"]', 'content', src);
+    if (ul && Array.isArray(it.features)) {
+      ul.innerHTML = it.features.map(f => `<li>${esc(f)}</li>`).join('');
+    }
   }
 
   /* ------------------------------ teklif formları ------------------------------ */

@@ -43,20 +43,29 @@ async function adminLogin() {
 async function adminClient() {
   const token = await adminLogin();
   const api = async (method, p, body) => {
-    const res = await fetch(`${DIRECTUS_URL}${p}`, {
-      method,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: body === undefined ? undefined : JSON.stringify(body)
-    });
-    const text = await res.text();
-    let json = null;
-    try { json = text ? JSON.parse(text) : null; } catch (e) { /* düz metin */ }
-    if (!res.ok) {
-      const err = new Error(`${method} ${p} -> HTTP ${res.status} ${json && json.errors ? json.errors[0].message : text.slice(0, 200)}`);
-      err.status = res.status;
-      throw err;
+    let lastErr;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(`${DIRECTUS_URL}${p}`, {
+          method,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: body === undefined ? undefined : JSON.stringify(body)
+        });
+        const text = await res.text();
+        let json = null;
+        try { json = text ? JSON.parse(text) : null; } catch (e) { /* düz metin */ }
+        if (!res.ok) {
+          const err = new Error(`${method} ${p} -> HTTP ${res.status} ${json && json.errors ? json.errors[0].message : text.slice(0, 200)}`);
+          err.status = res.status;
+          throw err;
+        }
+        return json ? json.data : null;
+      } catch (err) {
+        lastErr = err;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 400));
+      }
     }
-    return json ? json.data : null;
+    throw lastErr;
   };
   return { api, token };
 }
