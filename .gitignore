@@ -1,5 +1,21 @@
 node_modules/
 ._*
 .DS_Store
+
+# Sırlar — asla commit edilmez
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Yedekler ve yüklenen dosyalar
+backups/
+*.sql
+cms/uploads/*
+!cms/uploads/.gitkeep
 cms/uploads/quotes/*
 !cms/uploads/quotes/.gitkeep
+cms/private/quotes/*
+!cms/private/quotes/.gitkeep
+test-results/

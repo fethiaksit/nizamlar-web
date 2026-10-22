@@ -4,9 +4,9 @@
  * mevcut kurumsal site içeriklerini %100 eksiksiz yapılandırır.
  */
 
-const DIRECTUS_URL = 'http://localhost:8055';
-const ADMIN_EMAIL = 'admin@nizamlarbaski.com';
-const ADMIN_PASSWORD = 'NizamlarAdmin2026!';
+const { DIRECTUS_URL, required } = require('./lib/env');
+const ADMIN_EMAIL = required('ADMIN_EMAIL');
+const ADMIN_PASSWORD = required('ADMIN_PASSWORD');
 
 async function run() {
   console.log('🚀 Nizamlar Baskı CMS Kurulumu Başlatılıyor...');
@@ -549,79 +549,8 @@ async function run() {
     await createCollection(col);
   }
 
-  // 5. Güvenlik ve İzinler (Public Role Yetkilendirmesi)
-  console.log('🔒 İzinler ve Güvenlik Kuralları Tanımlanıyor...');
-  // Public rol ID'sini bul
-  const rolesRes = await fetch(`${DIRECTUS_URL}/roles`, { headers });
-  const { data: roles } = await rolesRes.json();
-  // Directus'ta public rolü null role_id ile temsil edilir
-  const publicRoleId = null;
-
-  const publicCollections = [
-    'site_settings',
-    'whatsapp_settings',
-    'pages',
-    'products',
-    'services',
-    'machines',
-    'production_processes',
-    'references',
-    'certificates',
-    'blog_posts',
-    'animations_config',
-    'navigation_menus',
-    'seo_settings'
-  ];
-
-  for (const col of publicCollections) {
-    // Okuma izni (Sadece status == 'published' olanlar)
-    const permissionsPayload = {
-      role: publicRoleId,
-      collection: col,
-      action: 'read',
-      permissions: col === 'site_settings' || col === 'whatsapp_settings' ? {} : { status: { _eq: 'published' } },
-      fields: ['*']
-    };
-
-    const permRes = await fetch(`${DIRECTUS_URL}/permissions`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(permissionsPayload)
-    });
-    if (permRes.ok) {
-      console.log(`🔓 Public okuma izni verildi: ${col}`);
-    }
-  }
-
-  // TEKLİF TALEPLERİ GÜVENLİK AYARI:
-  // Ziyaretçiler teklif formu GÖNDEREBİLİR (create), ama hiçbir talebi OKUYAMAZ (read yok)!
-  const quotePermRes = await fetch(`${DIRECTUS_URL}/permissions`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      role: publicRoleId,
-      collection: 'quote_requests',
-      action: 'create',
-      permissions: {},
-      fields: ['customer_name', 'company_name', 'phone', 'email', 'print_type', 'quantity', 'description', 'file_url', 'file_name']
-    })
-  });
-  if (quotePermRes.ok) {
-    console.log('🛡️  Teklif Talepleri Güvenliği: Public CREATE yetkisi verildi (Yetkisiz OKUMA kesinlikle engellendi).');
-  }
-
-  // Directus Files public okuma yetkisi
-  await fetch(`${DIRECTUS_URL}/permissions`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      role: publicRoleId,
-      collection: 'directus_files',
-      action: 'read',
-      permissions: {},
-      fields: ['*']
-    })
-  });
+  // 5. İzinler: tek kaynak cms/set_public_permissions.js (yalnızca yayımlanmış içerik, public yazma yok).
+  console.log('🔒 İzinler için çalıştırın: node cms/set_public_permissions.js && node cms/setup_service_user.js');
 
   console.log('✅ Bütün koleksiyonlar, alanlar ve güvenlik izinleri başarıyla kuruldu!');
 }

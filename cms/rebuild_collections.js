@@ -4,9 +4,21 @@
  * oluşturur, alanları ve yetkileri tanımlar ve tüm site içeriklerini yükler.
  */
 
-const DIRECTUS_URL = 'http://localhost:8055';
-const ADMIN_EMAIL = 'admin@nizamlarbaski.com';
-const ADMIN_PASSWORD = 'NizamlarAdmin2026!';
+const { DIRECTUS_URL, required } = require('./lib/env');
+const ADMIN_EMAIL = required('ADMIN_EMAIL');
+const ADMIN_PASSWORD = required('ADMIN_PASSWORD');
+
+// ⚠️ YIKICI İŞLEM KORUMASI ------------------------------------------------------
+// Bu betik koleksiyonları SİLİP yeniden oluşturur: müşteri teklifleri ve yöneticinin
+// girdiği tüm içerik kaybolur. Önceden yedek alınmadan ÇALIŞMAZ.
+//   1) Yedek:   docker exec nizamlar-cms-postgres pg_dump -U directus nizamlar_cms_db > backups/db.sql
+//   2) Çalıştır: I_HAVE_A_VERIFIED_BACKUP=yes node cms/rebuild_collections.js --confirm-destroy
+if (!process.argv.includes('--confirm-destroy') || process.env.I_HAVE_A_VERIFIED_BACKUP !== 'yes') {
+  console.error('⛔ rebuild_collections.js yıkıcıdır ve durduruldu.\n' +
+    '   Yedek aldıysanız: I_HAVE_A_VERIFIED_BACKUP=yes node cms/rebuild_collections.js --confirm-destroy\n' +
+    '   Yalnızca eksik alan/izin için: node cms/migrate_schema.js');
+  process.exit(1);
+}
 
 async function rebuild() {
   console.log('🚀 Nizamlar Baskı CMS Rebuild Başlatılıyor...');
