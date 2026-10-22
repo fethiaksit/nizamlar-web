@@ -19,3 +19,6 @@ cms/uploads/quotes/*
 cms/private/quotes/*
 !cms/private/quotes/.gitkeep
 test-results/
+screenshots*/
+cms/screenshots*/
+*.log

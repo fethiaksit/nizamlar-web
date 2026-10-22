@@ -660,13 +660,12 @@
     const leftPct = (state.transform.x / stageW) * 100;
     const topPct = (state.transform.y / stageH) * 100;
 
-    // 220px taban referans genişlik
-    const baseWidthPx = 220;
-    const actualWidthPx = Math.round(baseWidthPx * state.transform.scale);
+    // Taban referans genişlik: 220px / 600px = %36.6667 (Tüm ekran boyutlarında kusursuz ölçek)
+    const widthPct = ((220 * state.transform.scale) / stageW) * 100;
 
     dom.artworkLayer.style.left = `${leftPct}%`;
     dom.artworkLayer.style.top = `${topPct}%`;
-    dom.artworkLayer.style.width = `${actualWidthPx}px`;
+    dom.artworkLayer.style.width = `${widthPct}%`;
     dom.artworkLayer.style.transform = `translate(-50%, -50%) rotate(${state.transform.rotation}deg)`;
 
     dom.artworkLayer.className = `user-artwork-layer blend-${state.blendMode}`;
@@ -765,15 +764,16 @@
 
     const onPointerMoveResize = (e) => {
       if (!state.isResizing) return;
-      const deltaX = e.clientX - state.dragStart.pointerX;
-      const deltaY = e.clientY - state.dragStart.pointerY;
+      const rect = dom.stageFrame.getBoundingClientRect();
+      const scaleFactorX = CFG.canvas.width / (rect.width || 600);
+      const deltaX = (e.clientX - state.dragStart.pointerX) * scaleFactorX;
 
       // Tutamaç yönüne göre ölçek delta faktörü
       let delta = 0;
       if (state.resizeCorner === 'se' || state.resizeCorner === 'ne') {
-        delta = deltaX / 140;
+        delta = deltaX / 200;
       } else {
-        delta = -deltaX / 140;
+        delta = -deltaX / 200;
       }
 
       let newScale = state.dragStart.initialScale + delta;

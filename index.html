@@ -314,7 +314,7 @@
                 <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--c-gold); font-weight: 600;">PNG / JPG / WEBP</span>
               </div>
 
-              <!-- Drag & Drop Alanı -->
+              <!-- Drag & Drop Alanı (Yatay Kompakt Kutu) -->
               <div id="studio-dropzone" class="studio-dropzone">
                 <input type="file" id="studio-file-input" style="display: none;" accept=".png,.jpg,.jpeg,.webp,.svg">
                 <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -322,9 +322,11 @@
                   <polyline points="17 8 12 3 7 8"/>
                   <line x1="12" y1="3" x2="12" y2="15"/>
                 </svg>
-                <div class="dropzone-main-text">Tasarımınızı buraya sürükleyin veya dosya seçin</div>
-                <div class="dropzone-sub-text">PNG, JPG, JPEG, WEBP veya SVG (Maks. 25 MB)</div>
-                <div class="dropzone-tip">💡 En iyi sonuç için şeffaf arka planlı PNG dosyası yükleyin.</div>
+                <div class="dropzone-text-group">
+                  <span class="dropzone-main-text">Tasarımınızı buraya sürükleyin veya dosya seçin</span>
+                  <span class="dropzone-sub-text">PNG, JPG, JPEG, WEBP veya SVG (Maks. 25 MB)</span>
+                </div>
+                <div class="dropzone-tip" title="En iyi sonuç için şeffaf arka planlı PNG dosyası yükleyin.">💡 Şeffaf PNG</div>
               </div>
 
               <!-- Aktif Yüklenen Dosya Bilgisi -->
@@ -499,20 +501,19 @@
                 </div>
               </div>
 
-              <!-- Baskı Dokusu & Simülasyon Bilgisi -->
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 1.25rem;">
-                <div>
-                  <span class="option-group-title" style="margin-right: 0.5rem;">Baskı Dokusu:</span>
-                  <div class="blend-mode-row" style="display: inline-flex; margin-top: 0;">
+              <!-- Baskı Dokusu & Kompakt Bilgi Satırı -->
+              <div class="texture-and-hint-row">
+                <div class="texture-select-inline">
+                  <span class="option-group-title" style="margin-right: 0.4rem; margin-bottom: 0;">Baskı Dokusu:</span>
+                  <div class="blend-mode-row">
                     <button type="button" id="btn-blend-normal" class="btn-blend-mode active">DTF Canlı</button>
                     <button type="button" id="btn-blend-multiply" class="btn-blend-mode">Su Bazlı Tuşe</button>
                   </div>
                 </div>
-              </div>
-
-              <div style="font-size: 0.72rem; color: var(--c-stone-dark); margin-top: 0.85rem; font-family: var(--font-mono); line-height: 1.5;">
-                ✨ <strong>Kolay Kullanım:</strong> Tasarımı doğrudan sağdaki ürün üzerinde fare veya parmağınızla tutarak serbestçe taşıyabilir, 4 köşesindeki noktalardan tutup büyütebilirsiniz.
-                <br><em>* Canlı önizleme ve dokular dijital simülasyondur; kumaş ve üretim yöntemine göre nihai sonuçlar farklılık gösterebilir.</em>
+                <div class="studio-info-hint" title="Tasarımı doğrudan sağdaki ürün üzerinde fare veya parmağınızla tutarak serbestçe taşıyabilir, 4 köşesindeki noktalardan tutup büyütebilirsiniz. * Dijital simülasyondur.">
+                  <span class="hint-icon">✨</span>
+                  <span>Serbest Taşı &amp; Boyutlandır</span>
+                </div>
               </div>
             </div>
 

@@ -13,8 +13,9 @@
     "cms:setup": "node cms/rebuild_collections.js && node cms/seed_content.js && node cms/set_public_permissions.js && node cms/setup_preview_links.js",
     "test:services": "node cms/test_services_e2e.js",
     "test:preview": "node cms/test_preview_redirect.js",
+    "test:studio": "node cms/test_studio_compact_e2e.js",
     "test:contact": "node cms/test_contact_system.js",
-    "test:all": "node cms/test_services_e2e.js && node cms/test_preview_redirect.js && node cms/test_suite.js && node cms/test_contact_system.js"
+    "test:all": "node cms/test_services_e2e.js && node cms/test_preview_redirect.js && node cms/test_suite.js && node cms/test_contact_system.js && node cms/test_studio_compact_e2e.js"
   },
   "keywords": [
     "tekstil-baski",
@@ -29,5 +30,8 @@
     "express": "^4.21.2",
     "http-proxy-middleware": "^3.0.3",
     "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
   }
 }
