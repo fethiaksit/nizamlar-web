@@ -271,6 +271,25 @@
   }
 
   /* ------------------------------ menü ------------------------------ */
+  function normalizeServiceUrl(rawUrl, title, servicesList) {
+    if (!rawUrl) return rawUrl;
+    let u = link(rawUrl);
+    if (u.includes('emprimebask') || u.includes('emprime-baskı')) {
+      return '/hizmetlerimiz/emprime-baski/';
+    }
+    if (u.startsWith('/hizmetlerimiz/') && Array.isArray(servicesList) && servicesList.length) {
+      const seg = u.replace(/^\/hizmetlerimiz\/|\/$/g, '');
+      if (seg) {
+        const found = servicesList.find(s => s.slug === seg || (Array.isArray(s.old_slugs) && s.old_slugs.includes(seg)) || (title && s.title && s.title.toLowerCase() === title.toLowerCase()));
+        if (found) {
+          const serviceUrl = `/hizmetlerimiz/${found.slug}/`;
+          return serviceUrl;
+        }
+      }
+    }
+    return u;
+  }
+
   function buildTree(items, flag) {
     const vis = items.filter(i => i[flag] !== false && link(i.url));
     const roots = vis.filter(i => !i.parent_id).sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999));
@@ -282,10 +301,14 @@
   const tgt = i => (i.open_new_tab ? ' target="_blank" rel="noopener noreferrer"' : '');
 
   async function hydrateNavigation() {
-    const items = await load('navigation_menus');
+    const [items, servicesList] = await Promise.all([load('navigation_menus'), load('services').catch(() => [])]);
     if (!items || !items.length) return; // boşsa statik/nav-component yedeği
-    const desktop = buildTree(items, 'show_desktop');
-    const mobile = buildTree(items, 'show_mobile');
+    const normalizedItems = items.map(it => ({
+      ...it,
+      url: normalizeServiceUrl(it.url, it.title, servicesList)
+    }));
+    const desktop = buildTree(normalizedItems, 'show_desktop');
+    const mobile = buildTree(normalizedItems, 'show_mobile');
     const nav = document.querySelector('.nav-menu');
     if (nav && desktop.length) {
       nav.innerHTML = desktop.map(it => {
@@ -475,7 +498,8 @@
 
       const detail = block.querySelector('a.btn-anthracite');
       if (detail) {
-        detail.setAttribute('href', `/hizmetlerimiz/${encodeURIComponent(matched.slug)}/`);
+        const serviceUrl = `/hizmetlerimiz/${matched.slug}/`;
+        detail.setAttribute('href', serviceUrl);
         const label = detail.querySelector('span:not(.btn-icon)');
         if (label && matched.title) label.textContent = `${matched.title} Detay Sayfası`;
       }
@@ -533,7 +557,7 @@
                   <p>${esc(s.content ? s.content.slice(0, 260) + '...' : '')}</p>
                   <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 2rem 0;">${badges}</div>
                   <div style="display: flex; gap: 1rem; align-items: center;">
-                    <a href="/hizmetlerimiz/${encodeURIComponent(s.slug)}/" class="btn btn-anthracite">
+                    <a href="/hizmetlerimiz/${s.slug}/" class="btn btn-anthracite">
                       <span>${esc(s.title)} Detay Sayfası</span>
                       <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </a>
@@ -583,15 +607,15 @@
     const services = await load('services');
     if (!services || !services.length) return;
 
-    const published = services.filter(s => s.status === 'published' && s.title && s.slug);
+    const published = services.filter(service => service.status === 'published' && service.title && service.slug);
     published.sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || (a.id - b.id));
     if (!published.length) return;
 
-    grid.innerHTML = published.map((s, idx) => {
-      const mediaUrl = pickMedia(s, 'cover_image_file', 'cover_image') || '/assets/images/machines/dtf-printer-station.svg';
-      const badge = s.badge || 'Profesyonel';
-      const detailUrl = `/hizmetlerimiz/${encodeURIComponent(s.slug)}/`;
-      const features = Array.isArray(s.features) ? s.features.slice(0, 3) : [];
+    grid.innerHTML = published.map((service, idx) => {
+      const mediaUrl = pickMedia(service, 'cover_image_file', 'cover_image') || '/assets/images/machines/dtf-printer-station.svg';
+      const badge = service.badge || 'Profesyonel';
+      const serviceUrl = `/hizmetlerimiz/${service.slug}/`;
+      const features = Array.isArray(service.features) ? service.features.slice(0, 3) : [];
       const featuresHtml = features.map(f => `
         <li class="service-feature-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
@@ -603,15 +627,15 @@
         <article class="service-card" data-reveal="fade-up" data-delay="${(idx + 1) * 100}">
           <div class="service-img-box">
             <span class="service-badge">${esc(badge)}</span>
-            <img src="${esc(mediaUrl)}" alt="${esc(s.title)}">
+            <img src="${esc(mediaUrl)}" alt="${esc(service.title)}">
           </div>
           <div class="service-body">
-            <h3 class="service-title">${esc(s.title)}</h3>
-            <p class="service-desc">${esc(s.short_desc || '')}</p>
+            <h3 class="service-title">${esc(service.title)}</h3>
+            <p class="service-desc">${esc(service.short_desc || '')}</p>
             <ul class="service-features-list">
               ${featuresHtml}
             </ul>
-            <a href="${detailUrl}" class="service-link">
+            <a href="${serviceUrl}" class="service-link">
               <span>Detaylı İncele</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
@@ -620,6 +644,17 @@
       `;
     }).join('');
   }
+
+  // Hizmet kartları tıklama delegasyonu: kartın herhangi bir yerine tıklandığında linki aç
+  document.addEventListener('click', e => {
+    const card = e.target.closest('.service-card');
+    if (!card) return;
+    if (e.target.closest('a')) return;
+    const a = card.querySelector('a.service-link');
+    if (a && a.href) {
+      window.location.href = a.href;
+    }
+  });
 
   /* ------------------------------ detay sayfaları ------------------------------ */
   async function hydrateDetail() {

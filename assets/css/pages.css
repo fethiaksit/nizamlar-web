@@ -219,6 +219,7 @@
   transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .service-card:hover {

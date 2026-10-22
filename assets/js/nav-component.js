@@ -20,8 +20,8 @@
 
   // Merkezi URL Yardımcı Fonksiyonu
   window.getServiceUrl = function (slug) {
-    if (!slug) return prefix ? `${prefix}hizmetlerimiz/` : '/hizmetlerimiz/';
-    return `${prefix ? prefix : '/'}hizmetlerimiz/${encodeURIComponent(slug)}/`;
+    if (!slug) return '/hizmetlerimiz/';
+    return `/hizmetlerimiz/${slug}/`;
   };
 
   // Menü Veri Modeli (Tek Merkezden Yönetim)
@@ -39,14 +39,14 @@
     },
     {
       label: 'Hizmetlerimiz',
-      href: `${prefix}hizmetlerimiz/`,
+      href: '/hizmetlerimiz/',
       id: 'hizmetler',
       dropdown: [
-        { label: 'Tüm Hizmetler', href: `${prefix}hizmetlerimiz/` },
-        { label: 'DTF Baskı', href: `${prefix}hizmetlerimiz/dtf-baski/`, tag: 'Popüler' },
-        { label: 'Emprime Baskı', href: `${prefix}hizmetlerimiz/emprime-baski/` },
-        { label: 'Tişört Baskı', href: `${prefix}hizmetlerimiz/tisort-baski/` },
-        { label: 'Konfeksiyon Parça Baskı', href: `${prefix}hizmetlerimiz/emprime-parca-baski/` }
+        { label: 'Tüm Hizmetler', href: '/hizmetlerimiz/' },
+        { label: 'DTF Baskı', href: '/hizmetlerimiz/dtf-baski/', tag: 'Popüler' },
+        { label: 'Emprime Baskı', href: '/hizmetlerimiz/emprime-baski/' },
+        { label: 'Tişört Baskı', href: '/hizmetlerimiz/tisort-baski/' },
+        { label: 'Konfeksiyon Parça Baskı', href: '/hizmetlerimiz/emprime-parca-baski/' }
       ]
     },
     {
@@ -289,12 +289,15 @@
       const hizmetlerItem = NAV_CONFIG.find(item => item.id === 'hizmetler');
       if (hizmetlerItem) {
         hizmetlerItem.dropdown = [
-          { label: 'Tüm Hizmetler', href: `${prefix}hizmetlerimiz/` },
-          ...published.map(s => ({
-            label: s.title,
-            href: `${prefix}hizmetlerimiz/${encodeURIComponent(s.slug)}/`,
-            tag: s.badge && s.badge.toLowerCase().includes('popüler') ? 'Popüler' : undefined
-          }))
+          { label: 'Tüm Hizmetler', href: '/hizmetlerimiz/' },
+          ...published.map(service => {
+            const serviceUrl = `/hizmetlerimiz/${service.slug}/`;
+            return {
+              label: service.title,
+              href: serviceUrl,
+              tag: service.badge && service.badge.toLowerCase().includes('popüler') ? 'Popüler' : undefined
+            };
+          })
         ];
         renderNavbar();
       }
@@ -303,9 +306,10 @@
       document.querySelectorAll('.footer-links').forEach(ul => {
         const isServicesColumn = Array.from(ul.querySelectorAll('a')).some(a => a.href.includes('/hizmetlerimiz/'));
         if (isServicesColumn) {
-          ul.innerHTML = published.map(s => `
-            <li><a href="${prefix}hizmetlerimiz/${encodeURIComponent(s.slug)}/" class="footer-link">${s.title}</a></li>
-          `).join('') + `<li><a href="${prefix}hizmetlerimiz/" class="footer-link">Tüm Baskı Çözümleri</a></li>`;
+          ul.innerHTML = published.map(service => {
+            const serviceUrl = `/hizmetlerimiz/${service.slug}/`;
+            return `<li><a href="${serviceUrl}" class="footer-link">${service.title}</a></li>`;
+          }).join('') + `<li><a href="/hizmetlerimiz/" class="footer-link">Tüm Baskı Çözümleri</a></li>`;
         }
       });
     } catch (e) {

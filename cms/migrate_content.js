@@ -28,7 +28,7 @@ function seedValues() {
 const NAV = [
   { title: 'Ana Sayfa', url: '/' },
   { title: 'Kurumsal', url: '/hakkimizda/', children: [['Hakkımızda', '/hakkimizda/'], ['Sürdürülebilirlik', '/surdurulebilirlik/'], ['Sertifikalarımız', '/sertifikalarimiz/']] },
-  { title: 'Hizmetlerimiz', url: '/hizmetlerimiz/', children: [['Tüm Hizmetler', '/hizmetlerimiz/'], ['DTF Baskı', '/hizmetlerimiz/dtf-baski/', 'Popüler'], ['Emprime Baskı', '/hizmetlerimiz/emprimebaskı/'], ['Tişört Baskı', '/hizmetlerimiz/tisort-baski/']] },
+  { title: 'Hizmetlerimiz', url: '/hizmetlerimiz/', children: [['Tüm Hizmetler', '/hizmetlerimiz/'], ['DTF Baskı', '/hizmetlerimiz/dtf-baski/', 'Popüler'], ['Emprime Baskı', '/hizmetlerimiz/emprime-baski/'], ['Tişört Baskı', '/hizmetlerimiz/tisort-baski/']] },
   { title: 'Üretim', url: '/uretim-surecleri/', children: [['Üretim Süreçleri', '/uretim-surecleri/'], ['Makine Parkurumuz', '/makine-parkurumuz/']] },
   { title: 'Galeri', url: '/galeri/' },
   { title: 'Referanslar', url: '/referanslarimiz/' },

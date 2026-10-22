@@ -210,6 +210,20 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   initPrintRevealCards();
 
+  // 8B. HİZMET KARTLARI TIKLAMA YÖNLENDİRMESİ (.service-card kartının tamamına tıklanabilirlik)
+  const initServiceCardClicks = () => {
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('.service-card');
+      if (!card) return;
+      if (e.target.closest('a')) return;
+      const link = card.querySelector('a.service-link');
+      if (link && link.href) {
+        window.location.href = link.href;
+      }
+    });
+  };
+  initServiceCardClicks();
+
   // 9. ETKİLEŞİMLİ MAKİNE ÜRETİM SİMÜLASYONU
   const initMachineSimulators = () => {
     const simBoxes = document.querySelectorAll('.machine-simulation-box');
