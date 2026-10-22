@@ -53,11 +53,12 @@ app.use((req, res, next) => {
 });
 
 // 2. Directus Proxy Entegrasyonu
-// Path prefix stripping olmadan /admin ve API isteklerini 127.0.0.1:8055'e proxy'ler
+// Path prefix stripping olmadan /admin ve tüm Directus API rotalarını 127.0.0.1:8055'e proxy'ler
 const directusProxy = createProxyMiddleware({
   target: DIRECTUS_URL,
   changeOrigin: true,
   ws: true,
+  xfwd: true,
   on: {
     error: (err, req, res) => {
       console.error('Directus proxy hatası:', err.message);
@@ -68,32 +69,78 @@ const directusProxy = createProxyMiddleware({
   }
 });
 
+// Directus API & Yönetim Paneli Rotaları
+const DIRECTUS_ROUTES = [
+  'admin',
+  'auth',
+  'activity',
+  'collections',
+  'comments',
+  'dashboards',
+  'extensions',
+  'fields',
+  'files',
+  'flows',
+  'folders',
+  'graphql',
+  'insights',
+  'items',
+  'notifications',
+  'operations',
+  'panels',
+  'permissions',
+  'policies',
+  'presets',
+  'relations',
+  'revisions',
+  'roles',
+  'schema',
+  'server',
+  'settings',
+  'shares',
+  'sync',
+  'translations',
+  'tours',
+  'users',
+  'utils',
+  'versions',
+  'websocket'
+];
+
+// Favicon yönlendirmesi
+app.get('/favicon.ico', (req, res) => {
+  const faviconSvg = path.join(__dirname, 'assets', 'images', 'logo.svg');
+  if (fs.existsSync(faviconSvg)) {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    return res.sendFile(faviconSvg);
+  }
+  res.status(204).end();
+});
+
 app.use((req, res, next) => {
   const p = req.path;
+
   // Statik frontend varlıklarını Express sunar
-  if (p.startsWith('/assets/css') || p.startsWith('/assets/js') || p.startsWith('/assets/images') || p.startsWith('/assets/videos')) {
+  if (
+    p.startsWith('/assets/css') ||
+    p.startsWith('/assets/js') ||
+    p.startsWith('/assets/images') ||
+    p.startsWith('/assets/videos')
+  ) {
     return next();
   }
 
-  // Directus rotaları
-  if (
-    p === '/admin' || p.startsWith('/admin/') ||
-    p === '/auth' || p.startsWith('/auth/') ||
-    p === '/items' || p.startsWith('/items/') ||
-    p === '/files' || p.startsWith('/files/') ||
-    p === '/users' || p.startsWith('/users/') ||
-    p === '/schema' || p.startsWith('/schema/') ||
-    p === '/server' || p.startsWith('/server/') ||
-    p === '/activity' || p.startsWith('/activity/') ||
-    p === '/permissions' || p.startsWith('/permissions/') ||
-    p === '/settings' || p.startsWith('/settings/') ||
-    p === '/collections' || p.startsWith('/collections/') ||
-    p === '/fields' || p.startsWith('/fields/') ||
-    p === '/relations' || p.startsWith('/relations/') ||
-    p === '/roles' || p.startsWith('/roles/') ||
-    p === '/policies' || p.startsWith('/policies/') ||
-    (p.startsWith('/assets/') && !p.startsWith('/assets/css') && !p.startsWith('/assets/js') && !p.startsWith('/assets/images') && !p.startsWith('/assets/videos'))
-  ) {
+  // Directus yüklenen dosyaları (/assets/:id)
+  if (p === '/assets' || p.startsWith('/assets/')) {
+    return directusProxy(req, res, next);
+  }
+
+  // Directus admin ve API rotaları
+  const isDirectusRoute = DIRECTUS_ROUTES.some(
+    route => p === `/${route}` || p.startsWith(`/${route}/`)
+  );
+
+  if (isDirectusRoute) {
     return directusProxy(req, res, next);
   }
 
@@ -197,7 +244,5 @@ app.listen(PORT, () => {
   console.log(`🌍 Web Sitesi:          http://localhost:${PORT}`);
   console.log(`⚙️  Yönetim Paneli:      http://localhost:${PORT}/admin`);
   console.log(`🔌 Doğrudan Directus:   ${DIRECTUS_URL}/admin`);
-  console.log(`👤 Yönetici E-Posta:    admin@nizamlarbaski.com`);
-  console.log(`🔑 Yönetici Şifre:      NizamlarAdmin2026!`);
   console.log(`======================================================\n`);
 });

@@ -20,6 +20,22 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
     aspectRatio: 600 / 680
   },
 
+  // 12 Renkli Profesyonel Tekstil Renk Kartelası (Önizleme Seçenekleri)
+  palette: [
+    { id: 'beyaz', name: 'Beyaz', hex: '#F8F8F5' },
+    { id: 'siyah', name: 'Siyah', hex: '#202020' },
+    { id: 'antrasit', name: 'Antrasit', hex: '#48494B' },
+    { id: 'ekru', name: 'Ekru', hex: '#E9DFCB' },
+    { id: 'bej', name: 'Bej', hex: '#C6AD8F' },
+    { id: 'kahverengi', name: 'Kahverengi', hex: '#674936' },
+    { id: 'haki', name: 'Haki', hex: '#666D4F' },
+    { id: 'lacivert', name: 'Lacivert', hex: '#242F4A' },
+    { id: 'bordo', name: 'Bordo', hex: '#703443' },
+    { id: 'kirmizi', name: 'Kırmızı', hex: '#BB343A' },
+    { id: 'mavi', name: 'Mavi', hex: '#6B94B4' },
+    { id: 'pembe', name: 'Pembe', hex: '#DFA8B6' }
+  ],
+
   samples: [
     {
       id: 'monogram',
@@ -52,10 +68,20 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
       spec: '240 GSM Penye Pamuk',
       defaultView: 'front',
       supportedViews: ['front', 'back'],
-      defaultColor: 'anthracite',
+      defaultColor: 'siyah',
       supportedColors: [
-        { id: 'anthracite', name: 'Antrasit Siyah', hex: '#222325' },
-        { id: 'cream', name: 'Krem / Ham Pamuk', hex: '#f3efe7' }
+        { id: 'beyaz', name: 'Beyaz', hex: '#F8F8F5' },
+        { id: 'siyah', name: 'Siyah', hex: '#202020' },
+        { id: 'antrasit', name: 'Antrasit', hex: '#48494B' },
+        { id: 'ekru', name: 'Ekru', hex: '#E9DFCB' },
+        { id: 'bej', name: 'Bej', hex: '#C6AD8F' },
+        { id: 'kahverengi', name: 'Kahverengi', hex: '#674936' },
+        { id: 'haki', name: 'Haki', hex: '#666D4F' },
+        { id: 'lacivert', name: 'Lacivert', hex: '#242F4A' },
+        { id: 'bordo', name: 'Bordo', hex: '#703443' },
+        { id: 'kirmizi', name: 'Kırmızı', hex: '#BB343A' },
+        { id: 'mavi', name: 'Mavi', hex: '#6B94B4' },
+        { id: 'pembe', name: 'Pembe', hex: '#DFA8B6' }
       ],
       views: {
         front: {
@@ -192,10 +218,17 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
       spec: '380 GSM Şardonlu Kumaş',
       defaultView: 'front',
       supportedViews: ['front'],
-      defaultColor: 'anthracite',
+      defaultColor: 'siyah',
       supportedColors: [
-        { id: 'anthracite', name: 'Antrasit Siyah', hex: '#222325' },
-        { id: 'cream', name: 'Krem / Doğal Taş', hex: '#ded9cf' }
+        { id: 'siyah', name: 'Siyah', hex: '#202020' },
+        { id: 'antrasit', name: 'Antrasit', hex: '#48494B' },
+        { id: 'ekru', name: 'Ekru', hex: '#E9DFCB' },
+        { id: 'bej', name: 'Bej', hex: '#C6AD8F' },
+        { id: 'kahverengi', name: 'Kahverengi', hex: '#674936' },
+        { id: 'haki', name: 'Haki', hex: '#666D4F' },
+        { id: 'lacivert', name: 'Lacivert', hex: '#242F4A' },
+        { id: 'bordo', name: 'Bordo', hex: '#703443' },
+        { id: 'beyaz', name: 'Beyaz', hex: '#F8F8F5' }
       ],
       views: {
         front: {
@@ -279,10 +312,17 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
       spec: '400 GSM Ağır Sokak Modası',
       defaultView: 'front',
       supportedViews: ['front'],
-      defaultColor: 'anthracite',
+      defaultColor: 'siyah',
       supportedColors: [
-        { id: 'anthracite', name: 'Antrasit Siyah', hex: '#222325' },
-        { id: 'cream', name: 'Krem / Ham Taş', hex: '#ded9cf' }
+        { id: 'siyah', name: 'Siyah', hex: '#202020' },
+        { id: 'antrasit', name: 'Antrasit', hex: '#48494B' },
+        { id: 'ekru', name: 'Ekru', hex: '#E9DFCB' },
+        { id: 'bej', name: 'Bej', hex: '#C6AD8F' },
+        { id: 'kahverengi', name: 'Kahverengi', hex: '#674936' },
+        { id: 'haki', name: 'Haki', hex: '#666D4F' },
+        { id: 'lacivert', name: 'Lacivert', hex: '#242F4A' },
+        { id: 'bordo', name: 'Bordo', hex: '#703443' },
+        { id: 'beyaz', name: 'Beyaz', hex: '#F8F8F5' }
       ],
       views: {
         front: {
@@ -366,10 +406,15 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
       spec: '%100 Pamuk 3 İplik',
       defaultView: 'front',
       supportedViews: ['front'],
-      defaultColor: 'anthracite',
+      defaultColor: 'siyah',
       supportedColors: [
-        { id: 'anthracite', name: 'Antrasit Siyah', hex: '#222325' },
-        { id: 'cream', name: 'Krem / Kemik', hex: '#ded9cf' }
+        { id: 'siyah', name: 'Siyah', hex: '#202020' },
+        { id: 'antrasit', name: 'Antrasit', hex: '#48494B' },
+        { id: 'ekru', name: 'Ekru', hex: '#E9DFCB' },
+        { id: 'bej', name: 'Bej', hex: '#C6AD8F' },
+        { id: 'haki', name: 'Haki', hex: '#666D4F' },
+        { id: 'lacivert', name: 'Lacivert', hex: '#242F4A' },
+        { id: 'kahverengi', name: 'Kahverengi', hex: '#674936' }
       ],
       views: {
         front: {
@@ -453,10 +498,14 @@ window.NIZAMLAR_MOCKUP_CONFIG = {
       spec: '320 GSM Ağır Dayanıklı Dokuma',
       defaultView: 'front',
       supportedViews: ['front'],
-      defaultColor: 'cream',
+      defaultColor: 'ekru',
       supportedColors: [
-        { id: 'cream', name: 'Doğal Ham Bez', hex: '#f3efe7' },
-        { id: 'anthracite', name: 'Siyah Kanvas', hex: '#222325' }
+        { id: 'ekru', name: 'Doğal Ham Bez', hex: '#E9DFCB' },
+        { id: 'siyah', name: 'Siyah Kanvas', hex: '#202020' },
+        { id: 'bej', name: 'Bej Kanvas', hex: '#C6AD8F' },
+        { id: 'haki', name: 'Haki Kanvas', hex: '#666D4F' },
+        { id: 'lacivert', name: 'Lacivert Kanvas', hex: '#242F4A' },
+        { id: 'beyaz', name: 'Optik Beyaz', hex: '#F8F8F5' }
       ],
       views: {
         front: {

@@ -49,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     mobileBackdrop.addEventListener('click', closeMenu);
+
+    // Mobil menüdeki linke tıklandığında menüyü kapat
+    mobileDrawer.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', closeMenu);
+    });
   }
 
   // 3. Aktif Menü Linki İşaretleme

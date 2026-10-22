@@ -37,7 +37,7 @@
 
       <!-- Desktop Navigasyon -->
       <nav class="nav-menu" aria-label="Ana Menü">
-        <div class="nav-item">
+        <div class="nav-item active">
           <a href="./" class="nav-link active">Ana Sayfa</a>
         </div>
 
@@ -77,28 +77,10 @@
           </ul>
         </div>
 
-        <div class="nav-item">
-          <a href="#canli-onizleme" class="nav-link" style="color: var(--c-gold); font-weight: 600;">
-            <span style="display:inline-block; width:6px; height:6px; background-color:var(--c-gold); border-radius:50%; margin-right:5px; box-shadow:0 0 6px var(--c-gold);"></span>
-            Canlı Önizleme
-          </a>
-        </div>
-
-        <div class="nav-item">
-          <a href="galeri/" class="nav-link">Galeri</a>
-        </div>
-
-        <div class="nav-item">
-          <a href="referanslarimiz/" class="nav-link">Referanslar</a>
-        </div>
-
-        <div class="nav-item">
-          <a href="blog/" class="nav-link">Blog</a>
-        </div>
-
-        <div class="nav-item">
-          <a href="iletisim/" class="nav-link">İletişim</a>
-        </div>
+        <div class="nav-item"><a href="galeri/" class="nav-link">Galeri</a></div>
+        <div class="nav-item"><a href="referanslarimiz/" class="nav-link">Referanslar</a></div>
+        <div class="nav-item"><a href="blog/" class="nav-link">Blog</a></div>
+        <div class="nav-item"><a href="iletisim/" class="nav-link">İletişim</a></div>
       </nav>
 
       <!-- CTA Butonu & Mobil Hamburger -->
@@ -148,7 +130,6 @@
             <li><a href="makine-parkurumuz/" class="mobile-submenu-link">Makine Parkurumuz</a></li>
           </ul>
         </li>
-        <li><a href="#canli-onizleme" class="mobile-nav-link" style="color: var(--c-gold); font-weight: 700;">★ Canlı Baskı Önizle</a></li>
         <li><a href="galeri/" class="mobile-nav-link">Üretim Galerisi</a></li>
         <li><a href="referanslarimiz/" class="mobile-nav-link">Referanslarımız</a></li>
         <li><a href="blog/" class="mobile-nav-link">Blog & Rehberler</a></li>
@@ -420,7 +401,12 @@
                 </div>
 
                 <div>
-                  <div class="option-group-title">Kumaş Rengi</div>
+                  <div class="color-selection-header">
+                    <div class="option-group-title" style="margin-bottom: 0;">
+                      Kumaş Rengi: <strong id="selected-color-name" class="selected-color-label">Siyah</strong>
+                    </div>
+                    <span class="color-preview-badge">CANLI PROVA</span>
+                  </div>
                   <div id="color-swatches-wrap" class="color-swatches-wrap">
                     <!-- JS ile renk daireleri üretilir -->
                   </div>
@@ -561,7 +547,9 @@
 
               <!-- Canlı Mockup Sahne Katmanları -->
               <div class="mockup-canvas-area">
-                <!-- Katman 1: Ürün Taban SVG'si -->
+                <!-- Katman 1 & 2: Dinamik Kumaş ve Renk Mockup SVG Kapsayıcısı -->
+                <div id="mockup-svg-wrap" class="mockup-svg-wrap"></div>
+                <!-- Taban Mockup Görseli (Geriye Dönük Uyumluluk) -->
                 <img id="mockup-base-img" class="mockup-base-image" src="assets/images/products/tee-blank-cotton.svg" alt="Ürün Mockup">
 
                 <!-- Katman 2: Güvenli Baskı Kılavuzu -->
@@ -1283,7 +1271,6 @@
   </footer>
 
   <!-- Core Scripts -->
-  <script src="assets/js/nav-component.js"></script>
   <script src="assets/js/main.js"></script>
   <script src="assets/js/cms-client.js"></script>
   <script src="assets/js/mockup-config.js"></script>

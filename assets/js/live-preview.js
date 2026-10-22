@@ -24,7 +24,7 @@
   const state = {
     productId: 'tisort',
     view: 'front',
-    colorId: 'anthracite',
+    colorId: 'siyah',
     positionId: 'buyuk_on',
     image: null,
     imageDataUrl: null,
@@ -100,6 +100,7 @@
       viewToggleWrap: document.querySelector('#view-toggle-wrap'),
       btnViewToggles: document.querySelectorAll('.btn-view-toggle'),
       colorSwatchesWrap: document.querySelector('#color-swatches-wrap'),
+      selectedColorName: document.querySelector('#selected-color-name'),
       placementPillsRow: document.querySelector('#placement-pills-row'),
 
       // Hızlı Kontroller
@@ -126,6 +127,7 @@
       // Viewport / Sahne
       stageFrame: document.querySelector('#mockup-stage-frame'),
       mockupCanvasArea: document.querySelector('#mockup-canvas-area') || document.querySelector('.mockup-canvas-area'),
+      mockupSvgWrap: document.querySelector('#mockup-svg-wrap'),
       mockupBaseImg: document.querySelector('#mockup-base-img'),
       printableGuide: document.querySelector('#printable-guide-box'),
       guideTag: document.querySelector('#printable-guide-tag'),
@@ -208,24 +210,297 @@
     };
   }
 
-  // Taban Mockup Görselini Güncelle
+  // ==========================================
+  // PROFESYONEL TEKSTİL KUMAŞ VE RENK MOTORU
+  // ==========================================
+
+  function hexToRgb(hex) {
+    let c = (hex || '#202020').replace('#', '').trim();
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    const num = parseInt(c, 16);
+    return {
+      r: (num >> 16) & 255,
+      g: (num >> 8) & 255,
+      b: num & 255
+    };
+  }
+
+  function rgbToHex(r, g, b) {
+    const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
+    return '#' + [clamp(r), clamp(g), clamp(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+
+  function isColorLight(hex) {
+    const { r, g, b } = hexToRgb(hex);
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 140;
+  }
+
+  // Kumaşın 3 Boyutlu Doğal Drapaj Işık ve Gölge Tonlarını Hesapla
+  function generateFabricShades(baseHex) {
+    const { r, g, b } = hexToRgb(baseHex);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+    const isLight = luminance > 140;
+
+    // Stüdyo tepe/yan ana ışık (Key light) - kumaşın aydınlık tepesi
+    const lightFactor = isLight ? 0.18 : 0.28;
+    const lightHex = rgbToHex(
+      r + (255 - r) * lightFactor,
+      g + (255 - g) * lightFactor,
+      b + (255 - b) * lightFactor
+    );
+
+    // Kumaş kıvrım ve kenar derinlik gölgesi
+    const darkFactor = isLight ? 0.82 : 0.68;
+    const darkHex = rgbToHex(r * darkFactor, g * darkFactor, b * darkFactor);
+
+    // Triko/ribana yaka, manşet ve bel lastiği doku tonu
+    const ribFactor = isLight ? 0.88 : 0.78;
+    const ribHex = rgbToHex(r * ribFactor, g * ribFactor, b * ribFactor);
+
+    // Dikiş, kıvrım ve gölge katmanı transparanlıkları (Katman 1 koruma)
+    const creaseStroke = isLight ? 'rgba(0, 0, 0, 0.13)' : 'rgba(255, 255, 255, 0.08)';
+    const stitchStroke = isLight ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.06)';
+    const highlightStroke = isLight ? 'rgba(255, 255, 255, 0.40)' : 'rgba(255, 255, 255, 0.08)';
+    const shadowOpacity = isLight ? 0.14 : (luminance < 40 ? 0.32 : 0.24);
+
+    return {
+      baseHex,
+      lightHex,
+      darkHex,
+      ribHex,
+      isLight,
+      creaseStroke,
+      stitchStroke,
+      highlightStroke,
+      shadowOpacity
+    };
+  }
+
+  // Ürün ve Renk Değerine Göre Canlı Vektör Mockup SVG'si Üret (Katman 1: Doku/Gölge, Katman 2: Kumaş Rengi)
+  function generateProductSvg(productId, view, colorHex, specText) {
+    const shades = generateFabricShades(colorHex || '#202020');
+    const spec = specText || '240 GSM PENYE';
+
+    const defsContent = `
+      <defs>
+        <!-- Kumaş Penye Örgü Filtresi -->
+        <filter id="fabricTexture" x="0%" y="0%" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="4" result="noise" />
+          <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 0.12 0" in="noise" result="coloredNoise" />
+          <feComposite operator="in" in2="SourceGraphic" result="textured" />
+          <feBlend mode="multiply" in="textured" in2="SourceGraphic" />
+        </filter>
+        <!-- Ağır Şardonlu Fleece Filtresi -->
+        <filter id="fleeceTexture" x="0%" y="0%" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="fleeceNoise" />
+          <feColorMatrix type="matrix" values="0.2 0.2 0.2 0 0  0.2 0.2 0.2 0 0  0.2 0.2 0.2 0 0  0 0 0 0.18 0" in="fleeceNoise" result="fleeceOverlay" />
+          <feComposite operator="in" in2="SourceGraphic" />
+          <feBlend mode="overlay" in2="SourceGraphic" />
+        </filter>
+        <!-- Dinamik Kumaş Işık/Gölge Gradyanı (Katman 2) -->
+        <linearGradient id="fabricGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${shades.lightHex}" />
+          <stop offset="42%" stop-color="${shades.baseHex}" />
+          <stop offset="100%" stop-color="${shades.darkHex}" />
+        </linearGradient>
+        <!-- Stüdyo Ortam Işığı -->
+        <radialGradient id="studioLight" cx="50%" cy="40%" r="58%">
+          <stop offset="0%" stop-color="#3d4046" stop-opacity="0.85" />
+          <stop offset="50%" stop-color="#282a2e" stop-opacity="0.92" />
+          <stop offset="100%" stop-color="#161719" stop-opacity="1" />
+        </radialGradient>
+      </defs>
+      <!-- Stüdyo Zemin Tonu -->
+      <rect width="600" height="680" fill="#18191b" rx="16" />
+      <rect width="600" height="680" fill="url(#studioLight)" rx="16" />
+    `;
+
+    const badgeSvg = `
+      <g transform="translate(30, 30)">
+        <rect width="140" height="26" rx="4" fill="rgba(22,23,24,0.85)" stroke="rgba(178,148,96,0.3)" stroke-width="1" />
+        <circle cx="14" cy="13" r="3.5" fill="#b29460" />
+        <text x="26" y="17" font-family="'JetBrains Mono', monospace" font-size="8.5" fill="#f3efe7" font-weight="600" letter-spacing="0.5">${spec.toUpperCase()}</text>
+      </g>
+    `;
+
+    let bodyContent = '';
+
+    if (productId === 'tisort') {
+      const isBack = view === 'back';
+      const collarSvg = isBack ? `
+        <!-- Sırt Yaka Triko & Etiket -->
+        <path id="collarRibBack" d="M 235 90 Q 300 115 365 90 Q 300 95 235 90 Z" fill="${shades.ribHex}" />
+        <text x="300" y="112" font-family="'JetBrains Mono', monospace" font-size="7" fill="#b29460" font-weight="600" text-anchor="middle" letter-spacing="1">NİZAMLAR LAB / 100% COTTON</text>
+      ` : `
+        <!-- Ön Yaka Ribana Kavisleri -->
+        <path id="collarRib" d="M 235 90 Q 300 145 365 90 Q 300 135 235 90 Z" fill="${shades.ribHex}" />
+        <path d="M 238 93 Q 300 142 362 93" fill="none" stroke="#b29460" stroke-width="0.8" opacity="0.35" stroke-dasharray="2,2" />
+      `;
+
+      bodyContent = `
+        <!-- Zemin Gölgesi -->
+        <ellipse cx="300" cy="635" rx="210" ry="24" fill="#090a0b" opacity="0.65" filter="blur(8px)" />
+        <g id="tshirtBody">
+          <!-- Katman 2: Kumaş Rengi ve Dokusu Gövde Silüeti -->
+          <path id="garmentBodyPath" d="M 235 90 L 105 175 L 140 260 L 195 225 L 190 235 L 190 590 L 410 590 L 410 235 L 405 225 L 460 260 L 495 175 L 365 90 Z" 
+                fill="url(#fabricGrad)" filter="url(#fabricTexture)" />
+          <!-- Katman 1: Kıvrımlar, Gölgeler ve Doğal Drapaj Folds -->
+          <path d="M 190 230 C 185 300 195 480 188 590" fill="none" stroke="${shades.creaseStroke}" stroke-width="2" />
+          <path d="M 410 230 C 415 300 405 480 412 590" fill="none" stroke="${shades.creaseStroke}" stroke-width="2" />
+          <path d="M 215 150 Q 230 350 220 585" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="12" filter="blur(6px)" />
+          <path d="M 385 150 Q 370 350 380 585" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="12" filter="blur(6px)" />
+          <path d="M 250 200 Q 300 240 350 200" fill="none" stroke="${shades.highlightStroke}" stroke-width="18" filter="blur(10px)" />
+          <!-- Kol Manşetleri ve Reçme Çift Dikiş Detayları -->
+          <path d="M 105 175 L 140 260" fill="none" stroke="${shades.stitchStroke}" stroke-width="1" />
+          <path d="M 109 178 L 142 257" fill="none" stroke="${shades.stitchStroke}" stroke-width="0.8" stroke-dasharray="3,2" />
+          <path d="M 495 175 L 460 260" fill="none" stroke="${shades.stitchStroke}" stroke-width="1" />
+          <path d="M 491 178 L 458 257" fill="none" stroke="${shades.stitchStroke}" stroke-width="0.8" stroke-dasharray="3,2" />
+          <path d="M 190 575 L 410 575" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" />
+          <path d="M 190 578 L 410 578" fill="none" stroke="${shades.stitchStroke}" stroke-width="0.8" stroke-dasharray="4,2" />
+          ${collarSvg}
+        </g>
+      `;
+    } else if (productId === 'sweatshirt') {
+      bodyContent = `
+        <ellipse cx="300" cy="640" rx="220" ry="22" fill="#080809" opacity="0.7" filter="blur(8px)" />
+        <g id="sweatBody">
+          <!-- Gövde -->
+          <path id="garmentBodyPath" d="M 225 90 L 85 190 L 115 285 L 175 250 L 180 580 L 420 580 L 425 250 L 485 285 L 515 190 L 375 90 Z" 
+                fill="url(#fabricGrad)" filter="url(#fleeceTexture)" />
+          <!-- Manşetler ve Bel Ribanası -->
+          <rect x="92" y="270" width="30" height="22" transform="rotate(-30, 92, 270)" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <rect x="480" y="255" width="30" height="22" transform="rotate(30, 480, 255)" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <rect x="180" y="560" width="240" height="35" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <line x1="180" y1="565" x2="420" y2="565" stroke="${shades.stitchStroke}" stroke-width="1" stroke-dasharray="4,2" />
+          <!-- Gölgeler ve Dikişler -->
+          <path d="M 200 170 Q 215 380 205 560" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="16" filter="blur(8px)" />
+          <path d="M 400 170 Q 385 380 395 560" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="16" filter="blur(8px)" />
+          <path d="M 225 90 Q 300 135 375 90 Q 300 120 225 90 Z" fill="${shades.ribHex}" />
+        </g>
+      `;
+    } else if (productId === 'hoodie') {
+      bodyContent = `
+        <ellipse cx="300" cy="640" rx="220" ry="22" fill="#080809" opacity="0.7" filter="blur(8px)" />
+        <g id="hoodieBody">
+          <!-- Gövde -->
+          <path id="garmentBodyPath" d="M 225 90 L 85 190 L 115 285 L 175 250 L 180 580 L 420 580 L 425 250 L 485 285 L 515 190 L 375 90 Z" 
+                fill="url(#fabricGrad)" filter="url(#fleeceTexture)" />
+          <!-- Manşetler ve Bel Lastiği -->
+          <rect x="92" y="270" width="30" height="22" transform="rotate(-30, 92, 270)" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <rect x="480" y="255" width="30" height="22" transform="rotate(30, 480, 255)" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <rect x="180" y="560" width="240" height="35" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <line x1="180" y1="565" x2="420" y2="565" stroke="${shades.stitchStroke}" stroke-width="1" stroke-dasharray="4,2" />
+          <!-- Gölgeler -->
+          <path d="M 200 170 Q 215 380 205 560" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="16" filter="blur(8px)" />
+          <path d="M 400 170 Q 385 380 395 560" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="16" filter="blur(8px)" />
+          <!-- Kapüşon -->
+          <path d="M 220 100 Q 185 30 300 25 Q 415 30 380 100 Q 300 135 220 100 Z" fill="url(#fabricGrad)" filter="url(#fleeceTexture)" />
+          <path d="M 245 105 Q 300 125 355 105" fill="none" stroke="${shades.creaseStroke}" stroke-width="2" />
+          <!-- Kordonlar ve Metal Uçlar -->
+          <path d="M 265 110 C 260 170 250 200 255 225" fill="none" stroke="#ded9cf" stroke-width="3" stroke-linecap="round" />
+          <rect x="252" y="225" width="6" height="14" rx="2" fill="#b29460" />
+          <path d="M 335 110 C 340 170 350 200 345 225" fill="none" stroke="#ded9cf" stroke-width="3" stroke-linecap="round" />
+          <rect x="342" y="225" width="6" height="14" rx="2" fill="#b29460" />
+          <!-- Kanguru Cep -->
+          <path d="M 215 440 L 385 440 L 405 520 L 195 520 Z" fill="none" stroke="${shades.creaseStroke}" stroke-width="2" />
+          <path d="M 215 440 L 195 520" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="3" />
+          <path d="M 385 440 L 405 520" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="3" />
+        </g>
+      `;
+    } else if (productId === 'pantolon') {
+      bodyContent = `
+        <ellipse cx="300" cy="650" rx="220" ry="18" fill="#080809" opacity="0.7" filter="blur(8px)" />
+        <g id="pantsBody">
+          <!-- Beli ve Kordonlar -->
+          <rect x="200" y="60" width="200" height="35" rx="4" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <line x1="200" y1="78" x2="400" y2="78" stroke="${shades.stitchStroke}" stroke-width="1" stroke-dasharray="3,2" />
+          <path d="M 285 85 C 280 120 270 145 275 165" fill="none" stroke="#ded9cf" stroke-width="2.5" stroke-linecap="round" />
+          <rect x="272" y="165" width="5" height="12" rx="1.5" fill="#b29460" />
+          <path d="M 315 85 C 320 120 330 145 325 165" fill="none" stroke="#ded9cf" stroke-width="2.5" stroke-linecap="round" />
+          <rect x="323" y="165" width="5" height="12" rx="1.5" fill="#b29460" />
+          <!-- Bacaklar -->
+          <path d="M 200 95 L 180 320 L 210 610 L 270 610 L 285 300 L 300 240 L 300 95 Z" 
+                fill="url(#fabricGrad)" filter="url(#fleeceTexture)" />
+          <path d="M 400 95 L 420 320 L 390 610 L 330 610 L 315 300 L 300 240 L 300 95 Z" 
+                fill="url(#fabricGrad)" filter="url(#fleeceTexture)" />
+          <path d="M 300 95 L 300 245" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="2" />
+          <path d="M 205 110 Q 235 150 215 190" fill="none" stroke="${shades.creaseStroke}" stroke-width="2" />
+          <path d="M 395 110 Q 365 150 385 190" fill="none" stroke="${shades.creaseStroke}" stroke-width="2" />
+          <!-- Paça Lastikleri -->
+          <rect x="210" y="610" width="60" height="25" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <rect x="330" y="610" width="60" height="25" fill="${shades.ribHex}" stroke="${shades.stitchStroke}" stroke-width="1.5" />
+          <path d="M 240 200 Q 255 420 245 590" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="12" filter="blur(6px)" />
+          <path d="M 360 200 Q 345 420 355 590" fill="none" stroke="rgba(0,0,0,${shades.shadowOpacity})" stroke-width="12" filter="blur(6px)" />
+        </g>
+      `;
+    } else if (productId === 'canta') {
+      bodyContent = `
+        <ellipse cx="300" cy="620" rx="200" ry="20" fill="#090a0b" opacity="0.6" filter="blur(8px)" />
+        <!-- Askılar -->
+        <path d="M 230 200 C 230 60 370 60 370 200" fill="none" stroke="${shades.ribHex}" stroke-width="18" stroke-linecap="round" />
+        <path d="M 230 200 C 230 60 370 60 370 200" fill="none" stroke="rgba(0,0,0,0.3)" stroke-width="1" stroke-dasharray="3,3" />
+        <!-- Çanta Gövdesi -->
+        <path d="M 160 200 L 440 200 L 420 580 L 180 580 Z" fill="url(#fabricGrad)" filter="url(#fabricTexture)" />
+        <line x1="160" y1="210" x2="440" y2="210" stroke="rgba(0,0,0,0.15)" stroke-width="2" />
+        <line x1="160" y1="214" x2="440" y2="214" stroke="${shades.stitchStroke}" stroke-width="1" stroke-dasharray="4,2" />
+        <!-- Çapraz Takviye Dikişleri -->
+        <rect x="220" y="210" width="22" height="28" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" />
+        <line x1="220" y1="210" x2="242" y2="238" stroke="rgba(0,0,0,0.25)" stroke-width="1" />
+        <line x1="242" y1="210" x2="220" y2="238" stroke="rgba(0,0,0,0.25)" stroke-width="1" />
+        <rect x="360" y="210" width="22" height="28" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="1.5" />
+        <line x1="360" y1="210" x2="382" y2="238" stroke="rgba(0,0,0,0.25)" stroke-width="1" />
+        <line x1="382" y1="210" x2="360" y2="238" stroke="rgba(0,0,0,0.25)" stroke-width="1" />
+      `;
+    }
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 680" width="100%" height="100%">${defsContent}${bodyContent}${badgeSvg}</svg>`;
+  }
+
+  // Renk Kimliğini Güvenle Eşle ve Doğrula
+  function normalizeColorId(colorId, supportedColors) {
+    if (!supportedColors || supportedColors.length === 0) return 'siyah';
+    if (!colorId) return supportedColors[0].id;
+    if (colorId === 'anthracite') {
+      const match = supportedColors.find(c => c.id === 'siyah' || c.id === 'antrasit');
+      return match ? match.id : supportedColors[0].id;
+    }
+    if (colorId === 'cream') {
+      const match = supportedColors.find(c => c.id === 'ekru' || c.id === 'beyaz');
+      return match ? match.id : supportedColors[0].id;
+    }
+    const exists = supportedColors.some(c => c.id === colorId);
+    return exists ? colorId : supportedColors[0].id;
+  }
+
+  // Taban Mockup Görselini ve Vektör Kumaş Katmanını Güncelle
   function updateMockupBase() {
     const prod = getCurrentProductConfig();
     const viewCfg = getCurrentViewConfig();
     if (!viewCfg) return;
 
-    let imgSrc = viewCfg.mockups[state.colorId] || Object.values(viewCfg.mockups)[0];
-    if (dom.mockupBaseImg) {
-      dom.mockupBaseImg.src = imgSrc;
-      dom.mockupBaseImg.alt = `${prod.name} ${viewCfg.label} - Nizamlar Baskı`;
+    state.colorId = normalizeColorId(state.colorId, prod.supportedColors);
+    const activeColor = prod.supportedColors.find(c => c.id === state.colorId) || prod.supportedColors[0];
+
+    // 1. Dinamik Kumaş ve Renk Vektör SVG'sini Sahneye Çiz (Katman 1 & Katman 2)
+    const svgContent = generateProductSvg(state.productId, state.view, activeColor.hex, prod.spec);
+    if (dom.mockupSvgWrap) {
+      dom.mockupSvgWrap.innerHTML = svgContent;
     }
 
-    // Üst Rozetleri Güncelle
+    // 2. Geriye Dönük Uyumluluk için Mockup Base Image'ı SVG Data URL ile Eşzamanla
+    const svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgContent);
+    if (dom.mockupBaseImg) {
+      dom.mockupBaseImg.src = svgDataUrl;
+      dom.mockupBaseImg.alt = `${prod.name} ${viewCfg.label} - Nizamlar Baskı (${activeColor.name})`;
+    }
+
+    // 3. Üst Rozetleri ve Seçili Renk Adını Güncelle
     if (dom.badgeProductName) dom.badgeProductName.textContent = prod.name;
     if (dom.badgeSpec) dom.badgeSpec.textContent = prod.spec;
     if (dom.badgeView) dom.badgeView.textContent = viewCfg.label;
+    if (dom.selectedColorName) dom.selectedColorName.textContent = activeColor.name;
 
-    // Baskı Kılavuz Alanını Konumlandır
+    // 4. Baskı Kılavuz Alanını Konumlandır
     if (dom.printableGuide && viewCfg.printableArea) {
       const pa = viewCfg.printableArea;
       const leftPct = (pa.x / CFG.canvas.width) * 100;
@@ -248,34 +523,68 @@
     renderViewToggles();
   }
 
-  // Renk Dairelerini Oluştur
+  let showAllColors = false;
+
+  // Profesyonel Renk Kartelası Dairelerini Oluştur (8 Renk + Genişletilebilir Tüm Renkler)
   function renderColorSwatches() {
     if (!dom.colorSwatchesWrap) return;
     const prod = getCurrentProductConfig();
+    const colors = prod.supportedColors || [];
+
+    state.colorId = normalizeColorId(state.colorId, colors);
+    const activeColor = colors.find(c => c.id === state.colorId) || colors[0];
+
+    if (dom.selectedColorName && activeColor) {
+      dom.selectedColorName.textContent = activeColor.name;
+    }
+
     dom.colorSwatchesWrap.innerHTML = '';
 
-    prod.supportedColors.forEach(c => {
+    // 8'den fazla renk varsa başlangıçta ilk 8 rengi göster veya "Tüm Renkler" tıklandığında genişlet
+    const limit = (colors.length > 8 && !showAllColors) ? 8 : colors.length;
+    const visibleColors = colors.slice(0, limit);
+
+    visibleColors.forEach(c => {
       const swatch = document.createElement('button');
       swatch.type = 'button';
-      swatch.className = `color-swatch-item ${c.id === state.colorId ? 'active' : ''}`;
-      swatch.title = c.name;
-      swatch.setAttribute('aria-label', `${c.name} Renk`);
+      const isActive = c.id === state.colorId;
+      const light = isColorLight(c.hex);
+      swatch.className = `color-swatch-btn color-swatch-item ${isActive ? 'active' : ''} ${light ? 'is-light' : ''}`;
+      swatch.title = `${c.name} (${c.hex})`;
+      swatch.setAttribute('aria-label', `${c.name} Kumaş Rengi`);
+      swatch.setAttribute('data-color-id', c.id);
+      swatch.setAttribute('data-color-name', c.name);
+      swatch.setAttribute('data-color-hex', c.hex);
       swatch.style.backgroundColor = c.hex;
-
-      if (c.hex.toLowerCase() === '#f3efe7' || c.hex.toLowerCase() === '#ded9cf') {
-        swatch.classList.add('is-light');
-      }
 
       swatch.addEventListener('click', () => {
         state.colorId = c.id;
-        dom.colorSwatchesWrap.querySelectorAll('.color-swatch-item').forEach(s => s.classList.remove('active'));
+        dom.colorSwatchesWrap.querySelectorAll('.color-swatch-btn, .color-swatch-item').forEach(s => s.classList.remove('active'));
         swatch.classList.add('active');
+        if (dom.selectedColorName) dom.selectedColorName.textContent = c.name;
         updateMockupBase();
         showToast(`Kumaş rengi: ${c.name}`);
       });
 
       dom.colorSwatchesWrap.appendChild(swatch);
     });
+
+    if (colors.length > 8) {
+      const toggleBtn = document.createElement('button');
+      toggleBtn.type = 'button';
+      toggleBtn.className = 'btn-toggle-all-colors';
+      toggleBtn.setAttribute('aria-label', showAllColors ? 'Daha az renk göster' : 'Tüm renkleri göster');
+      toggleBtn.innerHTML = showAllColors 
+        ? '<span>Daha Az</span>' 
+        : `<span>+${colors.length - 8} Tüm Renkler</span>`;
+
+      toggleBtn.addEventListener('click', () => {
+        showAllColors = !showAllColors;
+        renderColorSwatches();
+      });
+
+      dom.colorSwatchesWrap.appendChild(toggleBtn);
+    }
   }
 
   // Görünüm Butonlarını Güncelle (Ön / Sırt)
@@ -810,7 +1119,12 @@
         state.productId = pId;
         const pCfg = CFG.products[pId];
         state.view = pCfg.defaultView || 'front';
-        state.colorId = pCfg.defaultColor || 'anthracite';
+        
+        // Yeni ürün mevcut kumaş rengini destekliyorsa rengi koru, desteklemiyorsa varsayılan renge geç
+        const isColorSupported = pCfg.supportedColors && pCfg.supportedColors.some(c => c.id === state.colorId);
+        if (!isColorSupported) {
+          state.colorId = pCfg.defaultColor || (pCfg.supportedColors ? pCfg.supportedColors[0].id : 'siyah');
+        }
 
         const viewCfg = pCfg.views[state.view];
         if (viewCfg && viewCfg.defaultPosition && viewCfg.positions[viewCfg.defaultPosition]) {
@@ -1017,14 +1331,31 @@
 
         const prod = getCurrentProductConfig();
         const viewCfg = getCurrentViewConfig();
-        const colorObj = prod.supportedColors.find(c => c.id === state.colorId) || { name: state.colorId };
+        const colorObj = prod.supportedColors.find(c => c.id === state.colorId) || { name: state.colorId, hex: '' };
+        const posObj = (viewCfg && viewCfg.positions && viewCfg.positions[state.positionId]) ? viewCfg.positions[state.positionId] : { name: 'Standart Baskı' };
 
         const previewData = {
+          productId: state.productId,
+          productName: prod.name,
+          productCategory: prod.category,
+          view: state.view === 'front' ? 'Ön' : 'Sırt',
+          viewAngle: viewCfg.label,
+          colorId: state.colorId,
+          colorName: colorObj.name,
+          colorHex: colorObj.hex,
+          positionId: state.positionId,
+          positionName: posObj.name,
+          scalePercent: Math.round(state.transform.scale * 100),
+          rotationDeg: state.transform.rotation,
+          fileName: state.imageFileName || 'Önizleme Tasarımı',
+          imageDataUrl: state.imageDataUrl,
+          transform: { ...state.transform },
+          blendMode: state.blendMode === 'normal' ? 'DTF Canlı Baskı' : 'Su Bazlı Ekolojik Tuşe',
+          // Geriye dönük uyumluluk alanları:
           product_name: prod.name,
           product_category: prod.category,
-          product_color: colorObj.name,
+          product_color: `${colorObj.name} (${colorObj.hex})`,
           view_angle: viewCfg.label,
-          transform: { ...state.transform },
           blend_mode: state.blendMode === 'normal' ? 'DTF Canlı Baskı' : 'Su Bazlı Ekolojik Tuşe',
           design_name: state.imageFileName || 'Önizleme Tasarımı'
         };
@@ -1088,13 +1419,26 @@
     canvas.height = 1360;
     const ctx = canvas.getContext('2d');
 
+    const prod = getCurrentProductConfig();
+    const viewCfg = getCurrentViewConfig();
+    const activeColor = prod.supportedColors.find(c => c.id === state.colorId) || prod.supportedColors[0];
+
     // 1. Mockup Arka Plan Görselini Yükle ve Çiz
+    const svgElement = dom.mockupSvgWrap ? dom.mockupSvgWrap.querySelector('svg') : null;
+    let svgDataUrl = '';
+    if (svgElement) {
+      const svgStr = new XMLSerializer().serializeToString(svgElement);
+      svgDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+    } else if (dom.mockupBaseImg) {
+      svgDataUrl = dom.mockupBaseImg.src;
+    }
+
     const baseImg = new Image();
     baseImg.crossOrigin = 'anonymous';
     await new Promise((resolve, reject) => {
       baseImg.onload = resolve;
       baseImg.onerror = reject;
-      baseImg.src = dom.mockupBaseImg.src;
+      baseImg.src = svgDataUrl;
     });
 
     ctx.drawImage(baseImg, 0, 0, canvas.width, canvas.height);
@@ -1123,17 +1467,17 @@
 
     // 3. Marka Filigranı ve Bilgi Şeridi
     ctx.save();
-    ctx.fillStyle = 'rgba(18, 19, 21, 0.85)';
+    ctx.fillStyle = 'rgba(18, 19, 21, 0.88)';
     ctx.fillRect(0, canvas.height - 74, canvas.width, 74);
 
     ctx.font = '700 24px "Plus Jakarta Sans", sans-serif';
     ctx.fillStyle = '#f3efe7';
     ctx.fillText('NİZAMLAR BASKI', 40, canvas.height - 30);
 
-    ctx.font = '600 17px "JetBrains Mono", monospace';
+    ctx.font = '600 16px "JetBrains Mono", monospace';
     ctx.fillStyle = '#b29460';
-    const prodName = getCurrentProductConfig().name || 'Tekstil';
-    ctx.fillText(`CANLI BASKI PROVASI // ${prodName.toUpperCase()} — ${state.view === 'front' ? 'ÖN' : 'SIRT'} GÖRÜNÜM`, 290, canvas.height - 30);
+    const prodName = prod.name || 'Tekstil';
+    ctx.fillText(`CANLI BASKI PROVASI // ${prodName.toUpperCase()} — ${state.view === 'front' ? 'ÖN' : 'SIRT'} // KUMAŞ: ${activeColor.name.toUpperCase()}`, 275, canvas.height - 30);
 
     ctx.textAlign = 'right';
     ctx.fillStyle = '#ded9cf';
@@ -1145,7 +1489,7 @@
     const dataUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataUrl;
-    const cleanFileName = `nizamlar-baski-${state.productId}-${state.view}-onizleme.png`;
+    const cleanFileName = `nizamlar-baski-${state.productId}-${state.view}-${activeColor.id}-onizleme.png`;
     a.download = cleanFileName;
     document.body.appendChild(a);
     a.click();

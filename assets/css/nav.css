@@ -49,9 +49,14 @@
 }
 
 .header-logo img {
-  height: 38px;
+  height: 42px;
   width: auto;
+  max-width: 220px;
   object-fit: contain;
+}
+
+.site-header.header-scrolled .header-logo img {
+  height: 36px;
 }
 
 /* Navigasyon Barı */
@@ -384,42 +389,6 @@
 /* ==========================================================================
    NİZAMLAR BASKI — MERKEZİ VE HASSAS HİZALANMIŞ NAVBAR STİLLERİ
    ========================================================================== */
-
-/* Canlı Stüdyo Bağlantısı Özel Vurgusu */
-.nav-item-studio .nav-link-studio {
-  color: var(--c-gold) !important;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.nav-studio-pulse {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background-color: var(--c-gold);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--c-gold);
-  animation: pulseGold 2s infinite ease-in-out;
-}
-
-@keyframes pulseGold {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.9;
-  }
-  50% {
-    transform: scale(1.4);
-    opacity: 1;
-    box-shadow: 0 0 12px var(--c-gold);
-  }
-}
-
-.mobile-studio-link {
-  color: var(--c-gold) !important;
-  font-weight: 700 !important;
-}
 
 /* Mobil Alt Menü Akordeon */
 .mobile-nav-accordion-header {

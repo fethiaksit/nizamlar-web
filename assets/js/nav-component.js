@@ -51,13 +51,6 @@
         { label: 'Makine Parkurumuz', href: `${prefix}makine-parkurumuz/` }
       ]
     },
-    {
-      label: 'Canlı Stüdyo',
-      href: `${prefix ? prefix : './'}#canli-onizleme`,
-      id: 'studio',
-      badgeDot: true,
-      highlight: true
-    },
     { label: 'Galeri', href: `${prefix}galeri/`, id: 'galeri' },
     { label: 'Referanslar', href: `${prefix}referanslarimiz/`, id: 'referanslar' },
     { label: 'Blog', href: `${prefix}blog/`, id: 'blog' },
@@ -75,13 +68,12 @@
     let navMenuHtml = '';
     NAV_CONFIG.forEach(item => {
       const isDropdown = item.dropdown && item.dropdown.length > 0;
-      const isStudio = item.id === 'studio';
 
       // Aktiflik Tespiti
       let isActive = false;
       if (item.id === 'home') {
         isActive = (currentPath === '/' || currentPath.endsWith('/index.html') || currentPath === '');
-      } else if (!isStudio) {
+      } else {
         const itemClean = item.href.replace(/^\.\.\/|^\.\//, '').replace(/\/$/, '');
         if (itemClean && currentPath.includes(itemClean)) {
           isActive = true;
@@ -89,10 +81,9 @@
       }
 
       navMenuHtml += `
-        <div class="nav-item ${isActive ? 'active' : ''} ${isStudio ? 'nav-item-studio' : ''}">
-          <a href="${item.href}" class="nav-link ${isActive ? 'active' : ''} ${isStudio ? 'nav-link-studio' : ''}">
-            ${item.badgeDot ? '<span class="nav-studio-pulse"></span>' : ''}
-            <span>${item.label}</span>
+        <div class="nav-item ${isActive ? 'active' : ''}">
+          <a href="${item.href}" class="nav-link ${isActive ? 'active' : ''}">
+            ${item.label}
             ${isDropdown ? '<svg class="nav-chevron" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>' : ''}
           </a>
           ${isDropdown ? `
@@ -101,10 +92,7 @@
                 const isSubActive = currentPath.includes(sub.href.replace(/^\.\.\/|^\.\//, '').replace(/\/$/, ''));
                 return `
                   <li class="dropdown-item">
-                    <a href="${sub.href}" class="dropdown-link ${isSubActive ? 'active' : ''}">
-                      <span>${sub.label}</span>
-                      ${sub.tag ? `<span class="dropdown-tag">${sub.tag}</span>` : ''}
-                    </a>
+                    <a href="${sub.href}" class="dropdown-link ${isSubActive ? 'active' : ''}">${sub.label}${sub.tag ? ` <span class="dropdown-tag">${sub.tag}</span>` : ''}</a>
                   </li>
                 `;
               }).join('')}
@@ -116,7 +104,7 @@
 
     headerContainer.innerHTML = `
       <a href="${prefix ? prefix : './'}" class="header-logo" aria-label="Nizamlar Baskı Anasayfa">
-        <img src="${prefix}assets/images/logo-light.svg" alt="Nizamlar Baskı Logo" width="210" height="40">
+        <img src="${prefix}assets/images/logo-light.svg" alt="Nizamlar Baskı Logo" width="220" height="42">
       </a>
 
       <nav class="nav-menu" aria-label="Ana Menü">
@@ -160,12 +148,11 @@
     let mobileNavHtml = '';
     NAV_CONFIG.forEach(item => {
       const isDropdown = item.dropdown && item.dropdown.length > 0;
-      const isStudio = item.id === 'studio';
 
       let isActive = false;
       if (item.id === 'home') {
         isActive = (currentPath === '/' || currentPath.endsWith('/index.html') || currentPath === '');
-      } else if (!isStudio) {
+      } else {
         const itemClean = item.href.replace(/^\.\.\/|^\.\//, '').replace(/\/$/, '');
         if (itemClean && currentPath.includes(itemClean)) {
           isActive = true;
@@ -194,8 +181,8 @@
       } else {
         mobileNavHtml += `
           <li>
-            <a href="${item.href}" class="mobile-nav-link ${isActive ? 'active' : ''} ${isStudio ? 'mobile-studio-link' : ''}">
-              ${isStudio ? '★ ' : ''}${item.label}
+            <a href="${item.href}" class="mobile-nav-link ${isActive ? 'active' : ''}">
+              ${item.label}
             </a>
           </li>
         `;
