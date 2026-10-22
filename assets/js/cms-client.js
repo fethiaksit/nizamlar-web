@@ -215,6 +215,8 @@
 
   // 3. Sayfa Hero & Metin Entegrasyonu
   async function hydratePageContent() {
+    // Service details are rendered from services, not from the parent 'hizmetlerimiz' page.
+    if (/^\/hizmetlerimiz\/[^/]+\/?$/.test(window.location.pathname)) return;
     try {
       const statusFilter = isPreview ? '' : '&filter[status][_eq]=published';
       const pageRes = await fetch(`${DIRECTUS_API}/items/pages?filter[slug][_eq]=${currentSlug}${statusFilter}`);
