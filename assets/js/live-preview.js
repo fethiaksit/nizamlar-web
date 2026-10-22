@@ -93,6 +93,8 @@
       activeFileName: document.querySelector('#active-file-name'),
       activeFileSize: document.querySelector('#active-file-size'),
       btnRemoveFile: document.querySelector('#btn-remove-file'),
+      btnToggleSamples: document.querySelector('#btn-toggle-samples'),
+      sampleDesignsWrap: document.querySelector('#sample-designs-wrap'),
       sampleButtonsRow: document.querySelector('#sample-buttons-row'),
 
       // Ürün & Seçenekler
@@ -1082,6 +1084,28 @@
 
     if (dom.btnRemoveFile) {
       dom.btnRemoveFile.addEventListener('click', removeArtwork);
+    }
+
+    // Örnek Tasarımları Aç / Kapat Toggle
+    if (dom.btnToggleSamples && dom.sampleDesignsWrap) {
+      dom.btnToggleSamples.addEventListener('click', () => {
+        const isHidden = dom.sampleDesignsWrap.style.display === 'none' || dom.sampleDesignsWrap.hasAttribute('hidden');
+        if (isHidden) {
+          dom.sampleDesignsWrap.style.display = 'block';
+          dom.sampleDesignsWrap.removeAttribute('hidden');
+          dom.btnToggleSamples.classList.add('active');
+          dom.btnToggleSamples.setAttribute('aria-expanded', 'true');
+          const chevron = dom.btnToggleSamples.querySelector('.toggle-icon');
+          if (chevron) chevron.textContent = '▲';
+        } else {
+          dom.sampleDesignsWrap.style.display = 'none';
+          dom.sampleDesignsWrap.setAttribute('hidden', '');
+          dom.btnToggleSamples.classList.remove('active');
+          dom.btnToggleSamples.setAttribute('aria-expanded', 'false');
+          const chevron = dom.btnToggleSamples.querySelector('.toggle-icon');
+          if (chevron) chevron.textContent = '▾';
+        }
+      });
     }
 
     // 2. Örnek Tasarım Butonları

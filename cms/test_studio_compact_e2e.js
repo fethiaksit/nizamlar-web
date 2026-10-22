@@ -139,6 +139,13 @@ async function runStudioTests() {
   await interactPage.setViewport({ width: 1440, height: 900 });
   await interactPage.goto('http://localhost:3030/#canli-onizleme', { waitUntil: 'networkidle0' });
 
+  // Open sample designs drawer if collapsible
+  const toggleBtn = await interactPage.$('#btn-toggle-samples');
+  if (toggleBtn) {
+    await toggleBtn.click();
+    await new Promise(r => setTimeout(r, 300));
+  }
+
   // Select first sample design
   await interactPage.click('.btn-sample-pick');
   await new Promise(r => setTimeout(r, 400));

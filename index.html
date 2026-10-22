@@ -301,176 +301,143 @@
         </div>
 
         <div class="studio-grid">
-          <!-- SOL SÜTUN: KONTROL PANELİ -->
+          <!-- SOL SÜTUN: MİNİMAL INSPECTOR KONTROL PANELİ -->
           <div class="studio-controls-panel" data-reveal="fade-up" data-delay="100">
             
-            <!-- 1. Adım: Tasarım Dosyası -->
-            <div class="control-card">
-              <div class="control-card-header">
-                <div class="control-card-title">
-                  <span class="step-num">1</span>
-                  <span>Tasarım Dosyanızı Yükleyin</span>
-                </div>
-                <span style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--c-gold); font-weight: 600;">PNG / JPG / WEBP</span>
+            <!-- 1. GRUP: TASARIM -->
+            <div class="studio-group" data-group="design">
+              <div class="studio-group-header">
+                <span class="studio-group-title">Tasarım</span>
+                <button type="button" id="btn-toggle-samples" class="btn-group-toggle" aria-expanded="false" title="Örnek tasarımlarla hemen deneyin">
+                  <span>Örnekleri Gör</span>
+                  <span class="toggle-icon">▾</span>
+                </button>
               </div>
 
-              <!-- Drag & Drop Alanı (Yatay Kompakt Kutu) -->
+              <!-- Kompakt "Tasarım Yükle" Butonu / Dropzone -->
               <div id="studio-dropzone" class="studio-dropzone">
                 <input type="file" id="studio-file-input" style="display: none;" accept=".png,.jpg,.jpeg,.webp,.svg">
-                <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-                <div class="dropzone-text-group">
-                  <span class="dropzone-main-text">Tasarımınızı buraya sürükleyin veya dosya seçin</span>
-                  <span class="dropzone-sub-text">PNG, JPG, JPEG, WEBP veya SVG (Maks. 25 MB)</span>
+                <div class="dropzone-compact-inner">
+                  <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  <div class="dropzone-text-group">
+                    <span class="dropzone-main-text">Tasarım Yükle</span>
+                    <span class="dropzone-sub-text">PNG, JPG, WEBP, SVG (Maks. 25 MB)</span>
+                  </div>
                 </div>
-                <div class="dropzone-tip" title="En iyi sonuç için şeffaf arka planlı PNG dosyası yükleyin.">💡 Şeffaf PNG</div>
               </div>
 
-              <!-- Aktif Yüklenen Dosya Bilgisi -->
+              <!-- Aktif Yüklenen Dosya Önizlemesi -->
               <div id="active-file-bar" class="active-file-bar">
                 <div class="active-file-info">
                   <img id="active-file-thumb" class="active-file-thumb" src="" alt="Yüklenen Tasarım">
-                  <div>
-                    <div id="active-file-name" class="active-file-name">dosya.png</div>
-                    <div id="active-file-size" class="active-file-size">1.2 MB</div>
+                  <div class="active-file-meta">
+                    <span id="active-file-name" class="active-file-name">dosya.png</span>
+                    <span id="active-file-size" class="active-file-size">1.2 MB</span>
                   </div>
                 </div>
-                <button type="button" id="btn-remove-file" class="btn-remove-file" title="Tasarımı Kaldır">Kaldır ✕</button>
+                <button type="button" id="btn-remove-file" class="btn-remove-file" title="Tasarımı Kaldır" aria-label="Tasarımı Kaldır">✕</button>
               </div>
 
-              <!-- Hızlı Örnek Tasarımlar -->
-              <div class="sample-designs-wrap">
-                <div class="sample-designs-label">Dosyanız yok mu? Örnek tasarımlarla hemen deneyin:</div>
+              <!-- Örnek Tasarımlar Açılır Bölümü (Varsayılan Gizli) -->
+              <div id="sample-designs-wrap" class="sample-designs-wrap" style="display: none;" hidden>
                 <div id="sample-buttons-row" class="sample-buttons-row">
                   <!-- JS dinamik dolduracak -->
                 </div>
               </div>
             </div>
 
-            <!-- 2. Adım: Ürün ve Model Seçimi -->
-            <div class="control-card">
-              <div class="control-card-header">
-                <div class="control-card-title">
-                  <span class="step-num">2</span>
-                  <span>Ürün Türünü ve Rengini Seçin</span>
+            <!-- 2. GRUP: ÜRÜN & GÖRÜNÜM -->
+            <div class="studio-group" data-group="product">
+              <div class="studio-group-header">
+                <span class="studio-group-title">Ürün</span>
+                <div id="view-toggle-wrap" class="view-toggle-wrap">
+                  <button type="button" class="btn-view-toggle active" data-view="front">Ön</button>
+                  <button type="button" class="btn-view-toggle" data-view="back">Arka</button>
                 </div>
               </div>
 
-              <!-- Ürün Seçici Kartlar -->
+              <!-- Tek Satırlık Kompakt Ürün Seçim Butonları -->
               <div class="product-selector-grid">
-                <div class="product-pick-card active" data-product="tisort">
-                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 001.24.8l1.9-.49v10.53a2 2 0 002 2h8a2 2 0 002-2V9.47l1.9.49a1 1 0 001.24-.8l.58-3.47a2 2 0 00-1.34-2.23z"/></svg>
-                  <div class="product-pick-name">Tişört</div>
-                  <div class="product-pick-spec">240 GSM</div>
-                </div>
-
-                <div class="product-pick-card" data-product="sweatshirt">
-                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l4-2h8l4 2 2 8-4 1v9H6v-9L2 12l2-8z"/><path d="M9 2a3 3 0 006 0"/></svg>
-                  <div class="product-pick-name">Sweatshirt</div>
-                  <div class="product-pick-spec">380 GSM</div>
-                </div>
-
-                <div class="product-pick-card" data-product="hoodie">
-                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7l4-4h8l4 4 2 6-4 1v8H6v-8L2 13l2-6z"/><path d="M8 3c0 4 8 4 8 0"/><path d="M9 16h6v4H9z"/></svg>
-                  <div class="product-pick-name">Hoodie</div>
-                  <div class="product-pick-spec">Kapüşonlu</div>
-                </div>
-
-                <div class="product-pick-card" data-product="pantolon">
-                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v3l-2 15h-3l-1-10-1 10H8L6 6V3z"/></svg>
-                  <div class="product-pick-name">Pantolon</div>
-                  <div class="product-pick-spec">Jogger</div>
-                </div>
-
-                <div class="product-pick-card" data-product="canta">
-                  <svg class="product-pick-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
-                  <div class="product-pick-name">Bez Çanta</div>
-                  <div class="product-pick-spec">320 GSM</div>
-                </div>
-              </div>
-
-              <!-- Görünüm (Ön / Sırt) ve Kumaş Rengi -->
-              <div class="options-row-flex">
-                <div id="view-toggle-wrap">
-                  <div class="option-group-title">Görünüm Açısı</div>
-                  <div class="view-toggle-wrap">
-                    <button type="button" class="btn-view-toggle active" data-view="front">Ön Görünüm</button>
-                    <button type="button" class="btn-view-toggle" data-view="back">Sırt Görünümü</button>
-                  </div>
-                </div>
-
-                <div>
-                  <div class="color-selection-header">
-                    <div class="option-group-title" style="margin-bottom: 0;">
-                      Kumaş Rengi: <strong id="selected-color-name" class="selected-color-label">Siyah</strong>
-                    </div>
-                    <span class="color-preview-badge">CANLI PROVA</span>
-                  </div>
-                  <div id="color-swatches-wrap" class="color-swatches-wrap">
-                    <!-- JS ile renk daireleri üretilir -->
-                  </div>
-                </div>
+                <button type="button" class="product-pick-card active" data-product="tisort">
+                  <span class="product-pick-name">Tişört</span>
+                </button>
+                <button type="button" class="product-pick-card" data-product="sweatshirt">
+                  <span class="product-pick-name">Sweat</span>
+                </button>
+                <button type="button" class="product-pick-card" data-product="hoodie">
+                  <span class="product-pick-name">Hoodie</span>
+                </button>
+                <button type="button" class="product-pick-card" data-product="pantolon">
+                  <span class="product-pick-name">Pantolon</span>
+                </button>
+                <button type="button" class="product-pick-card" data-product="canta">
+                  <span class="product-pick-name">Çanta</span>
+                </button>
               </div>
             </div>
 
-            <!-- 3. Adım: Sade ve Hızlı Baskı Konumlandırma -->
-            <div class="control-card">
-              <div class="control-card-header">
-                <div class="control-card-title">
-                  <span class="step-num">3</span>
-                  <span>Baskı Konumu ve Boyutlandırma</span>
+            <!-- 3. GRUP: RENK -->
+            <div class="studio-group" data-group="color">
+              <div class="studio-group-header">
+                <span class="studio-group-title">Renk</span>
+                <span class="selected-color-name-wrap">
+                  <span id="selected-color-name" class="selected-color-label">Siyah</span>
+                </span>
+              </div>
+              <div id="color-swatches-wrap" class="color-swatches-wrap">
+                <!-- JS ile renk daireleri üretilir -->
+              </div>
+            </div>
+
+            <!-- 4. GRUP: BASKI & DÜZENLEME -->
+            <div class="studio-group" data-group="placement">
+              <div class="studio-group-header">
+                <span class="studio-group-title">Baskı</span>
+                <div class="quick-icon-actions">
+                  <button type="button" id="btn-undo-transform" class="btn-icon-action" title="Geri Al" aria-label="Geri Al">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  </button>
+                  <button type="button" id="btn-redo-transform" class="btn-icon-action" title="Yinele" aria-label="Yinele">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+                  </button>
+                  <button type="button" id="btn-center-artwork" class="btn-icon-action" title="Ortala" aria-label="Ortala">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button type="button" id="btn-reset-adjustments" class="btn-icon-action" title="Sıfırla" aria-label="Sıfırla">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  </button>
                 </div>
               </div>
 
-              <!-- Hızlı Hazır Konumlar -->
-              <div class="option-group-title">Hazır Baskı Bölgesi:</div>
+              <!-- Hazır Baskı Konumu Pills -->
               <div id="placement-pills-row" class="placement-pills-row">
                 <!-- JS ile aktif ürüne göre konum butonları üretilir -->
               </div>
 
-              <!-- Temel Kolay Kontroller -->
-              <div class="basic-controls-bar">
-                <div class="quick-scale-box">
-                  <div class="slider-label-flex">
-                    <span style="font-size: 0.82rem; font-weight: 600; color: var(--c-cream-pure);">Baskı Boyutu</span>
-                    <span id="val-scale" class="slider-val-tag">%95</span>
-                  </div>
-                  <input type="range" id="studio-quick-scale" class="custom-range-slider" min="20" max="180" value="95">
+              <!-- Tek Boyutlandırma Slider'ı -->
+              <div class="single-slider-row">
+                <div class="slider-header-flex">
+                  <span class="slider-label">Boyut</span>
+                  <span id="val-scale" class="slider-val-tag">%95</span>
                 </div>
-
-                <div class="quick-action-buttons-row">
-                  <button type="button" id="btn-center-artwork" class="btn-quick-action" title="Tasarımı Tam Ortala">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                    <span>Ortala</span>
-                  </button>
-                  <button type="button" id="btn-undo-transform" class="btn-quick-action" title="Son Hareketi Geri Al">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                    <span>Geri Al</span>
-                  </button>
-                  <button type="button" id="btn-redo-transform" class="btn-quick-action" title="İşlemi Yinele">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
-                    <span>Yinele</span>
-                  </button>
-                  <button type="button" id="btn-reset-adjustments" class="btn-quick-action" title="Konumu Varsayılana Sıfırla">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                    <span>Sıfırla</span>
-                  </button>
-                </div>
+                <input type="range" id="studio-quick-scale" class="custom-range-slider" min="20" max="180" value="95">
               </div>
 
-              <!-- Gelişmiş Ayarlar Akordeonu (Varsayılan Kapalı) -->
+              <!-- Gelişmiş Ayarlar (Akordeon - Varsayılan Kapalı) -->
               <div class="advanced-settings-accordion">
                 <button type="button" id="toggle-advanced-adjustments" class="btn-advanced-toggle">
-                  <span>Gelişmiş Hassas Ayarlar (X, Y, Açı)</span>
+                  <span>Gelişmiş Ayarlar</span>
                   <span class="accordion-arrow">▼</span>
                 </button>
+
                 <div id="advanced-adjustments-panel" class="adjustments-grid" style="display: none;" hidden>
                   <div class="slider-group">
                     <div class="slider-label-flex">
-                      <span>Döndürme Açısı</span>
+                      <span>Döndürme</span>
                       <span id="val-rotate" class="slider-val-tag">0°</span>
                     </div>
                     <input type="range" id="slider-rotate" class="custom-range-slider" min="-180" max="180" value="0">
@@ -479,13 +446,13 @@
                   <div class="slider-group">
                     <div class="slider-label-flex">
                       <span>Hassas Boyut</span>
-                      <input type="range" id="slider-scale" class="custom-range-slider" min="20" max="180" value="95">
                     </div>
+                    <input type="range" id="slider-scale" class="custom-range-slider" min="20" max="180" value="95">
                   </div>
 
                   <div class="slider-group">
                     <div class="slider-label-flex">
-                      <span>Yatay Konum (X)</span>
+                      <span>Yatay (X)</span>
                       <span id="val-x" class="slider-val-tag">0px</span>
                     </div>
                     <input type="range" id="slider-x" class="custom-range-slider" min="-150" max="150" value="0">
@@ -493,26 +460,20 @@
 
                   <div class="slider-group">
                     <div class="slider-label-flex">
-                      <span>Dikey Konum (Y)</span>
+                      <span>Dikey (Y)</span>
                       <span id="val-y" class="slider-val-tag">0px</span>
                     </div>
                     <input type="range" id="slider-y" class="custom-range-slider" min="-180" max="180" value="0">
                   </div>
-                </div>
-              </div>
 
-              <!-- Baskı Dokusu & Kompakt Bilgi Satırı -->
-              <div class="texture-and-hint-row">
-                <div class="texture-select-inline">
-                  <span class="option-group-title" style="margin-right: 0.4rem; margin-bottom: 0;">Baskı Dokusu:</span>
-                  <div class="blend-mode-row">
-                    <button type="button" id="btn-blend-normal" class="btn-blend-mode active">DTF Canlı</button>
-                    <button type="button" id="btn-blend-multiply" class="btn-blend-mode">Su Bazlı Tuşe</button>
+                  <!-- Baskı Dokusu -->
+                  <div class="texture-group-full">
+                    <span class="texture-title">Baskı Dokusu:</span>
+                    <div class="blend-mode-row">
+                      <button type="button" id="btn-blend-normal" class="btn-blend-mode active">DTF Canlı</button>
+                      <button type="button" id="btn-blend-multiply" class="btn-blend-mode">Su Bazlı Tuşe</button>
+                    </div>
                   </div>
-                </div>
-                <div class="studio-info-hint" title="Tasarımı doğrudan sağdaki ürün üzerinde fare veya parmağınızla tutarak serbestçe taşıyabilir, 4 köşesindeki noktalardan tutup büyütebilirsiniz. * Dijital simülasyondur.">
-                  <span class="hint-icon">✨</span>
-                  <span>Serbest Taşı &amp; Boyutlandır</span>
                 </div>
               </div>
             </div>

@@ -93,20 +93,20 @@
   margin: 0 auto;
 }
 
-/* İki Sütunlu Ana Grid (%40 Sol Kontrol / %60 Sağ Önizleme) */
+/* İki Sütunlu Ana Grid (%35 Sol Inspector / %65 Sağ Önizleme) */
 .studio-grid {
   display: grid;
-  grid-template-columns: 40% 60%;
+  grid-template-columns: 35% 65%;
   gap: clamp(1rem, 1.8vw, 2rem);
   align-items: stretch;
-  height: calc(100dvh - 155px);
+  height: calc(100dvh - 145px);
   min-height: 520px;
 }
 
 @media (max-width: 1023px) {
   .preview-studio-section {
     min-height: auto;
-    padding: clamp(2.5rem, 5vw, 4rem) 0;
+    padding: clamp(2rem, 4vw, 3.5rem) 0;
     display: block;
   }
   .preview-studio-container {
@@ -114,34 +114,40 @@
     padding: 0 var(--spacing-container);
   }
   .studio-header {
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
   }
   .studio-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     height: auto;
     min-height: auto;
-    gap: 1.75rem;
+    gap: 1.5rem;
   }
 }
 
 /* --------------------------------------------------------------------------
-   SOL PANEL: KONTROLLER & PARAMETRELER (KOMPAKT & İÇ KAYDIRMA)
+   SOL PANEL: TEK BİRLEŞİK MİNİMAL INSPECTOR (APPLE / FIGMA DÜZENİ)
    -------------------------------------------------------------------------- */
 .studio-controls-panel {
+  background: var(--c-anthracite-surface);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: clamp(0.75rem, 1.2vh, 1rem) clamp(0.85rem, 1.2vw, 1.15rem);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0;
   height: 100%;
   max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 6px;
   scrollbar-width: thin;
   scrollbar-color: rgba(178, 148, 96, 0.35) transparent;
+  box-sizing: border-box;
 }
 
 .studio-controls-panel::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 .studio-controls-panel::-webkit-scrollbar-track {
   background: transparent;
@@ -156,126 +162,137 @@
 
 @media (max-width: 1023px) {
   .studio-controls-panel {
+    order: 2;
     height: auto;
     max-height: none;
     overflow-y: visible;
-    padding-right: 0;
-    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
   }
 }
 
-.control-card {
-  background: var(--c-anthracite-surface);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-md);
-  padding: clamp(0.65rem, 1.1vh, 0.85rem) 0.95rem;
-  box-shadow: var(--shadow-dark);
-  transition: border-color var(--transition-fast);
+/* Inspector Grupları (İnce Ayırıcı Çizgilerle Ayrılmış Bölümler) */
+.studio-group {
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
 }
 
-.control-card:hover {
-  border-color: rgba(178, 148, 96, 0.3);
+.studio-group:first-child {
+  padding-top: 0;
 }
 
-.control-card-header {
+.studio-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Grup Başlık Satırı */
+.studio-group-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.4rem;
 }
 
-.control-card-title {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--c-cream-pure);
-}
-
-.step-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  background: var(--c-gold-muted);
-  border: 1px solid var(--c-gold);
-  color: var(--c-gold);
-  border-radius: 50%;
+.studio-group-title {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--c-stone-light);
 }
 
-/* Dosya Yükleme Dropzone - İnce Yatay Kutu */
+/* Grup Başlığı Eylem Düğmesi (Örnekleri Gör) */
+.btn-group-toggle {
+  background: transparent;
+  border: none;
+  color: var(--c-gold);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-xs);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-group-toggle:hover {
+  background: rgba(178, 148, 96, 0.12);
+}
+
+.btn-group-toggle.active {
+  background: rgba(178, 148, 96, 0.2);
+}
+
+.toggle-icon {
+  font-size: 0.6rem;
+  transition: transform var(--transition-fast);
+}
+
+/* Dosya Yükleme Dropzone - Kompakt Minimal Çubuk */
 .studio-dropzone {
   position: relative;
-  border: 1.5px dashed rgba(178, 148, 96, 0.4);
-  background: rgba(0, 0, 0, 0.22);
+  border: 1.5px dashed rgba(178, 148, 96, 0.35);
+  background: rgba(0, 0, 0, 0.25);
   border-radius: var(--radius-sm);
-  padding: 0.35rem 0.75rem;
+  padding: 0.4rem 0.75rem;
   min-height: 38px;
-  max-height: 48px;
+  max-height: 44px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  text-align: left;
   cursor: pointer;
   transition: all var(--transition-fast);
   box-sizing: border-box;
+  width: 100%;
 }
 
 .studio-dropzone:hover,
-.studio-dropzone.dragover,
 .studio-dropzone.is-dragover {
   border-color: var(--c-gold);
-  background: var(--c-gold-subtle);
+  background: rgba(178, 148, 96, 0.1);
+}
+
+.dropzone-compact-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
 }
 
 .dropzone-icon {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
+  width: 16px;
+  height: 16px;
   color: var(--c-gold);
-  margin: 0;
+  flex-shrink: 0;
 }
 
 .dropzone-text-group {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  align-items: baseline;
+  gap: 0.45rem;
   flex: 1;
   min-width: 0;
 }
 
 .dropzone-main-text {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   color: var(--c-cream-pure);
   white-space: nowrap;
 }
 
 .dropzone-sub-text {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   color: var(--c-stone);
   font-family: var(--font-mono);
   white-space: nowrap;
-}
-
-.dropzone-tip {
-  font-size: 0.65rem;
-  color: var(--c-gold);
-  font-family: var(--font-mono);
-  background: rgba(178, 148, 96, 0.12);
-  border: 1px solid rgba(178, 148, 96, 0.3);
-  padding: 1px 5px;
-  border-radius: 3px;
-  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Yüklenen Dosya Bilgi Çubuğu */
@@ -283,41 +300,48 @@
   display: none;
   align-items: center;
   justify-content: space-between;
-  background: rgba(178, 148, 96, 0.12);
-  border: 1px solid var(--c-gold);
+  background: rgba(178, 148, 96, 0.1);
+  border: 1px solid rgba(178, 148, 96, 0.4);
   border-radius: var(--radius-sm);
-  padding: 0.4rem 0.75rem;
-  margin-top: 0.45rem;
+  padding: 0.35rem 0.65rem;
+  margin-top: 0.35rem;
 }
 
 .active-file-info {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  overflow: hidden;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .active-file-thumb {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
   object-fit: contain;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
+}
+
+.active-file-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
 }
 
 .active-file-name {
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   font-weight: 600;
   color: var(--c-cream-pure);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 140px;
 }
 
 .active-file-size {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   color: var(--c-stone);
   font-family: var(--font-mono);
 }
@@ -327,30 +351,22 @@
   border: none;
   color: #ff6b6b;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.78rem;
-  transition: color var(--transition-fast);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1;
+  border-radius: 3px;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .btn-remove-file:hover {
   color: #ff4757;
-  text-decoration: underline;
+  background: rgba(255, 71, 87, 0.15);
 }
 
-/* Hızlı Örnek Tasarım Kartları - Tek Satır Kompakt Düzen */
+/* Örnek Tasarımlar Açılır Bölümü (Varsayılan Gizli) */
 .sample-designs-wrap {
-  margin-top: 0.45rem;
-  padding-top: 0.45rem;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
-}
-
-.sample-designs-label {
-  font-size: 0.68rem;
-  font-family: var(--font-mono);
-  color: var(--c-stone-light);
-  margin-bottom: 0.35rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  margin-top: 0.4rem;
+  padding: 0.4rem 0 0 0;
 }
 
 .sample-buttons-row {
@@ -362,198 +378,117 @@
 
 .btn-sample-pick {
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--radius-sm);
-  padding: 0.3rem 0.5rem;
+  padding: 0.25rem 0.45rem;
   cursor: pointer;
   transition: all var(--transition-fast);
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.45rem;
+  gap: 0.4rem;
   text-align: left;
+  height: 34px;
+  min-height: 34px;
   box-sizing: border-box;
-  width: 100%;
-  height: 38px;
-  min-height: 38px;
-  position: relative;
-  outline: none;
 }
 
 .btn-sample-pick:hover {
   background: rgba(178, 148, 96, 0.08);
   border-color: rgba(178, 148, 96, 0.5);
-  transform: translateY(-1px);
 }
 
 .btn-sample-pick.active {
-  background: rgba(178, 148, 96, 0.15);
+  background: rgba(178, 148, 96, 0.16);
   border-color: var(--c-gold);
-  box-shadow: 0 0 10px rgba(178, 148, 96, 0.25);
+  box-shadow: 0 0 8px rgba(178, 148, 96, 0.25);
 }
 
 .sample-card-preview {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
+  flex-shrink: 0;
 }
 
 .sample-card-preview img,
 .btn-sample-pick img {
-  max-width: 24px;
-  max-height: 24px;
-  width: auto;
-  height: auto;
+  max-width: 20px;
+  max-height: 20px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
-  display: block;
-  pointer-events: none;
 }
 
 .sample-card-title,
 .btn-sample-pick span {
-  font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  line-height: 1.2;
   color: var(--c-cream-pure);
-  display: block;
-  width: 100%;
-  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-top: 0;
-  pointer-events: none;
-  transition: color var(--transition-fast);
 }
 
-.btn-sample-pick:hover .sample-card-title,
-.btn-sample-pick:hover span,
 .btn-sample-pick.active .sample-card-title,
 .btn-sample-pick.active span {
   color: var(--c-gold);
 }
 
-@media (max-width: 480px) {
-  .sample-buttons-row {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.35rem;
-  }
-  .btn-sample-pick {
-    height: 38px;
-    min-height: 38px;
-    padding: 0.25rem 0.35rem;
-  }
-  .sample-card-preview {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-  }
-  .sample-card-preview img,
-  .btn-sample-pick img {
-    max-height: 20px;
-  }
-  .sample-card-title,
-  .btn-sample-pick span {
-    font-size: 0.65rem;
-  }
-}
-
-/* Ürün Seçici Kartlar - Tek Satırda 5 Kompakt Kart */
+/* Ürün Seçici Kartlar - Tek Satırda 5 Kompakt Buton */
 .product-selector-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 0.35rem;
-  margin-bottom: 0.55rem;
+  gap: 0.3rem;
+  width: 100%;
 }
 
 .product-pick-card {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-sm);
-  padding: 0.35rem 0.2rem;
-  min-height: 50px;
+  border-radius: var(--radius-xs);
+  padding: 0.35rem 0.15rem;
+  height: 34px;
+  min-height: 34px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   cursor: pointer;
   transition: all var(--transition-fast);
   user-select: none;
+  box-sizing: border-box;
 }
 
 .product-pick-card:hover {
   border-color: rgba(178, 148, 96, 0.4);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .product-pick-card.active {
   border-color: var(--c-gold);
   background: var(--c-gold-subtle);
-  box-shadow: 0 0 12px rgba(178, 148, 96, 0.15);
-}
-
-.product-pick-icon {
-  width: 20px;
-  height: 20px;
-  margin: 0 auto 0.15rem auto;
-  color: var(--c-stone);
-  transition: color var(--transition-fast);
-}
-
-.product-pick-card.active .product-pick-icon {
-  color: var(--c-gold);
+  box-shadow: 0 0 10px rgba(178, 148, 96, 0.15);
 }
 
 .product-pick-name {
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--c-cream-pure);
-  line-height: 1.15;
-  margin-bottom: 0.05rem;
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.product-pick-spec {
-  font-size: 0.58rem;
-  color: var(--c-stone-dark);
-  font-family: var(--font-mono);
+.product-pick-card.active .product-pick-name {
+  color: var(--c-gold);
+  font-weight: 700;
 }
 
-/* Görünüm ve Renk Seçimi - Sıkı Yatay Düzen */
-.options-row-flex {
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  padding: 0.45rem 0.75rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.option-group-title {
-  font-size: 0.72rem;
-  font-family: var(--font-mono);
-  color: var(--c-stone);
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-}
-
-/* Görünüm Düğmeleri (Ön / Sırt) */
+/* Görünüm Düğmeleri (Ön / Sırt Segmented Switcher) */
 .view-toggle-wrap {
   display: inline-flex;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: var(--radius-xs);
   padding: 2px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -562,12 +497,13 @@
   background: transparent;
   border: none;
   color: var(--c-stone);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  padding: 0.22rem 0.55rem;
-  border-radius: 3px;
+  padding: 0.18rem 0.45rem;
+  border-radius: 2px;
   cursor: pointer;
   transition: all var(--transition-fast);
+  line-height: 1;
 }
 
 .btn-view-toggle.active {
@@ -576,35 +512,20 @@
   font-weight: 700;
 }
 
-/* Kumaş Rengi Seçim Başlığı ve Rozet */
-.color-selection-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.25rem;
+/* Kumaş Rengi Seçimi */
+.selected-color-name-wrap {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--c-cream-pure);
+  font-weight: 700;
 }
 
 .selected-color-label {
-  color: var(--c-cream-pure);
-  font-weight: 700;
-  margin-left: 0.25rem;
-  letter-spacing: 0.02em;
-}
-
-.color-preview-badge {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 600;
   color: var(--c-gold);
-  background: rgba(178, 148, 96, 0.12);
-  border: 1px solid rgba(178, 148, 96, 0.3);
-  padding: 1px 5px;
-  border-radius: 3px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: 700;
+  margin-left: 0.2rem;
 }
 
-/* Kumaş Rengi Daireleri - Kompakt & Sıkı Düzen */
 .color-swatches-wrap {
   display: flex;
   flex-wrap: wrap;
@@ -616,30 +537,30 @@
 .color-swatch-btn,
 .color-swatch-item {
   position: relative;
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
   border-radius: 50%;
   border: 1.5px solid rgba(255, 255, 255, 0.22);
   cursor: pointer;
   outline: none;
   padding: 0;
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .color-swatch-btn:hover,
 .color-swatch-item:hover {
-  transform: translateY(-1px) scale(1.15);
-  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.15);
+  border-color: rgba(255, 255, 255, 0.55);
 }
 
 .color-swatch-btn.active,
 .color-swatch-item.active {
   border-color: #b29460;
-  box-shadow: 0 0 0 1.5px #18191a, 0 0 0 3px #b29460, 0 2px 8px rgba(178, 148, 96, 0.4);
-  transform: scale(1.18);
+  box-shadow: 0 0 0 1.5px #18191a, 0 0 0 3px #b29460, 0 2px 6px rgba(178, 148, 96, 0.4);
+  transform: scale(1.15);
 }
 
 .color-swatch-btn.is-light,
@@ -647,26 +568,19 @@
   border-color: rgba(0, 0, 0, 0.25);
 }
 
-.color-swatch-btn.is-light.active,
-.color-swatch-item.is-light.active {
-  border-color: #b29460;
-}
-
 .btn-toggle-all-colors {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(178, 148, 96, 0.3);
   color: var(--c-gold);
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  padding: 0.18rem 0.45rem;
-  border-radius: 3px;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition: all var(--transition-fast);
-  margin-left: 0.2rem;
 }
 
 .btn-toggle-all-colors:hover {
@@ -674,12 +588,45 @@
   border-color: var(--c-gold);
 }
 
+/* Baskı Grubu: Hızlı İkon Eylemleri (Undo, Redo, Center, Reset) */
+.quick-icon-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xs);
+  color: var(--c-stone-light);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.btn-icon-action:hover:not(:disabled) {
+  border-color: var(--c-gold);
+  color: var(--c-gold);
+  background: rgba(178, 148, 96, 0.12);
+}
+
+.btn-icon-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
 /* Baskı Konumları Hızlı Seçici - Kompakt Butonlar */
 .placement-pills-row {
   display: flex;
-  gap: 0.3rem;
+  gap: 0.25rem;
   flex-wrap: wrap;
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.45rem;
 }
 
 .placement-pill {
@@ -687,64 +634,64 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--c-stone-light);
   border-radius: var(--radius-xs);
-  padding: 0.25rem 0.5rem;
-  font-size: 0.72rem;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.68rem;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
+  line-height: 1.1;
 }
 
 .placement-pill:hover {
   border-color: rgba(178, 148, 96, 0.4);
+  color: var(--c-cream-pure);
 }
 
 .placement-pill.active {
   background: var(--c-gold-subtle);
   border-color: var(--c-gold);
   color: var(--c-gold);
+  font-weight: 700;
 }
 
-/* Temel Kolay Kontroller Çubuğu */
-.basic-controls-bar {
-  margin-top: 0.45rem;
-  padding: 0.5rem 0.75rem;
-  background-color: var(--c-anthracite);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-sm);
+/* Tek Boyutlandırma Sürgüsü */
+.single-slider-row {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.2rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-xs);
+  padding: 0.35rem 0.55rem;
 }
 
-.quick-scale-box {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.slider-label-flex {
+.slider-header-flex {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.76rem;
+}
+
+.slider-label {
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--c-stone-light);
 }
 
 .slider-val-tag {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--c-gold);
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1px 5px;
-  border-radius: 3px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid rgba(178, 148, 96, 0.2);
 }
 
 .custom-range-slider {
   -webkit-appearance: none;
   width: 100%;
-  height: 5px;
-  border-radius: 3px;
+  height: 4px;
+  border-radius: 2px;
   background: rgba(255, 255, 255, 0.12);
   outline: none;
   cursor: pointer;
@@ -752,8 +699,8 @@
 
 .custom-range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: var(--c-gold);
   cursor: pointer;
@@ -766,58 +713,17 @@
 }
 
 .custom-range-slider::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
   background: var(--c-gold);
   cursor: pointer;
   box-shadow: 0 0 6px rgba(178, 148, 96, 0.6);
 }
 
-.quick-action-buttons-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.3rem;
-}
-
-.btn-quick-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0.32rem 0.25rem;
-  background-color: var(--c-anthracite-surface);
-  border: 1px solid rgba(178, 148, 96, 0.25);
-  border-radius: var(--radius-xs);
-  color: var(--c-cream-pure);
-  font-family: var(--font-body);
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-quick-action:hover:not(:disabled) {
-  border-color: var(--c-gold);
-  background-color: rgba(178, 148, 96, 0.15);
-  color: var(--c-gold);
-  transform: translateY(-1px);
-}
-
-.btn-quick-action:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.btn-quick-action:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
 /* Gelişmiş Ayarlar Akordeonu */
 .advanced-settings-accordion {
-  margin-top: 0.45rem;
-  border-top: 1px dashed rgba(255, 255, 255, 0.08);
-  padding-top: 0.4rem;
+  margin-top: 0.35rem;
 }
 
 .btn-advanced-toggle {
@@ -827,11 +733,11 @@
   justify-content: space-between;
   background: none;
   border: none;
-  color: var(--c-stone-light);
+  color: var(--c-stone);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  padding: 0.25rem 0;
+  padding: 0.2rem 0;
   cursor: pointer;
   transition: color var(--transition-fast);
 }
@@ -841,7 +747,7 @@
 }
 
 .accordion-arrow {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   color: var(--c-gold);
   transition: transform var(--transition-fast);
 }
@@ -850,8 +756,10 @@
 .adjustments-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
 }
 
 @media (max-width: 540px) {
@@ -863,68 +771,55 @@
 .slider-group {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
-/* Doku ve Kompakt İpucu Satırı */
-.texture-and-hint-row {
+.slider-label-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+  color: var(--c-stone-light);
+}
+
+/* Doku Bölümü */
+.texture-group-full {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-top: 0.45rem;
-  padding-top: 0.4rem;
+  margin-top: 0.2rem;
+  padding-top: 0.3rem;
   border-top: 1px dashed rgba(255, 255, 255, 0.06);
 }
 
-.texture-select-inline {
-  display: inline-flex;
-  align-items: center;
+.texture-title {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--c-stone-light);
 }
 
 .blend-mode-row {
   display: inline-flex;
-  gap: 0.3rem;
-  margin-top: 0;
+  gap: 0.25rem;
 }
 
 .btn-blend-mode {
   background: rgba(0, 0, 0, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--c-stone);
-  font-size: 0.68rem;
-  padding: 0.22rem 0.5rem;
+  font-size: 0.65rem;
+  padding: 0.18rem 0.45rem;
   border-radius: var(--radius-xs);
   cursor: pointer;
   transition: all var(--transition-fast);
-  text-align: center;
 }
 
 .btn-blend-mode.active {
   border-color: var(--c-gold);
   background: var(--c-gold-subtle);
   color: var(--c-gold);
-}
-
-.btn-reset-adjustments {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--c-stone);
-  border-radius: var(--radius-sm);
-  padding: 0.35rem 0.65rem;
-  font-size: 0.72rem;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  margin-top: 0.5rem;
-}
-
-.btn-reset-adjustments:hover {
-  border-color: var(--c-gold);
-  color: var(--c-cream-pure);
+  font-weight: 600;
 }
 
 .studio-info-hint {
@@ -959,6 +854,7 @@
 
 @media (max-width: 1023px) {
   .studio-viewport-panel {
+    order: 1;
     position: static;
     height: auto;
     gap: 1rem;
