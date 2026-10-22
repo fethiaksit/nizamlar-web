@@ -660,7 +660,7 @@
 
     const ul = root.querySelector('[data-cms-list="features"]');
     if (ul && Array.isArray(it.features)) {
-      ul.innerHTML = it.features.map(f => `<li>${esc(f)}</li>`).join('');
+      ul.innerHTML = it.features.map(f => `<li style="display: flex; gap: 0.6rem; align-items: center; font-size: 0.95rem; color: var(--c-anthracite);"><span style="color: var(--c-gold); font-weight: 700;">✓</span> <span>${esc(f)}</span></li>`).join('');
     }
   }
 

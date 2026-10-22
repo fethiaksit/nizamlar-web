@@ -27,7 +27,7 @@ async function main() {
 
   const perms = await api('GET', `/permissions?limit=-1&filter[policy][_eq]=${policy.id}`);
   const READ = ['site_settings', 'whatsapp_settings', 'seo_settings', 'mockup_preview_settings', 'pages', 'products', 'services',
-    'machines', 'production_processes', 'references', 'certificates', 'blog_posts', 'animations_config', 'navigation_menus'];
+    'machines', 'production_processes', 'references', 'certificates', 'blog_posts', 'animations_config', 'navigation_menus', 'url_redirects'];
   const want = [['quote_requests', 'create'], ...READ.map(c => [c, 'read'])];
   for (const [collection, action] of want) {
     if (perms.find(p => p.collection === collection && p.action === action)) continue;

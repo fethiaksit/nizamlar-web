@@ -132,7 +132,8 @@ const PUBLIC_COLLECTIONS = {
   certificates: { status: true, sort: 'sort' },
   blog_posts: { status: true, sort: '-published_date', filters: ['slug'] },
   animations_config: { status: true, filters: ['key'] },
-  navigation_menus: { status: true, sort: 'sort' }
+  navigation_menus: { status: true, sort: 'sort' },
+  url_redirects: { filters: ['from_path'] }
 };
 const SAFE_VALUE = /^[\p{L}\p{N}\-_./ ]{1,160}$/u;
 
@@ -348,7 +349,10 @@ const esc = s => String(s === undefined || s === null ? '' : s).replace(/[&<>"']
 
 function renderTemplate(file, vars, res) {
   let html = fs.readFileSync(path.join(ROOT, 'templates', file), 'utf8');
-  for (const [k, v] of Object.entries(vars)) html = html.split(`{{${k}}}`).join(esc(v));
+  for (const [k, v] of Object.entries(vars)) {
+    const val = (k.endsWith('_RAW') || k.endsWith('_HTML')) ? String(v || '') : esc(v);
+    html = html.split(`{{${k}}}`).join(val);
+  }
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache');
   res.send(versionAssets(html));
@@ -359,58 +363,79 @@ function dynamicDetail(collection, base, template) {
     const slug = req.params.slug;
     if (!SAFE_VALUE.test(slug) || !SERVICE_TOKEN) return next();
     if (!req.path.endsWith('/')) return res.redirect(301, `${base}/${encodeURIComponent(slug)}/`);
-    try {
-      const r = await directus(`/items/${collection}?limit=1&filter[slug][_eq]=${encodeURIComponent(slug)}`);
-      if (!r.ok) return next(); // CMS sorunu: statik yedeğe düş
-      let item = r.json.data && r.json.data[0];
 
-      // Slug doğrudan eşleşmediyse bilinen alias eşleşmelerini kontrol et (örn: serigrafi-baski <-> emprime-baski)
-      if (!item && collection === 'services') {
-        const aliasMap = { 'serigrafi-baski': 'emprime-baski', 'emprime-baski': 'serigrafi-baski' };
-        const altSlug = aliasMap[slug];
-        if (altSlug) {
-          const altR = await directus(`/items/services?limit=1&filter[slug][_eq]=${encodeURIComponent(altSlug)}`);
-          if (altR.ok && altR.json.data && altR.json.data[0]) {
-            return res.redirect(301, `${base}/${encodeURIComponent(altSlug)}/`);
+    try {
+      // 1. Directus üzerinden güncel slug ile sorgula
+      const r = await directus(`/items/${collection}?limit=1&filter[slug][_eq]=${encodeURIComponent(slug)}`);
+      let item = r.ok && r.json.data && r.json.data[0];
+
+      // 2. Eşleşmediyse: 301 yönlendirme geçmişini denetle
+      if (!item) {
+        // 2a. url_redirects tablosunu kontrol et
+        const targetPath = `${base}/${slug}/`;
+        try {
+          const redR = await directus(`/items/url_redirects?limit=1&filter[from_path][_eq]=${encodeURIComponent(targetPath)}`);
+          if (redR.ok && redR.json.data && redR.json.data[0]) {
+            const redirectItem = redR.json.data[0];
+            return res.redirect(redirectItem.status_code || 301, redirectItem.to_path);
           }
-        }
+        } catch (e) { /* ignore */ }
+
+        // 2b. old_slugs alanında kontrol et (JSON array contains)
+        try {
+          const oldR = await directus(`/items/${collection}?limit=1&filter[old_slugs][_icontains]=${encodeURIComponent(slug)}`);
+          if (oldR.ok && oldR.json.data && oldR.json.data[0]) {
+            const found = oldR.json.data[0];
+            return res.redirect(301, `${base}/${encodeURIComponent(found.slug)}/`);
+          }
+        } catch (e) { /* ignore */ }
+
+        // 2c. Bulunamadı: Gerçek 404 sayfasına yönlendir
+        res.status(404);
+        return res.sendFile(path.join(ROOT, '404.html'));
       }
 
-      if (!item) return next(); // CMS'te yok: statik (varsa) devam
+      // 3. Taslak kontrolü (taslak içerikler ziyaretçilere gösterilmez)
       const preview = req.query.preview === '1' && await isStaffRequest(req);
-      if (item.status !== 'published' && !preview) return res.status(404).sendFile(path.join(ROOT, '404.html'));
+      if (item.status !== 'published' && !preview) {
+        res.status(404);
+        return res.sendFile(path.join(ROOT, '404.html'));
+      }
 
+      // 4. Dinamik verileri hazırla
       const pageTitle = `${item.title} | Nizamlar Baskı`;
       const pageDesc = item.seo_description || item.summary || item.short_desc || '';
 
-      // Özel bir statik sayfa şablonu varsa (örn: hizmetlerimiz/dtf-baski/index.html):
-      // Onu oku ve CMS verileriyle dinamik zenginleştirerek sun (böylece özel bölümler korunur)
-      const specificPath = path.join(ROOT, base.replace(/^\//, ''), slug, 'index.html');
-      if (fs.existsSync(specificPath)) {
-        let html = fs.readFileSync(specificPath, 'utf8');
-        if (item.title) {
-          html = html.replace(/<title>.*?<\/title>/i, `<title>${esc(pageTitle)}</title>`);
-          html = html.replace(/(<meta\s+property=["']og:title["']\s+content=["']).*?(["'])/i, `$1${esc(pageTitle)}$2`);
-          html = html.replace(/(<h1[^>]*class=["'][^"']*page-hero-title[^"']*["'][^>]*>)([\s\S]*?)(<\/h1>)/i, `$1${esc(item.title)}$3`);
-          html = html.replace(/(<span[^>]*data-cms-field=["']title["'][^>]*>)([\s\S]*?)(<\/span>)/i, `$1${esc(item.title)}$3`);
-        }
-        if (pageDesc) {
-          html = html.replace(/(<meta\s+name=["']description["']\s+content=["']).*?(["'])/i, `$1${esc(pageDesc)}$2`);
-          html = html.replace(/(<meta\s+property=["']og:description["']\s+content=["']).*?(["'])/i, `$1${esc(pageDesc)}$2`);
-          html = html.replace(/(<p[^>]*class=["'][^"']*page-hero-desc[^"']*["'][^>]*>)([\s\S]*?)(<\/p>)/i, `$1${esc(pageDesc)}$3`);
-        }
-        res.setHeader('Content-Type', 'text/html; charset=utf-8');
-        res.setHeader('Cache-Control', 'no-cache');
-        return res.send(versionAssets(html));
+      // Özellikler listesini oluştur
+      let featuresHtml = '';
+      if (Array.isArray(item.features)) {
+        featuresHtml = item.features.map(f => `<li style="display: flex; gap: 0.6rem; align-items: center; font-size: 0.95rem; color: var(--c-anthracite);"><span style="color: var(--c-gold); font-weight: 700;">✓</span> <span>${esc(f)}</span></li>`).join('');
+      }
+
+      // Görsel yolu
+      let coverImage = '/assets/images/placeholder.svg';
+      if (item.cover_image) {
+        coverImage = item.cover_image.startsWith('/') || item.cover_image.startsWith('http') ? item.cover_image : `/${item.cover_image}`;
+      } else if (item.cover_image_file) {
+        coverImage = `/cms/assets/${item.cover_image_file}`;
       }
 
       return renderTemplate(template, {
         HEAD_TITLE: pageTitle,
         TITLE: item.title,
         DESC: pageDesc,
-        SLUG: slug
+        SLUG: item.slug,
+        BADGE: item.badge || 'Tekstil Baskı Çözümü',
+        CAPACITY_INFO: item.capacity_info || 'Yüksek Kapasite',
+        CONTENT_HTML: item.content ? String(item.content) : '',
+        FEATURES_HTML: featuresHtml,
+        COVER_IMAGE: coverImage
       }, res);
-    } catch (e) { return next(); }
+    } catch (e) {
+      console.error(`dynamicDetail error (${collection}/${slug}):`, e.message);
+      res.status(404);
+      return res.sendFile(path.join(ROOT, '404.html'));
+    }
   };
 }
 
