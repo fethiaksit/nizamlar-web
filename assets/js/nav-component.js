@@ -202,8 +202,8 @@
       </div>
       <div class="mobile-drawer-footer">
         <a href="${prefix}teklif-al/" class="btn btn-gold" style="width: 100%;">Fiyat Teklifi Al</a>
-        <div class="mobile-contact-line"><span>📍 İstanbul / Türkiye</span></div>
-        <div class="mobile-contact-line"><span>✉️ info@nizamlarbaski.com</span></div>
+        <div class="mobile-contact-line"><span data-cms-site="contact_address" data-cms-prefix="📍 ">📍 İstanbul / Türkiye</span></div>
+        <div class="mobile-contact-line"><span data-cms-site="contact_email" data-cms-prefix="✉️ ">✉️ info@nizamlarbaski.com</span></div>
       </div>
     `;
   }

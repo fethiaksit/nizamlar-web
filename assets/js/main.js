@@ -301,85 +301,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 10. ÜRÜN ÖN / ARKA GÖRÜNÜM DÖNDÜRME DESTEĞİ
   const initProductViewFlip = () => {
-    const flipButtons = document.querySelectorAll('.btn-product-flip');
-    flipButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const card = btn.closest('.product-card-enhanced');
-        if (!card) return;
-
-        const img = card.querySelector('.product-card-media img');
-        if (!img) return;
-
-        const frontSrc = img.getAttribute('data-front');
-        const backSrc = img.getAttribute('data-back');
-        if (!frontSrc || !backSrc) return;
-
-        const isCurrentlyBack = img.getAttribute('data-view') === 'back';
-        if (isCurrentlyBack) {
-          img.src = frontSrc;
-          img.setAttribute('data-view', 'front');
-          btn.setAttribute('title', 'Sırt Baskısını Göster');
-        } else {
-          img.src = backSrc;
-          img.setAttribute('data-view', 'back');
-          btn.setAttribute('title', 'Ön Baskıyı Göster');
-        }
-      });
+    // Olay delegasyonu: CMS ile sonradan eklenen ürün kartlarında da çalışır
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-product-flip');
+      if (!btn) return;
+      e.stopPropagation();
+      const card = btn.closest('.product-card-enhanced');
+      const img = card && card.querySelector('.product-card-media img');
+      if (!img) return;
+      const frontSrc = img.getAttribute('data-front');
+      const backSrc = img.getAttribute('data-back');
+      if (!frontSrc || !backSrc) return;
+      if (img.getAttribute('data-view') === 'back') {
+        img.src = frontSrc;
+        img.setAttribute('data-view', 'front');
+        btn.setAttribute('title', 'Sırt Baskısını Göster');
+      } else {
+        img.src = backSrc;
+        img.setAttribute('data-view', 'back');
+        btn.setAttribute('title', 'Ön Baskıyı Göster');
+      }
     });
   };
   initProductViewFlip();
 
   // 11. Üretim Galerisi Filtreleme & Lightbox
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const galleryItems = document.querySelectorAll('.gallery-item');
   const lightboxModal = document.querySelector('.lightbox-modal');
   const lightboxImg = document.querySelector('.lightbox-img');
   const lightboxClose = document.querySelector('.lightbox-close');
 
-  if (filterBtns.length > 0 && galleryItems.length > 0) {
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const filter = btn.getAttribute('data-filter');
-        galleryItems.forEach(item => {
-          const category = item.getAttribute('data-category');
-          if (filter === 'all' || category === filter) {
-            item.style.display = 'block';
-          } else {
-            item.style.display = 'none';
-          }
-        });
+  // Delegasyon: CMS ile yeniden çizilen galeri öğeleri de filtrelenir / büyütülür
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-btn');
+    if (btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.getAttribute('data-filter');
+      document.querySelectorAll('.gallery-item').forEach(item => {
+        item.style.display = (filter === 'all' || item.getAttribute('data-category') === filter) ? 'block' : 'none';
       });
-    });
-  }
+      return;
+    }
+    const item = e.target.closest('.gallery-item');
+    if (item && lightboxModal && lightboxImg) {
+      const img = item.querySelector('img');
+      if (img) {
+        lightboxImg.src = img.src;
+        lightboxImg.alt = img.alt || 'Nizamlar Baskı Galeri';
+        lightboxModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+  });
 
   if (lightboxModal && lightboxImg) {
-    galleryItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const img = item.querySelector('img');
-        if (img) {
-          lightboxImg.src = img.src;
-          lightboxImg.alt = img.alt || 'Nizamlar Baskı Galeri';
-          lightboxModal.classList.add('active');
-          document.body.style.overflow = 'hidden';
-        }
-      });
-    });
-
     const closeLightbox = () => {
       lightboxModal.classList.remove('active');
       document.body.style.overflow = '';
     };
-
-    if (lightboxClose) {
-      lightboxClose.addEventListener('click', closeLightbox);
-    }
-    lightboxModal.addEventListener('click', (e) => {
-      if (e.target === lightboxModal) closeLightbox();
-    });
+    if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+    lightboxModal.addEventListener('click', (e) => { if (e.target === lightboxModal) closeLightbox(); });
   }
 
   // 12. Dosya Yükleme Alanı Önizleme
@@ -427,41 +408,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 13. Form Gönderim & Doğrulama (İletişim ve Teklif Al)
-  const forms = document.querySelectorAll('form[data-form-handler]');
+  // Form gönderimi cms-client.js tarafından yönetilir (gerçek API; başarısızlıkta hata gösterir).
   const feedbackModal = document.querySelector('.modal-feedback');
   const feedbackCloseBtn = document.querySelector('.modal-feedback-close');
-
-  forms.forEach(form => {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const requiredInputs = form.querySelectorAll('[required]');
-      let isValid = true;
-
-      requiredInputs.forEach(input => {
-        if (!input.value.trim()) {
-          isValid = false;
-          input.style.borderColor = '#c53030';
-        } else {
-          input.style.borderColor = '';
-        }
-      });
-
-      if (!isValid) {
-        alert('Lütfen zorunlu alanları doldurunuz.');
-        return;
-      }
-
-      if (feedbackModal) {
-        feedbackModal.classList.add('active');
-        form.reset();
-        if (fileStatus) fileStatus.innerHTML = '';
-      } else {
-        alert('Talebiniz kaydedilmiştir. Müşteri temsilcimiz sizinle iletişime geçecektir.');
-        form.reset();
-      }
-    });
-  });
 
   if (feedbackCloseBtn && feedbackModal) {
     feedbackCloseBtn.addEventListener('click', () => {
@@ -553,14 +502,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!sliderComponent) return;
 
   const track = sliderComponent.querySelector('.product-slider-track');
-  const slides = sliderComponent.querySelectorAll('.product-slide-item');
+  let slides = sliderComponent.querySelectorAll('.product-slide-item');
   const prevBtn = sliderComponent.querySelector('.btn-slider-prev');
   const nextBtn = sliderComponent.querySelector('.btn-slider-next');
   const dotsContainer = sliderComponent.querySelector('#product-slider-dots');
   const currentNumEl = sliderComponent.querySelector('.current-slide-num');
   const totalNumEl = sliderComponent.querySelector('.total-slides-num');
 
-  if (!track || slides.length === 0) return;
+  if (!track) return;
 
   let currentIndex = 0;
   let isDragging = false;
@@ -645,6 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const goToSlide = (index) => {
+    if (!slides.length) { currentIndex = 0; track.style.transform = ''; updateUI(); return; }
     const maxIdx = getMaxIndex();
     currentIndex = Math.max(0, Math.min(maxIdx, index));
 
@@ -727,6 +677,23 @@ document.addEventListener('DOMContentLoaded', () => {
     buildDots();
     goToSlide(currentIndex);
   });
+
+  const preventImgDrag = () => slides.forEach(slide => slide.querySelectorAll('img').forEach(img => {
+    img.setAttribute('draggable', 'false');
+    img.addEventListener('dragstart', (e) => e.preventDefault());
+  }));
+
+  // CMS ürünleri yeniden çizdiğinde: slayt listesi, noktalar, sayaç ve konum yeniden hesaplanır
+  const refresh = () => {
+    slides = sliderComponent.querySelectorAll('.product-slide-item');
+    preventImgDrag();
+    currentIndex = 0;
+    prevTranslate = currentTranslate = 0;
+    buildDots();
+    goToSlide(0);
+  };
+  window.NizamlarSlider = { refresh };
+  document.addEventListener('cms:products-rendered', refresh);
 
   buildDots();
   goToSlide(0);
