@@ -18,6 +18,12 @@
   const prefix = getDepthPrefix();
   const currentPath = window.location.pathname.replace(/\/index\.html$/, '/');
 
+  // Merkezi URL Yardımcı Fonksiyonu
+  window.getServiceUrl = function (slug) {
+    if (!slug) return prefix ? `${prefix}hizmetlerimiz/` : '/hizmetlerimiz/';
+    return `${prefix ? prefix : '/'}hizmetlerimiz/${encodeURIComponent(slug)}/`;
+  };
+
   // Menü Veri Modeli (Tek Merkezden Yönetim)
   const NAV_CONFIG = [
     { label: 'Ana Sayfa', href: prefix ? prefix : './', id: 'home' },
@@ -38,8 +44,9 @@
       dropdown: [
         { label: 'Tüm Hizmetler', href: `${prefix}hizmetlerimiz/` },
         { label: 'DTF Baskı', href: `${prefix}hizmetlerimiz/dtf-baski/`, tag: 'Popüler' },
-        { label: 'Serigrafi Baskı', href: `${prefix}hizmetlerimiz/serigrafi-baski/` },
-        { label: 'Tişört Baskı', href: `${prefix}hizmetlerimiz/tisort-baski/` }
+        { label: 'Emprime Baskı', href: `${prefix}hizmetlerimiz/emprime-baski/` },
+        { label: 'Tişört Baskı', href: `${prefix}hizmetlerimiz/tisort-baski/` },
+        { label: 'Konfeksiyon Parça Baskı', href: `${prefix}hizmetlerimiz/emprime-parca-baski/` }
       ]
     },
     {
@@ -268,14 +275,58 @@
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderNavbar);
-  } else {
+  async function syncServicesWithCms() {
+    try {
+      const res = await fetch('/api/public/services');
+      if (!res.ok) return;
+      const json = await res.json();
+      const list = json.data;
+      if (!Array.isArray(list) || !list.length) return;
+
+      const published = list.filter(s => s.status === 'published' && s.title && s.slug);
+      published.sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || (a.id - b.id));
+
+      const hizmetlerItem = NAV_CONFIG.find(item => item.id === 'hizmetler');
+      if (hizmetlerItem) {
+        hizmetlerItem.dropdown = [
+          { label: 'Tüm Hizmetler', href: `${prefix}hizmetlerimiz/` },
+          ...published.map(s => ({
+            label: s.title,
+            href: `${prefix}hizmetlerimiz/${encodeURIComponent(s.slug)}/`,
+            tag: s.badge && s.badge.toLowerCase().includes('popüler') ? 'Popüler' : undefined
+          }))
+        ];
+        renderNavbar();
+      }
+
+      // Footer hizmet linklerini de senkronize et
+      document.querySelectorAll('.footer-links').forEach(ul => {
+        const isServicesColumn = Array.from(ul.querySelectorAll('a')).some(a => a.href.includes('/hizmetlerimiz/'));
+        if (isServicesColumn) {
+          ul.innerHTML = published.map(s => `
+            <li><a href="${prefix}hizmetlerimiz/${encodeURIComponent(s.slug)}/" class="footer-link">${s.title}</a></li>
+          `).join('') + `<li><a href="${prefix}hizmetlerimiz/" class="footer-link">Tüm Baskı Çözümleri</a></li>`;
+        }
+      });
+    } catch (e) {
+      // Offline fallback
+    }
+  }
+
+  function init() {
     renderNavbar();
+    syncServicesWithCms();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 
   window.NizamlarNavbar = {
     refresh: renderNavbar,
-    version: '2.1.0'
+    sync: syncServicesWithCms,
+    version: '2.2.0'
   };
 })();

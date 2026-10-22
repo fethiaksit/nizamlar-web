@@ -73,17 +73,25 @@ module.exports = function ({ filter, action }, { database, logger }) {
       if (!current) return input;
 
       let targetSlug = null;
-      if (input.slug !== undefined && input.slug !== null) {
-        // Manuel slug girişi
+      if (input.slug !== undefined && input.slug !== null && String(input.slug).trim() !== '') {
+        // Kullanıcı slug alanını elle değiştirdi: manuel slug'ı sanitize et ve kullan
         const candidate = slugify(input.slug);
         if (candidate && candidate !== current.slug) {
           targetSlug = candidate;
         }
       } else if (input.title && input.title !== current.title) {
-        // Başlık değişti ve slug manuel girilmedi: otomatik slug üret
-        const candidate = slugify(input.title);
-        if (candidate && candidate !== current.slug) {
-          targetSlug = candidate;
+        // Başlık değiştiğinde:
+        // Eğer mevcut slug daha önce elle özelleştirilmişse (yani slugify(current.title) ile uyuşmuyorsa)
+        // ve kullanıcı yeni bir slug girmemişse, kullanıcının elle belirlediği slug'ı koru.
+        // Aksi takdirde (slug varsayılan olarak başlıktan türetilmişse) yeni başlıktan otomatik slug üret.
+        const currentTitleSlug = slugify(current.title);
+        const isManuallyCustomized = current.slug && currentTitleSlug && current.slug !== currentTitleSlug;
+
+        if (!isManuallyCustomized) {
+          const candidate = slugify(input.title);
+          if (candidate && candidate !== current.slug) {
+            targetSlug = candidate;
+          }
         }
       }
 
@@ -110,6 +118,12 @@ module.exports = function ({ filter, action }, { database, logger }) {
         try {
           const hasRedirectTable = await db.schema.hasTable('url_redirects');
           if (hasRedirectTable) {
+            // Önceki yönlendirmelerin yeni adrese tek sıçramayla (hop) yönlenmesini sağla
+            await db('url_redirects').where('to_path', fromPath).update({
+              to_path: toPath,
+              status_code: 301
+            });
+
             const existingRedirect = await db('url_redirects').where('from_path', fromPath).first();
             if (existingRedirect) {
               await db('url_redirects').where('id', existingRedirect.id).update({

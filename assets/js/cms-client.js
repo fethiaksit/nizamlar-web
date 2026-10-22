@@ -576,6 +576,51 @@
     }
   }
 
+  /* Ana sayfa hizmetler vitrini (.services-grid) */
+  async function hydrateHomeServices() {
+    const grid = document.querySelector('.services-grid');
+    if (!grid) return;
+    const services = await load('services');
+    if (!services || !services.length) return;
+
+    const published = services.filter(s => s.status === 'published' && s.title && s.slug);
+    published.sort((a, b) => (a.sort ?? 999) - (b.sort ?? 999) || (a.id - b.id));
+    if (!published.length) return;
+
+    grid.innerHTML = published.map((s, idx) => {
+      const mediaUrl = pickMedia(s, 'cover_image_file', 'cover_image') || '/assets/images/machines/dtf-printer-station.svg';
+      const badge = s.badge || 'Profesyonel';
+      const detailUrl = `/hizmetlerimiz/${encodeURIComponent(s.slug)}/`;
+      const features = Array.isArray(s.features) ? s.features.slice(0, 3) : [];
+      const featuresHtml = features.map(f => `
+        <li class="service-feature-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          ${esc(f)}
+        </li>
+      `).join('');
+
+      return `
+        <article class="service-card" data-reveal="fade-up" data-delay="${(idx + 1) * 100}">
+          <div class="service-img-box">
+            <span class="service-badge">${esc(badge)}</span>
+            <img src="${esc(mediaUrl)}" alt="${esc(s.title)}">
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">${esc(s.title)}</h3>
+            <p class="service-desc">${esc(s.short_desc || '')}</p>
+            <ul class="service-features-list">
+              ${featuresHtml}
+            </ul>
+            <a href="${detailUrl}" class="service-link">
+              <span>Detaylı İncele</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
   /* ------------------------------ detay sayfaları ------------------------------ */
   async function hydrateDetail() {
     let root = document.querySelector('[data-cms-detail]');
@@ -777,6 +822,7 @@
       guarded('menü', hydrateNavigation),
       guarded('ürün vitrini', hydrateProducts),
       guarded('hizmetler', hydrateServices),
+      guarded('ana sayfa hizmetleri', hydrateHomeServices),
       guarded('detay', hydrateDetail),
       hydrateLists()
     ]);
