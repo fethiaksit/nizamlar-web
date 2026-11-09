@@ -1,0 +1,92 @@
+# ==============================================================================
+# NİZAMLAR BASKI — CPANEL APACHE YAPILANDIRMASI (.htaccess)
+# ==============================================================================
+
+# Dizin listelemeyi kapat
+Options -Indexes -MultiViews
+
+# Varsayılan Karakter Seti
+AddDefaultCharset UTF-8
+
+# Hata Sayfaları
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 1. HTTPS Zorunluluğu (Canlıda SSL aktifken yönlendirir)
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 2. Hassas Dosya ve Dizin Koruması
+    # .env, .git, .sql, config/, storage/ gibi dizin ve dosyalara dış erişimi engelle
+    RewriteRule ^(\.env|\.git|database\.sql|config/|storage/|node_modules/|cms/|\.DS_Store) - [F,L,NC]
+
+    # 3. API Uç Noktaları Yönlendirmesi
+    RewriteRule ^api/public/([^/]+)/?$ api/public.php?collection=$1 [QSA,L]
+    RewriteRule ^api/public/?$ api/public.php [QSA,L]
+    RewriteRule ^api/quote/?$ api/quote.php [QSA,L]
+    RewriteRule ^api/contact/?$ api/contact.php [QSA,L]
+    RewriteRule ^api/health/?$ api/health.php [QSA,L]
+
+    # 4. Hızlı "Bu Sayfaya Git" Yönlendirmeleri (/go/*)
+    RewriteRule ^go/services/([^/]+)/?$ /hizmetlerimiz/$1/ [R=302,L]
+    RewriteRule ^go/services/?$ /hizmetlerimiz/ [R=302,L]
+    RewriteRule ^go/blog/([^/]+)/?$ /blog/$1/ [R=302,L]
+    RewriteRule ^go/blog/?$ /blog/ [R=302,L]
+    RewriteRule ^go/pages/home/?$ / [R=302,L]
+    RewriteRule ^go/pages/([^/]+)/?$ /$1/ [R=302,L]
+
+    # 5. Dinamik Detay Sayfaları (Blog ve Hizmetler)
+    # Eğer istenen yol fiziksel bir dizin veya dosya değilse SSR router'a yönlendir
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^blog/([^/]+)/?$ blog/detail.php?slug=$1 [QSA,L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^hizmetlerimiz/([^/]+)/?$ hizmetlerimiz/detail.php?slug=$1 [QSA,L]
+
+    # 6. Sondaki Eğik Çizgi (Trailing Slash) Standardizasyonu
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteCond %{REQUEST_URI} !(.*)/$
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1/ [L,R=301]
+
+</IfModule>
+
+# Güvenlik Başlıkları
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# Tarayıcı Önbellekleme (Statik Varlıklar)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+    
+    # CSS ve JavaScript
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    
+    # Görseller ve Yazı Tipleri
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 year"
+    
+    # HTML dosyaları her zaman doğrulanır
+    ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Gzip Sıkıştırma (Performans)
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json image/svg+xml
+</IfModule>

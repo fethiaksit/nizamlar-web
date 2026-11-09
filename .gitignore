@@ -12,6 +12,15 @@ node_modules/
 # Yedekler ve yüklenen dosyalar
 backups/
 *.sql
+!database.sql
+cpanel_build/
+uploads/*
+!uploads/.htaccess
+storage/quotes/*
+!storage/quotes/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+storage/rate_limits/*
 cms/uploads/*
 !cms/uploads/.gitkeep
 cms/uploads/quotes/*
