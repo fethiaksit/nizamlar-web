@@ -3,8 +3,8 @@
  * NİZAMLAR BASKI — MERKEZİ YAPILANDIRMA (CONFIG)
  * 
  * TürkTicaret cPanel Hosting ve yerel geliştirme uyumlu.
- * Hassas bilgiler bu dosyada veya kök dizindeki .env dosyasında saklanabilir.
- * Canlı sunucu kurulumunda veritabanı bilgilerinizi buraya veya cPanel ortamına giriniz.
+ * Hassas bilgiler bu dosyada veya kök dizindeki / üst dizindeki .env dosyasında saklanabilir.
+ * Canlı sunucu kurulumunda veritabanı bilgilerinizi .env içine veya buraya giriniz.
  */
 
 if (!defined('NIZAMLAR_APP')) {
@@ -24,34 +24,86 @@ if ($isDev) {
     ini_set('log_errors', '1');
 }
 
-// .env dosyasını oku (varsa)
-$envPath = __DIR__ . '/../.env';
-if (file_exists($envPath)) {
-    $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        $line = trim($line);
-        if ($line === '' || $line[0] === '#') continue;
-        if (strpos($line, '=') !== false) {
-            list($k, $v) = explode('=', $line, 2);
-            $k = trim($k);
-            $v = trim($v, " \t\n\r\0\x0B\"'");
-            if (!isset($_ENV[$k]) && !isset($_SERVER[$k])) {
-                putenv("$k=$v");
-                $_ENV[$k] = $v;
-                $_SERVER[$k] = $v;
+// Dizin Yolları
+define('ROOT_DIR', dirname(__DIR__));
+define('STORAGE_DIR', ROOT_DIR . '/storage');
+define('STORAGE_PATH', STORAGE_DIR);
+define('PRIVATE_QUOTES_DIR', STORAGE_DIR . '/quotes');
+define('UPLOADS_DIR', ROOT_DIR . '/uploads');
+define('UPLOAD_PATH', UPLOADS_DIR);
+
+// .env dosyasını oku (Önce public_html DIŞINDAKİ /home/user/.env, sonra web kökündeki .env kontrol edilir)
+$possibleEnvPaths = [
+    dirname(ROOT_DIR) . '/.env',  // cPanel: /home/cpanelkullanici/.env (public_html DIŞI - En güvenli)
+    ROOT_DIR . '/.env'            // Web kök dizini (public_html/.env)
+];
+
+foreach ($possibleEnvPaths as $envFile) {
+    if (file_exists($envFile) && is_readable($envFile)) {
+        $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#') continue;
+            if (strpos($line, '=') !== false) {
+                list($k, $v) = explode('=', $line, 2);
+                $k = trim($k);
+                $v = trim($v, " \t\n\r\0\x0B\"'");
+                if (!isset($_ENV[$k]) && !isset($_SERVER[$k])) {
+                    putenv("$k=$v");
+                    $_ENV[$k] = $v;
+                    $_SERVER[$k] = $v;
+                }
             }
         }
+        break; // İlk bulunan .env dosyasını uygula
     }
 }
 
 // Ortam değişkeni okuma yardımcısı
 function env_get($key, $default = null) {
     $val = getenv($key);
-    if ($val !== false) return $val;
-    if (isset($_ENV[$key])) return $_ENV[$key];
-    if (isset($_SERVER[$key])) return $_SERVER[$key];
+    if ($val !== false && $val !== '') return $val;
+    if (isset($_ENV[$key]) && $_ENV[$key] !== '') return $_ENV[$key];
+    if (isset($_SERVER[$key]) && $_SERVER[$key] !== '') return $_SERVER[$key];
     return $default;
 }
+
+// Güvenli APP_SECRET Belirleme (Sabit kodlanmış şifre kaldırıldı)
+function get_or_create_app_secret(): string {
+    $envSecret = env_get('APP_SECRET');
+    if (!empty($envSecret) && strlen($envSecret) >= 32 && !str_contains($envSecret, 'change-in-production')) {
+        return $envSecret;
+    }
+
+    $secretFile = STORAGE_DIR . '/app_secret.key';
+    if (file_exists($secretFile) && is_readable($secretFile)) {
+        $stored = trim((string)file_get_contents($secretFile));
+        if (strlen($stored) >= 32) {
+            return $stored;
+        }
+    }
+
+    // Storage dizini yoksa oluştur
+    if (!is_dir(STORAGE_DIR)) {
+        @mkdir(STORAGE_DIR, 0755, true);
+    }
+
+    // 256-bit kriptografik rastgele anahtar üret ve sakla
+    try {
+        $generated = bin2hex(random_bytes(32));
+        if (is_writable(STORAGE_DIR)) {
+            @file_put_contents($secretFile, $generated, LOCK_EX);
+            @chmod($secretFile, 0600);
+        }
+        return $generated;
+    } catch (\Throwable $e) {
+        return hash('sha256', php_uname() . __FILE__ . (microtime(true) * 1000));
+    }
+}
+
+define('APP_SECRET', get_or_create_app_secret());
+define('SESSION_LIFETIME', 86400); // 24 saat
+define('MAX_UPLOAD_BYTES', 25 * 1024 * 1024); // 25 MB
 
 // Veritabanı Yapılandırması
 // TürkTicaret cPanel'de cPanel > MySQL Veritabanları alanından oluşturulan bilgiler girilir.
@@ -61,19 +113,8 @@ define('DB_PORT', env_get('DB_PORT', '3306'));
 define('DB_NAME', env_get('DB_NAME', 'nizamlar_baski'));
 define('DB_USER', env_get('DB_USER', 'nizamlar_user'));
 define('DB_PASS', env_get('DB_PASS', ''));
-define('DB_CHARSET', 'utf8mb4');
-define('DB_SQLITE_PATH', env_get('DB_SQLITE_PATH', __DIR__ . '/../storage/database.sqlite'));
-
-// Dizin Yolları
-define('ROOT_DIR', dirname(__DIR__));
-define('STORAGE_DIR', ROOT_DIR . '/storage');
-define('PRIVATE_QUOTES_DIR', STORAGE_DIR . '/quotes');
-define('UPLOADS_DIR', ROOT_DIR . '/uploads');
-
-// Güvenlik & Oturum
-define('APP_SECRET', env_get('APP_SECRET', 'nizamlar-secret-salt-key-2026-change-in-production'));
-define('SESSION_LIFETIME', 86400); // 24 saat
-define('MAX_UPLOAD_BYTES', 25 * 1024 * 1024); // 25 MB
+define('DB_CHARSET', env_get('DB_CHARSET', 'utf8mb4'));
+define('DB_SQLITE_PATH', env_get('DB_SQLITE_PATH', STORAGE_DIR . '/database.sqlite'));
 
 // Oturum başlatma güvenliği
 function init_secure_session() {

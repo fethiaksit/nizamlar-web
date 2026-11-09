@@ -13,6 +13,7 @@ node_modules/
 backups/
 *.sql
 !database.sql
+*.sqlite
 cpanel_build/
 uploads/*
 !uploads/.htaccess

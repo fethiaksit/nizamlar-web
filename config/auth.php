@@ -21,6 +21,10 @@ function is_authenticated(): bool {
     return false;
 }
 
+function is_logged_in(): bool {
+    return is_authenticated();
+}
+
 function current_admin(): ?array {
     if (!is_authenticated()) return null;
     return $_SESSION['admin_user'] ?? null;
@@ -109,6 +113,10 @@ function csrf_token(): string {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $_SESSION['csrf_token'];
+}
+
+function get_csrf_token(): string {
+    return csrf_token();
 }
 
 function verify_csrf_token(?string $token): bool {

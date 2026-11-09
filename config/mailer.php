@@ -122,3 +122,11 @@ class SimpleSMTP {
         }
     }
 }
+
+/**
+ * Pratik e-posta gönderme yardımcı fonksiyonu
+ */
+function send_mail(string $to, string $subject, string $htmlBody, array $options = []): bool {
+    $res = SimpleSMTP::send($to, $subject, $htmlBody, $options);
+    return !empty($res['ok']);
+}

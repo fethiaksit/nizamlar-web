@@ -17,6 +17,8 @@ init_secure_session();
 
 $lockFile = STORAGE_DIR . '/install.lock';
 $alreadyInstalled = file_exists($lockFile);
+$dbConnected = true;
+$dbError = null;
 
 if (!$alreadyInstalled) {
     try {
@@ -24,9 +26,16 @@ if (!$alreadyInstalled) {
         if ($check && (int)$check['cnt'] > 0) {
             $alreadyInstalled = true;
             @file_put_contents($lockFile, date('c'));
+            @chmod($lockFile, 0600);
         }
     } catch (Exception $e) {
-        // Tablo henüz açılmamış olabilir
+        // Tablo henüz açılmamış veya veritabanına bağlanılamamış olabilir
+        try {
+            DB::connect();
+        } catch (Exception $connEx) {
+            $dbConnected = false;
+            $dbError = $connEx->getMessage();
+        }
     }
 }
 
@@ -34,7 +43,11 @@ $error = null;
 $success = null;
 
 if (!$alreadyInstalled && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+    if (!check_rate_limit('admin_install_attempt', 5, 900)) {
+        $error = 'Çok fazla deneme yapıldı. Lütfen 15 dakika bekleyiniz.';
+    } elseif (!$dbConnected) {
+        $error = 'Veritabanı bağlantısı kurulamadığı için yönetici hesabı oluşturulamıyor. Lütfen .env veya config/config.php dosyasındaki veritabanı ayarlarını kontrol ediniz.';
+    } elseif (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
         $error = 'Geçersiz güvenlik doğrulaması (CSRF). Lütfen formu yenileyiniz.';
     } else {
         $fullName = clean_input($_POST['full_name'] ?? '', 100);
@@ -170,6 +183,14 @@ if (!$alreadyInstalled && $_SERVER['REQUEST_METHOD'] === 'POST') {
       <p class="install-desc">
         TürkTicaret cPanel üzerinde çalışan Nizamlar Baskı yönetim paneliniz için birincil yönetici kullanıcısını tanımlayınız.
       </p>
+
+      <?php if (!$dbConnected): ?>
+        <div class="adm-alert adm-alert-danger" style="text-align: left; font-size: 13px;">
+          <strong>Veritabanı Bağlantı Uyarısı:</strong><br>
+          Veritabanına bağlanılamadı. Lütfen <code>.env</code> veya <code>config/config.php</code> dosyasındaki MySQL kullanıcı adı, şifresi ve veritabanı adını kontrol ediniz.<br>
+          <small style="opacity: 0.8;"><?= esc($dbError ?? '') ?></small>
+        </div>
+      <?php endif; ?>
 
       <?php if ($error): ?>
         <div class="adm-alert adm-alert-danger"><?= esc($error) ?></div>

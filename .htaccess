@@ -22,8 +22,8 @@ ErrorDocument 404 /404.html
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # 2. Hassas Dosya ve Dizin Koruması
-    # .env, .git, .sql, config/, storage/ gibi dizin ve dosyalara dış erişimi engelle
-    RewriteRule ^(\.env|\.git|database\.sql|config/|storage/|node_modules/|cms/|\.DS_Store) - [F,L,NC]
+    # .env, .git, .sql, config/, storage/, tools/, tests/ dizin ve dosyalarına dış erişimi engelle
+    RewriteRule ^(\.env|\.git|.*\.sql|config/|storage/|tools/|tests/|node_modules/|cms/|\.DS_Store) - [F,L,NC]
 
     # 3. API Uç Noktaları Yönlendirmesi
     RewriteRule ^api/public/([^/]+)/?$ api/public.php?collection=$1 [QSA,L]
@@ -56,6 +56,17 @@ ErrorDocument 404 /404.html
     RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1/ [L,R=301]
 
 </IfModule>
+
+# Doğrudan Dosya Erişim Yasakları (Uzantı Bazlı İkinci Savunma Hattı)
+<FilesMatch "\.(sql|env|sh|lock|log|md|sqlite|key)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
 
 # Güvenlik Başlıkları
 <IfModule mod_headers.c>
