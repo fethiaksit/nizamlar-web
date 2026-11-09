@@ -1,67 +1,103 @@
-# Sillage — notes for AI coding agents
+# Nizamlar Baskı — Geliştirici & Ajan Kılavuzu
 
-One HTML file: markup, inline CSS and inline scripts; GSAP with ScrollTrigger, Lenis smooth scroll, all from jsDelivr. No build step, no framework.
+Bu belge, **Nizamlar Baskı** kurumsal web sitesi ve yönetim panelinin mimari yapısını, dosya hiyerarşisini, veritabanı şemasını ve geliştirme kurallarını özetler.
 
-## Files
-Work from the files: a page read through a link comes back as a summary, and a page rebuilt from it would differ.
-```bash
-curl -LO https://raw.githubusercontent.com/8bsite/creative-agency-website-template/main/index.html
-curl -LO https://raw.githubusercontent.com/8bsite/creative-agency-website-template/main/AGENTS.md
-curl -LO https://raw.githubusercontent.com/8bsite/creative-agency-website-template/main/LICENSE
-curl -LO https://raw.githubusercontent.com/8bsite/creative-agency-website-template/main/CREDITS.md
+---
+
+## 1. Mimari Genel Bakış
+
+- **Site Amacı**: Tekstil parça baskı (DTF baskı, robotik serigrafi, emprime, tişört ve konfeksiyon baskısı) alanında kurumsal tanıtım, interaktif ürün/baskı stüdyosu, dinamik hizmet & blog sayfaları ve teklif toplama.
+- **Frontend**: Semantik HTML5, CSS3 (özel değişkenler: lüks antrasit `#17181c`, gold `#d4af37`, sıcak kahve `#2e221b`), saf (Vanilla) JavaScript, GSAP animasyonları, interaktif Mockup Stüdyosu.
+- **Backend**: Saf PHP 8.x (üretimde Composer, Node.js veya Docker bağımlılığı yoktur).
+- **Veritabanı**: MySQL / MariaDB (yerel testlerde opsiyonel SQLite desteği mevcuttur).
+- **Hosting Hedefi**: TürkTicaret Limitsiz Plus cPanel (Apache 2.4 + PHP 8.x + MySQL).
+- **Yönetim Paneli**: `https://nizamlarbaski.com/admin/` (Özel geliştirilmiş, Türkçe, duyarlı ve minimal arayüz).
+
+---
+
+## 2. Dizin Yapısı
+
 ```
-In Windows PowerShell type `curl.exe`. Publish `index.html` with LICENSE and CREDITS.md; this file, README.md and `previews/` are not part of the site.
+/
+├── .htaccess                     # Apache yönlendirmeleri, HTTPS, güvenlik başlıkları, temiz URL'ler
+├── database.sql                  # 20 tablolu tam MySQL şeması ve başlangıç seed verileri
+├── index.html                    # Ana sayfa (Hero, Süreç Simülasyonu, Stüdyo, Ürünler, Hizmetler)
+├── hakkimizda/index.html         # Kurumsal hakkımızda sayfası
+├── hizmetlerimiz/                # Hizmetler dizini
+│   ├── index.html                # Hizmetler listesi & teknoloji karşılaştırması
+│   └── detail.php                # Dinamik hizmet detay sayfası (SSR + slug yönlendirme)
+├── blog/                         # Blog dizini
+│   ├── index.html                # Blog arşivi ve makale listesi
+│   └── detail.php                # Dinamik blog makale sayfası (SSR + slug yönlendirme)
+├── makine-parkurumuz/index.html  # Makine ve teknoloji parkuru sayfası
+├── uretim-surecleri/index.html   # Üretim aşamaları ve kalite standartları
+├── referanslarimiz/index.html    # Müşteri referansları ve marka portföyü
+├── sertifikalarimiz/index.html   # Kalite & ekoloji belgeleri
+├── iletisim/index.html           # İletişim bilgileri ve iletişim formu
+├── teklif-al/index.html          # Fiyat teklif formu (dosya yükleme ve parametre seçimi)
+├── assets/                       # Statik varlıklar (css, js, images, videos)
+│   ├── css/                      # Stiller (main.css, studio.css, responsive.css vb.)
+│   └── js/                       # İstemci kodları (main.js, cms-client.js, live-preview.js vb.)
+├── config/                       # Çekirdek PHP yapılandırma ve kütüphaneleri
+│   ├── config.php                # DB bilgileri, dizin sabitleri, ortam değişkenleri
+│   ├── db.php                    # PDO veritabanı sürücüsü (MySQL / SQLite)
+│   ├── auth.php                  # Oturum, parola ve CSRF yönetimi
+│   ├── mailer.php                # Saf PHP SMTP ve mail() istemcisi
+│   └── helpers.php               # XSS, girdi temizleme, rate limit, sihirli bayt doğrulaması
+├── api/                          # REST API uç noktaları
+│   ├── public.php                # CMS koleksiyonlarını JSON olarak sunan genel API
+│   ├── quote.php                 # Teklif formu uç noktası (dosya denetimi, DB kaydı, SMTP bildirimi)
+│   ├── contact.php               # İletişim formu uç noktası (honeypot, DB kaydı, SMTP bildirimi)
+│   └── health.php                # Sistem sağlık durumu ve izin kontrolleri
+├── admin/                        # Türkçe Yönetim Paneli
+│   ├── index.php                 # Yönlendirici (login veya dashboard'a yönlendirir)
+│   ├── install.php               # Tek seferlik ilk admin kurulum sihirbazı (kilitlenebilir)
+│   ├── login.php / logout.php    # Güvenli giriş/çıkış ekranları (hız sınırlamalı)
+│   ├── dashboard.php             # Özet metrikler, son teklifler ve mesajlar
+│   ├── quotes.php                # Teklif talepleri yönetimi, durum güncelleme ve filtreleme
+│   ├── quote-file.php            # Teklif dosyalarını yetkili ve güvenli indirme uç noktası
+│   ├── messages.php              # İletişim mesajları ve e-posta yeniden deneme arayüzü
+│   ├── pages.php                 # Sayfa başlıkları, hero alanları ve SEO yönetimi
+│   ├── services.php              # Hizmet CRUD ekranı
+│   ├── products.php              # Ürün katalog yönetimi
+│   ├── blog.php                  # Blog makale yönetimi
+│   ├── machines.php              # Makine parkuru yönetimi
+│   ├── processes.php             # Üretim süreçleri yönetimi
+│   ├── references.php            # Marka referansları yönetimi
+│   ├── certificates.php          # Sertifika yönetimi
+│   ├── media.php                 # Medya kütüphanesi (görsel/video yükleme, silme, URL kopyalama)
+│   ├── settings.php              # Genel ayarlar, WhatsApp, Mockup Stüdyo ve SMTP test paneli
+│   └── assets/                   # Admin CSS ve ikonları
+├── storage/                      # Güvenli depolama alanı (.htaccess ile doğrudan web erişimi engelli)
+│   ├── quotes/                   # Müşterilerin teklif için yüklediği tasarım dosyaları
+│   └── logs/                     # Sistem ve hata kayıtları
+├── uploads/                      # Genel medya dosyaları (admin tarafından yüklenen görseller)
+└── tools/                        # Geliştirici ve taşıma araçları
+    ├── migrate-directus.php      # AWS Directus/PostgreSQL -> MySQL idempotent aktarım betiği
+    ├── aws-export-directus.sh    # AWS Directus verilerini dışa aktaran terminal betiği
+    └── build_cpanel_package.sh   # cPanel için dağıtım ZIP paketi üreten betik
+```
 
-## Do not break
-- Keep it one file unless the user asks otherwise; no framework or bundler for copy, colour or photo changes.
-- Keep the ids and the `data-8b-section` / `data-8b-motion` attributes. Each section has its styles in `<style data-8b-part="section:<id>">` and its animation, if any, in `<script data-8b-part="scene:<id>">`.
-- The scripts find these classes and attributes; when you change a section's markup, keep them or update the script:
-  - `scene:hero`: `.m-mark__glyph` `.hero__push`
-  - `scene:manifesto`: `.manifesto__line`
-  - `scene:works`: `.works__card` `.works__plate`
-  - `scene:feature`: `.feature__frame` `.feature__img` `.feature__title`
-  - `scene:expertise`: `.expertise__row` `.expertise__portrait-in` `.expertise__body`
-  - `scene:method`: `.method__track` `.method__frame`
-  - `scene:crew`: `.crew__grid` `.crew__card`
-  - `scene:footer`: `.m-mark__glyph`
-  - `section-script:navigation`: `.nav__toggle` `.nav__menu` `.nav__close`
-  - `section-script:works`: `.works__cell` `.works__card` `.works__status` `data-filter` `data-tags` `data-template`
-- Colours, fonts, radii and shadows are CSS variables in the `:root` block (`data-8b-part="tokens"`); change them there and keep body text at 4.5:1 contrast or more.
-- Animations run only when the visitor allows motion (`prefers-reduced-motion: no-preference`); the page must stay readable without them.
-- A display line with `style="--len:N"` is sized to fill its width: N is its number of characters, spaces included (`Not what` → 8, `a brand says.` → 13).
-- These neighbouring sections animate across their border: hero → manifesto, works → feature. Keep each pair next to each other, or that transition switches off.
-- Keep the header comment and `<meta name="generator">`; the "Design: 8B" footer link is optional.
+---
 
-## Replace before publishing
-- Everything marked `data-8b-placeholder` (og-image, favicon, email, phone, social); remove the attribute once the real value is in. With no real value: no preview image — delete the `og:image` tag and set `twitter:card` to `summary`; no phone, email or address — remove that link or row.
-- Request the full reel (works): link to mailto:hello@ (subject Full reel) now; point them to your showreel URL (Vimeo, YouTube), or keep the email.
-- Request the case (feature): link to mailto:hello@ (subject The Amber Hour) now; point them to the case study page or film of that project.
-- Book the studio (studio): link to mailto:studio@ (subject Studio booking) now; point them to your booking form or calendar; remove the studio section if you have no space to rent.
-- Invented demo facts (ask the user for the real ones; do not make up prices, dates or addresses):
-  - Client and project names in works (Ondine Parfums — Night Bloom, Halcyon Eyewear — White Noise, Maison Orrel — Hard Line looks, Atelier Vauque — Volume Studies, Northe Joaillerie — Ten Rings, Lumen & Ash — Gilt, Casa Albar — Copper Line, Kestrel — Hands On), the hero caption "Halcyon — Red Season, campaign film", the featured project "The Amber Hour" for Ondine Parfums (feature) and the ten names in clients (also Brunner Genève, Vellum): all invented; publish only clients you may name.
-  - "Eight stories from the last two seasons" (works note) and "some for one launch, most for years" (clients note).
-  - Feature credits: "Two shoot days at Studio Sillage", "212 assets for 14 markets", "Edit, colour, 3D and retouch in-house" (feature).
-  - Services and in-house claims: the five disciplines and their tags, including "AI-assisted workflows", "Rooftop daylight" and "Crew catering" (expertise), "one floor", "our own workshop", "one crew" (manifesto, expertise, method).
-  - The studio and its specs: "Studio Sillage, Montreuil", "Six hundred square metres", "ten minutes from Paris", a 12 × 8 m cyclorama with 6 m clear height, a 140 m² north-facing rooftop, a workshop, chef-led catering "for crews of up to sixty" (studio, expertise).
-  - Team: "Forty-two strategists, producers, editors and retouchers" (crew note), six named people with roles — Élise Marchetti, Tomasz Wren, Adaeze Okafor, Henri Paz, Noor Haddad, Julien Ferreira — shown with stock portraits (crew), and "We are hiring producers, retouchers and strategists" (crew).
-  - Contacts: Clara Vidal, managing partner and Julien Ferreira, studio manager; "read every Friday"; the emails hello@, studio@, jobs@, press@sillage.example and the phones +33 1 00 00 00 00 / 01 (contact, navigation overlay, works and feature buttons, studio button, crew).
-  - Addresses: "1 rue de l’Exemple, 75003 Paris" (office) and "2 rue de l’Exemple, 93100 Montreuil" (studio) are placeholders (contact).
-  - Location: Paris and Montreuil in the meta description, the studio heading and "© 2026 Sillage. Paris — Montreuil." (footer).
-- `<title>`, the meta description and the og tags; photos (Unsplash, see CREDITS.md) when the user has their own.
+## 3. Güvenlik Kuralları
 
-## Notes
-- The wordmark is HTML text, one span per letter with a data-glyph copy for the trail: change the letters in both the hero and the footer and set --len to the number of letters.
-- The works filter matches each card's data-tags against the buttons' data-filter values: keep them in sync when you change the categories.
-- Without JavaScript the phone menu button cannot open the overlay and the works filter does nothing; all projects and links stay visible.
-- The stencil slit in the wordmark is drawn in the page colour: while the split wordmark passes over the hero photo the slits show as thin white lines.
-- On phones the width-filling email line in contact is set small (about 20 px) so a long address fits.
+1. **Doğrudan Web Erişimi Yasağı**:
+   - `storage/` klasörüne web üzerinden doğrudan erişilemez; içindeki tasarım dosyaları yalnızca `admin/quote-file.php` aracılığıyla doğrulanmış admin oturumuyla indirilebilir.
+   - `uploads/` klasöründe `.htaccess` ile PHP ve betik çalıştırma (`SetHandler none`, `php_flag engine off`) tamamen devre dışı bırakılmıştır.
+2. **Form Doğrulama**:
+   - Asla veritabanına kaydedilmeden sahte başarı modalı gösterilmez.
+   - Teklif ve iletişim formlarında honeypot ve hız sınırlaması (Rate Limiting) uygulanır.
+   - Dosya yüklemelerinde uzantı, MIME ve sihirli bayt (magic bytes) doğrulaması zorunludur.
+3. **Admin Kimlik Doğrulama**:
+   - Parolalar `password_hash(..., PASSWORD_DEFAULT)` ile saklanır.
+   - Brute-force saldırılarına karşı IP bazlı hız sınırlaması bulunur.
+   - Tüm POST işlemlerinde CSRF token doğrulaması zorunludur.
 
-## Common edits
-- Rebrand: search the old name (`Sillage`) in any letter case and replace every match; change the favicon letter and colours in `<link rel="icon">`.
-- Photos: replace `src` and delete `srcset` and `sizes` (they list Unsplash sizes), keep `width`/`height` to the new photo's ratio, update `alt` and CREDITS.md.
-- Remove a section: delete its markup, its `section:<id>` and `scene-style:<id>` styles, its `scene:<id>` and `section-script:<id>` scripts, and links to `#<id>`.
-- Native scroll instead of smooth scroll: delete the Lenis block in `page-init` and the Lenis `<script>` tag.
+---
 
-## Check and publish
-- Open the page at 375 and 1440 px, with reduced motion on, with the console open.
-- Search `data-8b-placeholder` and the old name: nothing should be left but class names.
+## 4. Git Çalışma Düzeni
+
+- Göç çalışmaları `feat/cpanel-php-mysql-migration` dalında yürütülür.
+- Kullanıcı onayı olmadan doğrudan `main` dalına merge yapılmaz.
+- `.env` ve veritabanı şifreleri repoya eklenmez; `config.php` varsayılanları veya ortam değişkenleri kullanılır.
