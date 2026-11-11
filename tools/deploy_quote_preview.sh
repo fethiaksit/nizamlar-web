@@ -35,6 +35,41 @@ FILES=(
 ADDED=(assets/js/studio-quote-transfer.js tools/migrate_quote_previews.php)
 echo "=== 3-YONLU BIRLESTIRME KONTROLU ==="
 
+cat > "$WORK/patch-quote-html.php" <<'PHP'
+<?php
+// Live quote form patch: retain the custom navigation/header and all page content.
+declare(strict_types=1);
+$source = file_get_contents($argv[1]);
+if ($source === false) { fwrite(STDERR, "Canli teklif sayfasi okunamadi.\n"); exit(1); }
+if (strpos($source, 'studio-quote-transfer.js') !== false) {
+    fwrite(STDERR, "Teklif sayfasinda modul zaten var; beklenmeyen durum.\n"); exit(1);
+}
+$main = '~<script\\b[^>]*\\bsrc=["\\\'][^"\\\']*assets/js/main\\.js(?:\\?[^"\\\']*)?["\\\'][^>]*>\\s*</script>~i';
+$cms = '~<script\\b[^>]*\\bsrc=["\\\'][^"\\\']*assets/js/cms-client\\.js(?:\\?[^"\\\']*)?["\\\'][^>]*>\\s*</script>~i';
+$count = 0;
+$source = preg_replace($main,
+    '<script src="/assets/js/studio-quote-transfer.js?v=quote-preview-1111"></script>' . "\n" .
+    '<script src="/assets/js/main.js?v=quote-preview-1111"></script>',
+    $source, 1, $count
+);
+if ($source === null || $count !== 1) {
+    fwrite(STDERR, "Canli teklif sayfasinda main.js etiketi tekil degil.\n"); exit(1);
+}
+$count = 0;
+$source = preg_replace($cms,
+    '<script src="/assets/js/cms-client.js?v=quote-preview-1111"></script>',
+    $source, 1, $count
+);
+if ($source === null || $count !== 1) {
+    fwrite(STDERR, "Canli teklif sayfasinda cms-client.js etiketi tekil degil.\n"); exit(1);
+}
+if (file_put_contents($argv[2], $source) === false) {
+    fwrite(STDERR, "Teklif HTML patch dosyasi yazilamadi.\n"); exit(1);
+}
+echo "OK: teklif sayfasi scriptleri eklendi (canli menu korundu).\n";
+PHP
+php -l "$WORK/patch-quote-html.php"
+
 for rel in "${FILES[@]}"; do
   [[ -f "$ROOT/$rel" ]] || { echo "Canli dosya eksik: $rel" >&2; exit 1; }
   mkdir -p "$WORK/base/$(dirname "$rel")" "$WORK/new/$(dirname "$rel")" "$WORK/merged/$(dirname "$rel")"
@@ -52,7 +87,11 @@ for rel in "${FILES[@]}"; do
     echo "Bu kontrol basarisizken kurulum yapilmaz." >&2
     exit 1
   fi
-  if ! diff3 -m "$ROOT/$rel" "$WORK/base/$rel" "$WORK/new/$rel" > "$WORK/merged/$rel"; then
+  if [[ "$rel" == "teklif-al/index.html" ]]; then
+    # Canli sayfanin (ozellikle menunun) tum HTML yapisini KORU.
+    # Yeni ozellik icin sadece 3 script etiketini hedefli duzenle.
+    php "$WORK/patch-quote-html.php" "$ROOT/$rel" "$WORK/merged/$rel"
+  elif ! diff3 -m "$ROOT/$rel" "$WORK/base/$rel" "$WORK/new/$rel" > "$WORK/merged/$rel"; then
     echo "BIRLESTIRME CAKISMASI: $rel - hicbir canli dosya degismedi." >&2
     exit 1
   fi
