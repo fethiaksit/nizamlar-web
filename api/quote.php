@@ -101,6 +101,7 @@ $allowedExts = ['pdf', 'ai', 'psd', 'png', 'jpg', 'jpeg', 'webp', 'svg', 'tif', 
 
 // Mockup PNG önceden doğrulanır; böylece orijinal dosya
 // diske kaydedildikten sonra hatalı bir önizleme nedeniyle yetim kalmaz.
+$studioPreviewRequired = (string)($data['studio_preview'] ?? '') === '1';
 $previewFile = $_FILES['preview_file'] ?? null;
 $hasPreview = is_array($previewFile) && ($previewFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
 $previewTargetPath = null;
@@ -108,6 +109,9 @@ $previewFileUrl = null;
 $previewFileName = null;
 $previewFileSize = 0;
 $previewMimeType = null;
+if ($studioPreviewRequired && !$hasPreview) {
+    json_response(['success' => false, 'error' => 'Canlı tasarım görseli eksik. Teklif kaydedilmedi.'], 422);
+}
 if ($hasPreview) {
     if ($previewFile['error'] !== UPLOAD_ERR_OK) {
         json_response(['success' => false, 'error' => 'Ürün görseli yüklenemedi. Lütfen tekrar deneyin.'], 400);
