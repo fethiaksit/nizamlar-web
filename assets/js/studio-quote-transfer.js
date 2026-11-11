@@ -54,7 +54,13 @@
   }
 
   async function load() {
-    return await transaction('readonly', store => store.get(KEY)) || null;
+    const saved = await transaction('readonly', store => store.get(KEY)) || null;
+    // 24 saati aşan yarım kalmış müşteri tasarımları tekliflere taşınmaz.
+    if (saved && Date.now() - saved.savedAt > 24 * 60 * 60 * 1000) {
+      await clear();
+      return null;
+    }
+    return saved;
   }
 
   async function clear() {
