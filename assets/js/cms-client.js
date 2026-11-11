@@ -790,6 +790,28 @@
         });
         if (file) fd.set('design_file', file, file.name); else fd.delete('design_file');
 
+        const hasStudioPreview = !!sessionStorage.getItem('nizamlar_custom_preview');
+        if (hasStudioPreview) {
+          if (!window.NizamlarStudioTransfer) {
+            return showError('Tasarım aktarım modülü bulunamadı. Lütfen tasarımınızı yeniden hazırlayın.');
+          }
+          let saved;
+          try {
+            saved = await window.NizamlarStudioTransfer.load();
+          } catch (err) {
+            return showError('Tasarım dosyası okunamadı: ' + (err.message || err));
+          }
+          if (!saved || !saved.previewBlob || !saved.previewBlob.size) {
+            return showError('Ürün üzerindeki tasarım görseli bulunamadı. Teklif göndermeden önce tasarımı yeniden oluşturun.');
+          }
+          fd.set('preview_file', saved.previewBlob, 'nizamlar-urun-onizleme.png');
+          fd.set('studio_preview', '1');
+          // Formdan ayrıca dosya seçilmişse müşterinin son seçimi önceliklidir.
+          if (!file && saved.originalFile) {
+            fd.set('design_file', saved.originalFile, saved.originalFile.name || 'orijinal-tasarim.png');
+          }
+        }
+
         const btn = form.querySelector('button[type="submit"]');
         const label = btn ? btn.innerHTML : '';
         if (btn) { btn.disabled = true; btn.textContent = 'Gönderiliyor...'; }
@@ -802,6 +824,10 @@
             if (modal) modal.classList.add('active');
             else alert('Teklif talebiniz alındı. Ekibimiz en kısa sürede sizinle iletişime geçecektir.');
             form.reset();
+            if (hasStudioPreview) {
+              sessionStorage.removeItem('nizamlar_custom_preview');
+              window.NizamlarStudioTransfer.clear().catch(err => console.warn('Tasarım temizleme:', err));
+            }
             const st = document.querySelector('#file-upload-status'); if (st) st.innerHTML = '';
           } else {
             const fieldMsg = json && json.fields ? ' ' + Object.values(json.fields).join(' ') : '';

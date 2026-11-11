@@ -28,12 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     } elseif ($_POST['action'] === 'delete') {
         $id = (int)$_POST['id'];
-        $q = DB::fetch("SELECT `file_url` FROM `quote_requests` WHERE `id` = :id", [':id' => $id]);
-        if ($q && !empty($q['file_url'])) {
-            parse_str(parse_url($q['file_url'], PHP_URL_QUERY) ?? '', $qp);
-            $fn = $qp['file'] ?? basename($q['file_url']);
-            $fp = PRIVATE_QUOTES_DIR . '/' . basename($fn);
-            if (file_exists($fp)) @unlink($fp);
+        $q = DB::fetch("SELECT `file_url`, `preview_file_url` FROM `quote_requests` WHERE `id` = :id", [':id' => $id]);
+        // İki dosyayı da yalnızca ilgili teklif silindiğinde temizle.
+        foreach (['file_url', 'preview_file_url'] as $key) {
+            if ($q && !empty($q[$key])) {
+                parse_str(parse_url($q[$key], PHP_URL_QUERY) ?? '', $qp);
+                $fn = $qp['file'] ?? basename($q[$key]);
+                $fp = PRIVATE_QUOTES_DIR . '/' . basename($fn);
+                if (is_file($fp)) @unlink($fp);
+            }
         }
         DB::execute("DELETE FROM `quote_requests` WHERE `id` = :id", [':id' => $id]);
         $success = "Talep #{$id} silindi.";
@@ -160,13 +163,25 @@ $quotes = DB::fetchAll($sql, $params);
                 <?php endif; ?>
               </td>
               <td>
+                <?php if (!empty($q['preview_file_url'])): ?>
+                  <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:8px;">
+                    <a href="/admin/quote-file.php?id=<?= (int)$q['id'] ?>&amp;kind=preview&amp;view=1"
+                       target="_blank" rel="noopener" title="Ürün üzerindeki tasarımı büyüt">
+                      <img src="/admin/quote-file.php?id=<?= (int)$q['id'] ?>&amp;kind=preview&amp;view=1"
+                           alt="Teklif #<?= (int)$q['id'] ?> ürün mockup önizlemesi" loading="lazy"
+                           style="width:100px;height:112px;object-fit:contain;border-radius:6px;border:1px solid rgba(178,148,96,.4);background:#1a1b1d;">
+                    </a>
+                    <a href="/admin/quote-file.php?id=<?= (int)$q['id'] ?>&amp;kind=preview"
+                       class="adm-btn adm-btn-secondary adm-btn-sm">Mockup PNG indir</a>
+                  </div>
+                <?php endif; ?>
                 <?php if (!empty($q['file_url'])): ?>
-                  <a href="/admin/quote-file.php?id=<?= $q['id'] ?>" class="adm-btn adm-btn-secondary adm-btn-sm" title="<?= esc($q['file_name']) ?>">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    <span>İndir (<?= round(($q['file_size'] ?? 0) / 1024 / 1024, 2) ?> MB)</span>
+                  <a href="/admin/quote-file.php?id=<?= (int)$q['id'] ?>"
+                     class="adm-btn adm-btn-secondary adm-btn-sm" title="<?= esc($q['file_name']) ?>">
+                    Orijinal tasarımı indir (<?= round(($q['file_size'] ?? 0)/1024/1024, 2) ?> MB)
                   </a>
-                <?php else: ?>
-                  <span style="font-size: 11px; color: var(--adm-text-dim);">Dosya yok</span>
+                <?php elseif (empty($q['preview_file_url'])): ?>
+                  <span style="font-size:11px;color:var(--adm-text-dim);">Dosya yok</span>
                 <?php endif; ?>
               </td>
               <td>

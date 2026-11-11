@@ -30,6 +30,7 @@
     imageDataUrl: null,
     imageFileName: null,
     imageFileSize: null,
+    originalFile: null,
     activeSampleId: null,
     naturalWidth: 1,
     naturalHeight: 1,
@@ -979,7 +980,8 @@
           const safeSvg = sanitizeSvgString(e.target.result);
           const blob = new Blob([safeSvg], { type: 'image/svg+xml' });
           const safeUrl = URL.createObjectURL(blob);
-          loadArtworkFromSrc(safeUrl, file.name, (file.size / (1024 * 1024)).toFixed(2) + ' MB', true);
+          const safeOriginal = new File([blob], file.name, { type: 'image/svg+xml' });
+          loadArtworkFromSrc(safeUrl, file.name, (file.size / (1024 * 1024)).toFixed(2) + ' MB', true, safeOriginal);
           showToast('Vektör SVG dosyanız güvenle yüklendi.');
         } catch (err) {
           alert('SVG dosyası işlenirken hata oluştu: ' + err.message);
@@ -989,7 +991,7 @@
     } else {
       const reader = new FileReader();
       reader.onload = (e) => {
-        loadArtworkFromSrc(e.target.result, file.name, (file.size / (1024 * 1024)).toFixed(2) + ' MB', false);
+        loadArtworkFromSrc(e.target.result, file.name, (file.size / (1024 * 1024)).toFixed(2) + ' MB', false, file);
         showToast('Tasarımınız başarıyla yüklendi.');
       };
       reader.readAsDataURL(file);
@@ -997,7 +999,7 @@
   }
 
   // Görsel Kaynağından Yükleme ve Akıllı Başlangıç Konumlandırma
-  function loadArtworkFromSrc(src, name = 'Özel Tasarım Dosyası', sizeText = '', isSvg = false) {
+  function loadArtworkFromSrc(src, name = 'Özel Tasarım Dosyası', sizeText = '', isSvg = false, originalFile = null) {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
@@ -1005,6 +1007,7 @@
       state.imageDataUrl = src;
       state.imageFileName = name;
       state.imageFileSize = sizeText;
+      state.originalFile = originalFile;
       state.naturalWidth = img.naturalWidth || 600;
       state.naturalHeight = img.naturalHeight || 600;
 
@@ -1039,6 +1042,7 @@
     state.imageDataUrl = null;
     state.imageFileName = null;
     state.imageFileSize = null;
+    state.originalFile = null;
     state.activeSampleId = null;
 
     if (dom.artworkImg) dom.artworkImg.src = '';
@@ -1347,7 +1351,7 @@
 
     // 13. "Bu Tasarımla Teklif İste" Butonu
     if (dom.btnQuote) {
-      dom.btnQuote.addEventListener('click', () => {
+      dom.btnQuote.addEventListener('click', async () => {
         if (!state.image) {
           alert('Lütfen önce bir tasarım yükleyin veya örnek tasarımlardan birini seçin.');
           return;
@@ -1372,7 +1376,6 @@
           scalePercent: Math.round(state.transform.scale * 100),
           rotationDeg: state.transform.rotation,
           fileName: state.imageFileName || 'Önizleme Tasarımı',
-          imageDataUrl: state.imageDataUrl,
           transform: { ...state.transform },
           blendMode: state.blendMode === 'normal' ? 'DTF Canlı Baskı' : 'Su Bazlı Ekolojik Tuşe',
           // Geriye dönük uyumluluk alanları:
@@ -1384,13 +1387,25 @@
           design_name: state.imageFileName || 'Önizleme Tasarımı'
         };
 
+        const label = dom.btnQuote.innerHTML;
+        dom.btnQuote.disabled = true;
+        dom.btnQuote.textContent = 'Tasarım hazırlanıyor...';
         try {
+          if (!window.NizamlarStudioTransfer) {
+            throw new Error('Tarayıcı tasarım transfer modülü yüklenmedi.');
+          }
+          // Tişört + gerçek kumaş rengi + konumlandırılmış baskı tek PNG.
+          const previewBlob = await exportHighResMockupPng(true);
+          await window.NizamlarStudioTransfer.save(previewBlob, state.originalFile);
           sessionStorage.setItem('nizamlar_custom_preview', JSON.stringify(previewData));
+          window.location.href = '/teklif-al/';
         } catch (err) {
-          console.warn('SessionStorage kayıt uyarısı:', err);
+          console.error('Tasarım aktarımı başarısız:', err);
+          alert('Tasarım görseli teklif formuna aktarılamadı: ' + (err.message || err));
+        } finally {
+          dom.btnQuote.disabled = false;
+          dom.btnQuote.innerHTML = label;
         }
-
-        window.location.href = 'teklif-al/';
       });
     }
 
@@ -1437,7 +1452,7 @@
   }
 
   // Yüksek Çözünürlüklü (2X Retina) Mockup PNG İndirme Motoru
-  async function exportHighResMockupPng() {
+  async function exportHighResMockupPng(asBlob = false) {
     const canvas = document.createElement('canvas');
     canvas.width = 1200;
     canvas.height = 1360;
@@ -1508,6 +1523,15 @@
     ctx.font = '16px "JetBrains Mono", monospace';
     ctx.fillText('nizamlarbaski.com', canvas.width - 40, canvas.height - 30);
     ctx.restore();
+
+    // Teklif akışında dosyayı tarayıcı belleğinde oluştur; indirme yok.
+    if (asBlob) {
+      return await new Promise((resolve, reject) => {
+        try {
+          canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('PNG oluşturulamadı.')), 'image/png');
+        } catch (err) { reject(err); }
+      });
+    }
 
     // 4. İndirme Bağlantısı Tetikle
     const dataUrl = canvas.toDataURL('image/png');

@@ -97,7 +97,33 @@ $fileSize = 0;
 $mimeType = null;
 $fileUrl = null;
 
-$allowedExts = ['pdf', 'ai', 'psd', 'png', 'jpg', 'jpeg', 'svg', 'tif', 'tiff', 'zip', 'rar'];
+$allowedExts = ['pdf', 'ai', 'psd', 'png', 'jpg', 'jpeg', 'webp', 'svg', 'tif', 'tiff', 'zip', 'rar'];
+
+// Mockup PNG önceden doğrulanır; böylece orijinal dosya
+// diske kaydedildikten sonra hatalı bir önizleme nedeniyle yetim kalmaz.
+$studioPreviewRequired = (string)($data['studio_preview'] ?? '') === '1';
+$previewFile = $_FILES['preview_file'] ?? null;
+$hasPreview = is_array($previewFile) && ($previewFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+$previewTargetPath = null;
+$previewFileUrl = null;
+$previewFileName = null;
+$previewFileSize = 0;
+$previewMimeType = null;
+if ($studioPreviewRequired && !$hasPreview) {
+    json_response(['success' => false, 'error' => 'Canlı tasarım görseli eksik. Teklif kaydedilmedi.'], 422);
+}
+if ($hasPreview) {
+    if ($previewFile['error'] !== UPLOAD_ERR_OK) {
+        json_response(['success' => false, 'error' => 'Ürün görseli yüklenemedi. Lütfen tekrar deneyin.'], 400);
+    }
+    if (($previewFile['size'] ?? 0) <= 0 || $previewFile['size'] > MAX_UPLOAD_BYTES) {
+        json_response(['success' => false, 'error' => 'Ürün görseli boş veya 25 MB sınırını aşıyor.'], 400);
+    }
+    if (strtolower(pathinfo($previewFile['name'] ?? '', PATHINFO_EXTENSION)) !== 'png'
+        || !validate_file_content($previewFile['tmp_name'], 'png')) {
+        json_response(['success' => false, 'error' => 'Ürün görseli geçerli bir PNG dosyası değil.'], 400);
+    }
+}
 
 if (isset($_FILES['design_file']) && $_FILES['design_file']['error'] !== UPLOAD_ERR_NO_FILE) {
     $file = $_FILES['design_file'];
@@ -152,6 +178,25 @@ if (isset($_FILES['design_file']) && $_FILES['design_file']['error'] !== UPLOAD_
     $fileUrl = '/admin/quote-file.php?file=' . urlencode($storedFileName);
 }
 
+// Ürün üzerindeki tasarımın tamamlanmış PNG görüntüsü; orijinal dosyadan farklı isimle saklanır.
+if ($hasPreview) {
+    if (!is_dir(PRIVATE_QUOTES_DIR) &&
+        !@mkdir(PRIVATE_QUOTES_DIR, 0755, true) && !is_dir(PRIVATE_QUOTES_DIR)) {
+        if (!empty($targetPath) && is_file($targetPath)) @unlink($targetPath);
+        json_response(['success' => false, 'error' => 'Ürün görseli için depolama alanı açılamadı.'], 500);
+    }
+    $previewStoredName = bin2hex(random_bytes(16)) . '.png';
+    $previewTargetPath = PRIVATE_QUOTES_DIR . '/' . $previewStoredName;
+    if (!move_uploaded_file($previewFile['tmp_name'], $previewTargetPath)) {
+        if (!empty($targetPath) && is_file($targetPath)) @unlink($targetPath);
+        json_response(['success' => false, 'error' => 'Ürün görseli kaydedilemedi. Teklif gönderilmedi.'], 500);
+    }
+    $previewFileUrl = '/admin/quote-file.php?file=' . rawurlencode($previewStoredName);
+    $previewFileName = 'urun-onizleme.png';
+    $previewFileSize = (int) $previewFile['size'];
+    $previewMimeType = 'image/png';
+}
+
 // 5. Veritabanına Kayıt (Prepared Statement)
 try {
     $ipHash = hash('sha256', get_client_ip());
@@ -159,11 +204,13 @@ try {
     $query = "INSERT INTO `quote_requests` (
         `created_at`, `status`, `customer_name`, `company_name`, `phone`, `email`,
         `print_type`, `quantity`, `description`, `file_url`, `file_name`, `file_size`,
-        `mime_type`, `source_ip_hash`
+        `mime_type`, `preview_file_url`, `preview_file_name`, `preview_file_size`,
+        `preview_mime_type`, `source_ip_hash`
     ) VALUES (
         NOW(), 'Yeni', :name, :company, :phone, :email,
         :print_type, :quantity, :description, :file_url, :file_name, :file_size,
-        :mime_type, :ip_hash
+        :mime_type, :preview_file_url, :preview_file_name, :preview_file_size,
+        :preview_mime_type, :ip_hash
     )";
 
     $params = [
@@ -178,6 +225,10 @@ try {
         ':file_name'   => $origFileName,
         ':file_size'   => $fileSize,
         ':mime_type'   => $mimeType,
+        ':preview_file_url' => $previewFileUrl,
+        ':preview_file_name' => $previewFileName,
+        ':preview_file_size' => $previewFileSize,
+        ':preview_mime_type' => $previewMimeType,
         ':ip_hash'     => $ipHash
     ];
 
@@ -202,7 +253,10 @@ try {
                     "<p><strong>Açıklama & Detaylar:</strong><br>" . nl2br(esc($description)) . "</p>";
 
         if ($origFileName) {
-            $mailBody .= "<p><strong>Ekli Tasarım Dosyası:</strong> " . esc($origFileName) . " (" . round($fileSize / 1024 / 1024, 2) . " MB)</p>";
+            $mailBody .= "<p><strong>Orijinal Tasarım Dosyası:</strong> " . esc($origFileName) . " (" . round($fileSize / 1024 / 1024, 2) . " MB)</p>";
+        }
+        if ($previewFileUrl) {
+            $mailBody .= "<p><strong>Ürün Mockup Önizlemesi:</strong> PNG dosyası yönetim panelinde mevcut.</p>";
         }
 
         $mailBody .= "<hr><p><small>Bu mesaj Nizamlar Baskı web sitesi üzerinden iletilmiştir. Yönetim panelinden talebi inceleyebilirsiniz.</small></p>";
@@ -225,6 +279,9 @@ try {
     // Yüklenen dosya varsa temizle
     if (!empty($targetPath) && file_exists($targetPath)) {
         @unlink($targetPath);
+    }
+    if (!empty($previewTargetPath) && file_exists($previewTargetPath)) {
+        @unlink($previewTargetPath);
     }
     // TALEP KAYDEDİLMEDİĞİ İÇİN HİÇBİR KOŞULDA BAŞARI DÖNÜLEMEZ
     json_response([
