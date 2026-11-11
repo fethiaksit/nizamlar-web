@@ -70,6 +70,33 @@ echo "OK: teklif sayfasi scriptleri eklendi (canli menu korundu).\n";
 PHP
 php -l "$WORK/patch-quote-html.php"
 
+cat > "$WORK/patch-home-cache.php" <<'PHP'
+<?php
+// Daha önceki menu scriptini koru; yalnızca değişen JS'ler için cache yenile.
+declare(strict_types=1);
+$path = $argv[1];
+$html = file_get_contents($path);
+if ($html === false) { fwrite(STDERR, "Ana sayfa birlesimi okunamadi.\n"); exit(1); }
+foreach (['main.js', 'cms-client.js', 'live-preview.js'] as $script) {
+    $rx = '~<script\\b[^>]*\\bsrc=["\\\'][^"\\\']*assets/js/' .
+        preg_quote($script, '~') . '(?:\\?[^"\\\']*)?["\\\'][^>]*>\\s*</script>~i';
+    $count = 0;
+    $html = preg_replace($rx,
+        '<script src="/assets/js/' . $script . '?v=quote-preview-1111"></script>',
+        $html, 1, $count
+    );
+    if ($html === null || $count !== 1) {
+        fwrite(STDERR, "Ana sayfa script etiketi bulunamadi: $script\n");
+        exit(1);
+    }
+}
+if (file_put_contents($path, $html) === false) {
+    fwrite(STDERR, "Ana sayfa birlesimi yazilamadi.\n"); exit(1);
+}
+echo "OK: Ana sayfa JS cache guncellendi.\n";
+PHP
+php -l "$WORK/patch-home-cache.php"
+
 for rel in "${FILES[@]}"; do
   [[ -f "$ROOT/$rel" ]] || { echo "Canli dosya eksik: $rel" >&2; exit 1; }
   mkdir -p "$WORK/base/$(dirname "$rel")" "$WORK/new/$(dirname "$rel")" "$WORK/merged/$(dirname "$rel")"
@@ -94,6 +121,9 @@ for rel in "${FILES[@]}"; do
   elif ! diff3 -m "$ROOT/$rel" "$WORK/base/$rel" "$WORK/new/$rel" > "$WORK/merged/$rel"; then
     echo "BIRLESTIRME CAKISMASI: $rel - hicbir canli dosya degismedi." >&2
     exit 1
+  fi
+  if [[ "$rel" == "index.html" ]]; then
+    php "$WORK/patch-home-cache.php" "$WORK/merged/$rel"
   fi
   if [[ -n "$EXPECT" ]] && ! grep -Fq "$EXPECT" "$WORK/merged/$rel"; then
     echo "HATA: Birlesim yeni kodu korumadi: $rel ($EXPECT)" >&2
