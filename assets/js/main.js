@@ -450,10 +450,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (banner && thumb && title && details) {
         banner.style.display = 'block';
-        if (pData.imageDataUrl) {
-          thumb.src = pData.imageDataUrl;
-        } else {
-          thumb.style.display = 'none';
+        thumb.style.display = 'none';
+        if (window.NizamlarStudioTransfer) {
+          window.NizamlarStudioTransfer.load().then(saved => {
+            if (!saved || !saved.previewBlob) {
+              throw new Error('Önizleme dosyası bulunamadı. Lütfen tasarımı yeniden hazırlayın.');
+            }
+            thumb.src = URL.createObjectURL(saved.previewBlob);
+            thumb.style.display = 'block';
+          }).catch(err => {
+            console.error('Canlı tasarım önizlemesi alınamadı:', err);
+            const status = document.querySelector('#file-upload-status');
+            if (status) status.textContent = err.message || 'Görsel bulunamadı.';
+          });
         }
 
         title.textContent = `${pData.productName || 'Tekstil Ürünü'} (${pData.view || 'Ön'} Görünüm) — ${pData.colorName || ''}`;
@@ -490,12 +499,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fileStatus = document.querySelector('#file-upload-status');
         if (fileStatus && pData.fileName) {
-          fileStatus.innerHTML = `<strong>Canlı Önizlemeden Aktarılan Dosya:</strong> ${pData.fileName} <span style="color:var(--c-gold);">✓ (Önizleme Aktif)</span>`;
+          fileStatus.textContent = `Canlı tasarım: ${pData.fileName}. Oluşturulan ürün görseli teklif ile gönderilecek.`;
         }
 
         if (btnClear) {
           btnClear.addEventListener('click', () => {
             sessionStorage.removeItem('nizamlar_custom_preview');
+            if (window.NizamlarStudioTransfer) window.NizamlarStudioTransfer.clear().catch(console.error);
             banner.style.display = 'none';
             if (notesArea) notesArea.value = '';
             if (fileStatus) fileStatus.innerHTML = '';
