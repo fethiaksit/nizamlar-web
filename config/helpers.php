@@ -121,6 +121,8 @@ function validate_file_content(string $filePath, string $ext): bool {
             return $starts("8BPS");
         case 'png':
             return $starts("\x89PNG\r\n\x1a\n");
+        case 'webp':
+            return $starts("RIFF") && substr($header, 8, 4) === "WEBP";
         case 'jpg':
         case 'jpeg':
             return $starts("\xFF\xD8\xFF");
