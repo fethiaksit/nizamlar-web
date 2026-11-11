@@ -16,8 +16,8 @@ ROOT="$HOME/public_html"
 [[ -f "$ROOT/api/quote.php" && -f "$ROOT/assets/js/cms-client.js" ]] || {
   echo "Canli site klasoru bulunamadi: $ROOT" >&2; exit 1;
 }
-BASE='https://raw.githubusercontent.com/fethiaksit/nizamlar-web/feat/cpanel-php-mysql-migration'
-NEW='https://raw.githubusercontent.com/fethiaksit/nizamlar-web/fix/studio-quote-two-files-20261111'
+BASE='https://raw.githubusercontent.com/fethiaksit/nizamlar-web/69efe7d91ff77bca8b70ad65c865728ca6c99b5e'
+NEW='https://raw.githubusercontent.com/fethiaksit/nizamlar-web/02cbf0683ee9411f63879294953409c42b6d5cc3'
 WORK=$(mktemp -d "$HOME/.quote-merge.XXXXXXXX")
 trap 'rm -rf "$WORK"' EXIT
 
@@ -40,8 +40,27 @@ for rel in "${FILES[@]}"; do
   mkdir -p "$WORK/base/$(dirname "$rel")" "$WORK/new/$(dirname "$rel")" "$WORK/merged/$(dirname "$rel")"
   curl --fail --location --silent --show-error --retry 2 --max-time 45 "$BASE/$rel" -o "$WORK/base/$rel"
   curl --fail --location --silent --show-error --retry 2 --max-time 45 "$NEW/$rel" -o "$WORK/new/$rel"
+  case "$rel" in
+    assets/js/live-preview.js) EXPECT='NizamlarStudioTransfer' ;;
+    assets/js/cms-client.js) EXPECT='preview_file' ;;
+    index.html|teklif-al/index.html) EXPECT='studio-quote-transfer.js' ;;
+    api/quote.php) EXPECT='preview_file_url' ;;
+    *) EXPECT='' ;;
+  esac
+  if [[ -n "$EXPECT" ]] && ! grep -Fq "$EXPECT" "$WORK/new/$rel"; then
+    echo "HATA: GitHub yeni surumunda beklenen kod yok: $rel ($EXPECT)" >&2
+    echo "Bu kontrol basarisizken kurulum yapilmaz." >&2
+    exit 1
+  fi
   if ! diff3 -m "$ROOT/$rel" "$WORK/base/$rel" "$WORK/new/$rel" > "$WORK/merged/$rel"; then
     echo "BIRLESTIRME CAKISMASI: $rel - hicbir canli dosya degismedi." >&2
+    exit 1
+  fi
+  if [[ -n "$EXPECT" ]] && ! grep -Fq "$EXPECT" "$WORK/merged/$rel"; then
+    echo "HATA: Birlesim yeni kodu korumadi: $rel ($EXPECT)" >&2
+    echo "YENI KOD satirlari:"
+    grep -Fn "$EXPECT" "$WORK/new/$rel" | head -3 || :
+    echo "Canli siteye dokunulmadi." >&2
     exit 1
   fi
   echo "OK: $rel"
