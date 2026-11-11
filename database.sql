@@ -295,6 +295,10 @@ CREATE TABLE IF NOT EXISTS `quote_requests` (
   `file_name` VARCHAR(255) DEFAULT NULL,
   `file_size` BIGINT DEFAULT 0,
   `mime_type` VARCHAR(100) DEFAULT NULL,
+  `preview_file_url` VARCHAR(255) DEFAULT NULL,
+  `preview_file_name` VARCHAR(255) DEFAULT NULL,
+  `preview_file_size` BIGINT NOT NULL DEFAULT 0,
+  `preview_mime_type` VARCHAR(100) DEFAULT NULL,
   `admin_notes` TEXT DEFAULT NULL,
   `source_ip_hash` VARCHAR(64) DEFAULT NULL,
   INDEX `idx_quote_status_date` (`status`, `created_at`)
