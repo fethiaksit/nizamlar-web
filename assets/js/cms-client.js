@@ -805,6 +805,7 @@
             return showError('Ürün üzerindeki tasarım görseli bulunamadı. Teklif göndermeden önce tasarımı yeniden oluşturun.');
           }
           fd.set('preview_file', saved.previewBlob, 'nizamlar-urun-onizleme.png');
+          fd.set('studio_preview', '1');
           // Formdan ayrıca dosya seçilmişse müşterinin son seçimi önceliklidir.
           if (!file && saved.originalFile) {
             fd.set('design_file', saved.originalFile, saved.originalFile.name || 'orijinal-tasarim.png');
